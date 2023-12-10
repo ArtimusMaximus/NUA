@@ -33,8 +33,11 @@ export default function Login()
 
         const response = await fetch(`${server}/login`, {
             method: 'POST',
+            mode: 'cors',
+            credentials: "same-origin",
             headers: {
-                "Content-Type" : "application/json"
+                "Content-Type" : "application/json",
+
             },
             body: JSON.stringify(loginInfo)
         });
@@ -50,6 +53,8 @@ export default function Login()
 
         } catch(err) {
             // setErr('flex')
+            handleErr();
+            setSpinner("");
             console.error(err.code)
         }
 
