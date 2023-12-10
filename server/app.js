@@ -41,6 +41,7 @@ app.post('/login', (req, res) => {
     console.log(req.body);
 
     if (req.body.username === 'a' && req.body.password === 'a') {
+        // res.header('Access-Control-Allow-Origin', 'the ip address');
         res.sendStatus(200)
     } else {
         res.sendStatus(500)
