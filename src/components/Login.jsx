@@ -57,7 +57,7 @@ export default function Login()
 
     return (
         <>
-            <div className="flex flex-col my-auto justify-evenly">
+            <div className="flex flex-col my-auto justify-evenly w-fit">
                 <label htmlFor="username">Username: </label>
                 <input type="text" name="username" className="input" onChange={handleChange} />
                 <label htmlFor="username">Password: </label>
