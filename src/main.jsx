@@ -1,9 +1,12 @@
 import React from 'react';
-import ReactDOM from 'react-dom/client';
 import App from './App.jsx';
-import './index.css'
-import Dashboard from './components/Dashboard.jsx';
+import './index.css';
+import AdminConsole from './components/AdminConsole.jsx';
 import Login from './components/Login.jsx';
+import Devices from './components/Devices.jsx';
+import CronManager from './components/CronManager.jsx';
+import Settings from './components/Settings.jsx';
+import SiteSettings from './components/SiteSettings.jsx';
 import { createRoot } from 'react-dom/client';
 import {
   BrowserRouter, Routes, Route
@@ -19,9 +22,12 @@ root.render(
     <BrowserRouter>
         <Routes>
           <Route path="/" element={<App />}>
-            <Route path="/" element={<Login />} />
-            <Route path="/dashboard" element={<Dashboard />} />
-
+            {/* <Route path="/" element={<Login />} /> */}
+            <Route path="/" element={<AdminConsole />} />
+            <Route path="/sitesettings" element={<SiteSettings />} />
+            <Route path="/:id" element={<Settings />} />
+            <Route path="/:id/cronmanager" element={<CronManager />} />
+            {/* <Route path="/adminconsole" element={<AdminConsole />} /> */}
           </Route>
         </Routes>
       </BrowserRouter>

@@ -1,0 +1,39 @@
+datasource db {
+  url      = "file: nodeunifi.db"
+  provider = "sqlite"
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Credentials {
+  id          Int          @id @default(autoincrement())
+  username    String
+  password    String
+  hostname    String
+  port        Int
+  sslverify   Boolean
+}
+
+model Device {
+  id            Int          @id @default(autoincrement())
+  name          String
+  macAddress    String
+  active        Boolean
+  createdAt     DateTime     @default(now())
+  crons         Cron[]
+
+}
+
+model Cron {
+  id          Int          @id @default(autoincrement())
+  createdAt   DateTime     @default(now())
+  crontime    String
+  crontype    String
+  jobName     String?
+  device      Device?      @relation(fields: [deviceId], references: [id])
+  deviceId    Int?
+  toggleCron  Boolean?
+}
+

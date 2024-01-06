@@ -1,0 +1,190 @@
+import { useEffect, useRef, useState } from 'react';
+import Devices from "./Devices";
+import { IoAddCircleOutline } from "react-icons/io5";
+
+
+
+const device = {
+    name: '',
+    macAddress: '',
+    active: false,
+    url: '',
+    id: '',
+}
+
+
+export default function AdminConsole()
+{
+const [inputData, setInputData] = useState({
+    active: false,
+    // id: Math.floor(Math.random()*99999),
+});
+const [macData, setMacData] = useState({});
+const [validationError, setValidationError] = useState(false);
+const [toggleReRender, setToggleReRender] = useState(false);
+const macRef = useRef();
+const deviceNameRef = useRef();
+
+const timer = t => new Promise(res => setTimeout(res, t));
+
+const macRegex = /^([0-9A-F]{2}:){5}[0-9A-F]{2}$/i;
+function validateMacAddress(mac) {
+    return macRegex.test(mac)
+}
+
+const handleRenderToggle = () => {
+    setToggleReRender(prev => !prev)
+}
+    const handleInput = e => {
+        setValidationError(false)
+        setInputData({
+            ...inputData,
+            [e.target.name]: e.target.value,
+            // url: `${e.target.name+inputData.id}`,
+        })
+        // console.log(inputData);
+    }
+    const handleAddMacAddresses = async () => {
+        try {
+            if (validateMacAddress(inputData.macAddress)) {
+                setValidationError(false)
+            } else {
+                setValidationError(true)
+                timer(3000).then(() => setValidationError(false))
+                return
+            }
+            const submitData = await fetch('/addmacaddresses', {
+                method: 'POST',
+                mode: 'cors',
+                headers: {
+                    "Content-Type" : "application/json"
+                },
+                body: JSON.stringify(inputData)
+            });
+            if (submitData.ok) {
+                const returnData = await submitData.json();
+                console.log(returnData);
+                macRef.current.value = '';
+                deviceNameRef.current.value = '';
+                handleRenderToggle();
+            }
+        } catch (error) {
+            console.error(error);
+        }
+    }
+
+// useEffect(() => {
+//     // handleCommand2();
+//     const getMacAddresses = async () => {
+//         try {
+//             const response = await fetch('/getmac');
+//             const macAddressData = await response.json()
+//             console.log('macADdressData:  ', macAddressData);
+
+//             setMacData(macAddressData)
+//         //    if (response.ok) {
+//         //    }
+
+//         } catch (error) {
+//             console.log(error);
+//         }
+//         // const parseMacAddress = JSON.parse(macAddressData)
+//         // console.log('parseMacADdress: ',);
+
+//         // const macAddressArray = parseMacAddress.split(',');
+//         // console.log('macAddressArray: ', macAddressArray);
+//     }
+//     getMacAddresses()
+// }, [])
+
+useEffect(() => {
+    // console.log('parent component fired off ', toggleReRender);
+    const handleGetMacAddresses = async () => {
+        try {
+            const response = await fetch('/getmacaddresses', {
+                method: 'GET',
+                mode: 'cors',
+            });
+            if (response.ok) {
+                const data = await response.json();
+                console.log(data);
+                setMacData(data ? data : {});
+            }
+        } catch (error) {
+            console.error(error);
+        }
+    }
+    handleGetMacAddresses();
+
+}, [toggleReRender])
+
+// useEffect(() => {
+//     console.log('fetch collections useEffect fired off');
+//     const fetchCollections = async () => {
+//         try {
+//             const response = await fetch('/collections')
+//             if (response.ok) {
+//                 const responseData = await response.json();
+//                 console.log(responseData);
+//             }
+//         } catch (error) {
+//             if (error) throw error;
+//         }
+//     }
+//     fetchCollections();
+// }, [])
+
+    return (
+        <>
+            <div className="grid mx-auto grid-flow-row gap-6 w-full">
+
+            <Devices data={macData && macData} toggleReRender={toggleReRender} handleRenderToggle={handleRenderToggle} />
+                    <div className="flex flex-row items-center justify-center p-6 w-[350px] mx-auto">
+                    <details className="collapse bg-base-200 hover:bg-base-300">
+                        <summary className="collapse-title text-xl font-medium">Add Mac Address <div className="absolute right-5 top-4">&#9660;</div></summary>
+                        {/* <div className={`flex flex-col items-center justify-center p-6 gap-4 border rounded`}> */}
+                        <div className="collapse-content">
+
+
+                        <div className={`flex flex-col items-center justify-center p-6 gap-4 border rounded-lg shadow overflow-hidden dark:border-gray-700 dark:shadow-gray-900`}>
+                            <div className="flex flex-col">
+                                <label htmlFor="Mac Address">Mac Address:</label>
+                                <input
+                                    name="macAddress"
+                                    className={`input ${validationError ? 'border-error' : ''}`}
+                                    onChange={handleInput}
+                                    ref={macRef}
+                                    placeholder="01:a2:3b:c4:5d:e6"
+                                    />
+                            </div>
+                            <div className="flex flex-col">
+                                <label htmlFor="Device Name">Device Name:</label>
+                                <input
+                                    name="name"
+                                    className="input"
+                                    onChange={handleInput}
+                                    ref={deviceNameRef}
+                                    placeholder="Friendly Name"
+                                    maxLength="30"
+                                    />
+                                    <div className="flex items-center justify-center">
+                                        <IoAddCircleOutline
+                                            className="w-20 h-20 hover:text-accent hover:cursor-pointer my-6"
+                                            onClick={handleAddMacAddresses}
+                                            />
+                                    </div>
+                            </div>
+                        </div>
+                    </div>
+                    </details>
+                </div>
+                <div className={`${validationError ? 'absolute bottom-1 left-[25%] z-50' : 'hidden'} w-1/2 mx-auto`}>
+                    <div role="alert" className={`alert alert-error `}>
+                        <svg xmlns="http://www.w3.org/2000/svg" className="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                        <span>Invalid Mac Address</span>
+                    </div>
+                </div>
+            </div>
+        </>
+    )
+}

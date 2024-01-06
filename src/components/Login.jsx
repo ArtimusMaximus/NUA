@@ -9,7 +9,7 @@ export default function Login()
     const [loginInfo, setLoginInfo] = useState({});
     const [err, setErr] = useState('hidden');
     const navigate = useNavigate();
-    const server = 'http://localhost:4321'
+    const server = 'http://127.0.0.1:4321'
 
     const handleChange = e => {
         setLoginInfo({
@@ -37,7 +37,6 @@ export default function Login()
             credentials: "same-origin",
             headers: {
                 "Content-Type" : "application/json",
-
             },
             body: JSON.stringify(loginInfo)
         });
@@ -45,7 +44,7 @@ export default function Login()
         try {
             if (response.ok) {
                 console.log('navigating you...');
-                navigate('/dashboard')
+                navigate('/adminconsole')
             } else {
                 handleErr();
                 setSpinner("");
@@ -60,9 +59,10 @@ export default function Login()
 
     }
 
+
     return (
         <>
-            <div className="flex flex-col my-auto justify-evenly w-fit">
+            <div className="flex flex-col my-auto justify-center w-fit h-screen">
                 <label htmlFor="username">Username: </label>
                 <input type="text" name="username" className="input" onChange={handleChange} />
                 <label htmlFor="username">Password: </label>
@@ -75,6 +75,8 @@ export default function Login()
                         <span>Warning: Invalid login credentials!</span>
                     </div>
                 </div>
+
+
             </div>
         </>
     )
