@@ -9,7 +9,7 @@ export default function Login()
     const [loginInfo, setLoginInfo] = useState({});
     const [err, setErr] = useState('hidden');
     const navigate = useNavigate();
-    const server = 'http://127.0.0.1:4321'
+    let server;
 
     const handleChange = e => {
         setLoginInfo({
@@ -24,9 +24,9 @@ export default function Login()
         }, 5000)
     }
 
-    useEffect(() => {
+    // useEffect(() => {
 
-    }, [])
+    // }, [])
 
     const handleLogin = async () => {
         setSpinner("loading loading-spinner");

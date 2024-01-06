@@ -531,13 +531,13 @@ app.get('/getcurrenttheme', async (req, res) => {
 
 app.put('/updatetheme', async (req, res) => {
     try {
-        const { newTheme } = req.body;
-        console.log('update theme req.body', newTheme);
+        // const { newTheme } = req.body;
+        console.log('update theme req.body', req.body);
         const updateTheme = await prisma.credentials.update({
             where: {
                 id: 1,
             },
-            data: newTheme
+            data: req.body
         })
         res.json(updateTheme)
     } catch (error) {
