@@ -10,7 +10,7 @@ export default function CronManager()
     const params = useParams();
     const [cron, setCron] = useState({
         crontype: 'allow',
-        // id: parseInt(params.id),
+        id: parseInt(params.id),
         toggleCron: null
     });
     const submitButtonRef = useRef();

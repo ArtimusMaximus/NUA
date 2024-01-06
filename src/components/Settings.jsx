@@ -38,6 +38,9 @@ export default function Settings()
         }
     }
 
+    console.log(params);
+    console.log(idLocation);
+
 
 
 

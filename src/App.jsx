@@ -38,7 +38,7 @@ export default function App() {
         const getTheme = await fetch('/getcurrenttheme');
       if (getTheme.ok) {
         const currentTheme = await getTheme.json();
-        console.log('currentTheme: ', currentTheme);
+        // console.log('currentTheme: ', currentTheme);
         // setThemeValue({ theme: 'dark' });
         document.querySelector('html').dataset.theme = currentTheme;
         setThemeValue(currentTheme);

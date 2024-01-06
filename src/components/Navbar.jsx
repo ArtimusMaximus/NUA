@@ -9,14 +9,13 @@ export default function Navbar({ title, themeValue, callBackChanged })
   const navigate = useNavigate();
   const location = useLocation();
 
-  console.log(themeValue)
 
   const handleNav = () => {
     navigate('/sitesettings');
   }
 
   const updateTheme = async () => {
-    console.log(themeValue);
+
     let theme;
     if (themeValue === 'light') {
       theme = 'dark';
@@ -35,7 +34,7 @@ export default function Navbar({ title, themeValue, callBackChanged })
 
       if (toggleTheme.ok) {
         const response = await toggleTheme.json();
-        console.log('response ', response.theme);
+        // console.log('response ', response.theme);
         callBackChanged();
       }
     } catch (error) {
