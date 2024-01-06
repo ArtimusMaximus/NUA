@@ -251,6 +251,7 @@ export default function CronManager()
                                                             data-jobname={cronData?.jobName}
                                                             data-crontime={cronData?.crontime}
                                                             data-crontype={cronData?.crontype}
+                                                            checked={cronData?.toggleCron}
                                                             // data-macaddress={cronData?.macAddress}
                                                             onClick={e => handleChecked(e)}
                                                         />
