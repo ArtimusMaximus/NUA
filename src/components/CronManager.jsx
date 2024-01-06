@@ -166,13 +166,11 @@ export default function CronManager()
             // submitButtonRef.current.disabled = false
             if (error) throw error;
         }
-
     }
 
     return (
         <>
         <div className="flex flex-col items-center justify-center w-full h-full pb-36">
-            <ReturnToPage title={"Return to Settings Page"} link={`/${params.id}`} />
             <div className="flex flex-row">
                 <h1 className="italic text-3xl text-center my-2 ">Adjust Cron</h1>
                 <a href="https://cron.help" target="_blank" rel="noreferrer" className="link hover:text-info" >

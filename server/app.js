@@ -532,6 +532,10 @@ app.post('/login', (req, res) => {
     }
 });
 
+app.get('**', async (req, res) => {
+    res.sendFile(process.cwd().slice(0, -7) + '/dist/index.html')
+})
+
 const PORT = process.env.PORT || 4322;
 app.listen(PORT, () => {
     console.log(`Server listening on ${PORT}....`)

@@ -108,7 +108,7 @@ export default function Settings()
                                 }) : <span className="loading loading-spinner w-24 h-24"></span>
                             }
                              <li>
-                                <Link to={`/${idLocation}/cronmanager`} className="w-fit hover:cursor-pointer" >
+                                <Link to={`/admin/${idLocation}/cronmanager`} className="w-fit hover:cursor-pointer" >
                                     <div className="btn btn-block">Schedule</div>
                                     {/* <IoAlarmOutline className="hover:text-warning h-12 w-12" /> */}
                                 </Link>

@@ -4,6 +4,7 @@ import './index.css';
 import AdminConsole from './components/AdminConsole.jsx';
 import Login from './components/Login.jsx';
 import Devices from './components/Devices.jsx';
+import NotFound from './components/NotFound.jsx';
 import CronManager from './components/CronManager.jsx';
 import Settings from './components/Settings.jsx';
 import SiteSettings from './components/SiteSettings.jsx';
@@ -25,8 +26,9 @@ root.render(
             {/* <Route path="/" element={<Login />} /> */}
             <Route path="/" element={<AdminConsole />} />
             <Route path="/sitesettings" element={<SiteSettings />} />
-            <Route path="/:id" element={<Settings />} />
-            <Route path="/:id/cronmanager" element={<CronManager />} />
+            <Route path="/admin/:id" element={<Settings />} />
+            <Route path="/admin/:id/cronmanager" element={<CronManager />} />
+            <Route path="*" element={<NotFound />} />
             {/* <Route path="/adminconsole" element={<AdminConsole />} /> */}
           </Route>
         </Routes>

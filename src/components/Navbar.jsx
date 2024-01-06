@@ -11,11 +11,7 @@ export default function Navbar({ title })
 
 
   const handleNav = () => {
-    if (location.pathname === '/') {
-      navigate('/sitesettings')
-    } else if (location.pathname === '/sitesettings') {
-      navigate('/')
-    }
+    navigate('/sitesettings')
   }
 
 

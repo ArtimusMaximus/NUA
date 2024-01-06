@@ -1,8 +1,10 @@
-# React + Vite
+# Node Unifi API
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+This project is intended to provide a easy-to-use web interface for blocking and unblocking Unifi network clients
 
-Currently, two official plugins are available:
+## Features
+* Add/Remove Unifi clients for management using a MAC address.
+* Block or unblock all managed clients with a single click.
+* Schedule to block or unblock managed clients via a cron scheduler.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## Quick Setup

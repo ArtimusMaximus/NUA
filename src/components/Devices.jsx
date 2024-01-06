@@ -6,7 +6,6 @@ import { GoGear } from "react-icons/go";
 import { Link, useNavigate, useParams } from "react-router-dom";
 
 
-
 const device = {
     name: '',
     macAddress: '',
@@ -15,16 +14,13 @@ const device = {
     id: '',
 };
 
-
-
-
 export default function Devices({ data, toggleReRender, handleRenderToggle })
 {
     const navigate = useNavigate();
     const [loading, setLoading] = useState(false);
 
     const handleSchedule = device => {
-        navigate(`/${device}`)
+        navigate(`/admin/${device}`)
     }
 
     const handleToggle = async e => {
