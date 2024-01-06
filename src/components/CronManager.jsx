@@ -28,7 +28,6 @@ export default function CronManager()
         console.log(e.target.checked);
 
         // const deviceId = parseInt(e.target.dataset.checked)
-        const c = e.target.checked
         // const jName = e.target.dataset.jobname
         // console.log('jName: ', jName);
         // setCron({
@@ -60,7 +59,7 @@ export default function CronManager()
                 if (toggleCronOnOff.ok) {
                     const result = await toggleCronOnOff.json();
                     console.log('result', result);
-                    triggerRender();
+                    triggerRender(); // refetch get cron data
                 }
             } catch (error) {
                 if (error) throw error;
@@ -110,7 +109,7 @@ export default function CronManager()
             }
         }
         getCronData();
-    }, [cron, changed])
+    }, [changed])
 
 
 

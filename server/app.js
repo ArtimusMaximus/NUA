@@ -253,7 +253,6 @@ app.put('/blockallmacs', async (req, res) => {
     const updatedData = {
         active: false
     }
-
     try {
         const filtMacs = extractMacs(req.body)
         await blockMultiple(filtMacs);
@@ -314,7 +313,7 @@ app.post('/addschedule', async (req, res) => { // adds cron data specific front 
                 id: id
             }
         })
-        console.log('Device to schedule ', deviceToSchedule)
+        console.log('Device to schedule ', deviceToSchedule) // job creation removed from here spefically to be performed in /togglecron
         // const jobFunction = async (crontype, macAddress) => {
         //     if (crontype === 'allow') {
         //         await unifi.unblockClient(macAddress)
@@ -353,14 +352,34 @@ app.post('/addschedule', async (req, res) => { // adds cron data specific front 
 
 app.post('/getcrondata', async (req, res) => { // fetches cron data specific to front end device
     const { id } = req.body;
-    console.log('id from getcrondata req.body ', id);
+    // console.log('id from getcrondata req.body ', id);
+    // console.log('req.body from /getcrondata ', req.body);
      try {
         const cronData = await prisma.cron.findMany({
             where: {
                 deviceId: id
             }
         })
-        res.json({ cronData: cronData })
+        res.json({ cronData: cronData });
+
+
+        const getMacAddress = await prisma.device.findUnique({ where: { id: id } });
+        const { macAddress } = getMacAddress;
+        const { scheduledJobs } = schedule;
+
+        for (const data of cronData) {
+            console.log('data.jobName ', data.jobName)
+            console.log('data.jobName ', scheduledJobs[data.jobName] === undefined) // jobs not re initiated
+            if (scheduledJobs[data.jobName] === undefined) {
+                // update many and also make async ?
+            }
+        }
+
+        // console.log('jobs ', scheduledJobs[cronData[0].jobName] === undefined);
+
+
+
+
      } catch (error) {
         if (error) throw error;
      }
@@ -388,8 +407,8 @@ app.delete('/deletecron', async (req, res) => {
 app.put('/togglecron', async (req, res) => {
     // const { id, toggleCron, jName, jobName, deviceId, c } = req.body;
     const { id, toggleCron, jobName, crontime, crontype, deviceId } = req.body;
-    console.log('id from req.body: ', id);
-    console.log('req.body: ', req.body);
+    // console.log('id from req.body: ', id);
+    // console.log('req.body: ', req.body);
     // console.log('deviceId from req.body: ', deviceId);
     // console.log('checked(c): ', c);
     // console.log('jName: ', jName);
@@ -421,7 +440,7 @@ app.put('/togglecron', async (req, res) => {
             }
         });
         res.json(updateCronToggle)
-        console.log('updateCronToggle from prisma: ', updateCronToggle);
+        // console.log('updateCronToggle from prisma: ', updateCronToggle);
     } catch (error) {
         if (error) throw error;
     }
