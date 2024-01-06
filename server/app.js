@@ -135,10 +135,9 @@ app.post('/addmacaddresses', async (req, res) => {
     const blockedUsers = await unifi.getBlockedUsers();
     const { name, macAddress, active } = req.body
 
-
     const filterBlockedUsers = blockedUsers.filter((device) => {
         return device.mac === macAddress
-    })
+    });
     if (!filterBlockedUsers.length) {
         try {
             const newMacAddress = await prisma.device.create({
@@ -168,7 +167,6 @@ app.post('/addmacaddresses', async (req, res) => {
             res.send({ message: "There was an error."})
         }
     }
-
 
     // try {
     //     const newMacAddress = await prisma.device.create({
@@ -515,6 +513,37 @@ app.get('/testconnection', async (req, res) => {
     // getAdminLoginInfo();
 });
 
+//~~~~~~~theme~~~~~~~~
+app.get('/getcurrenttheme', async (req, res) => {
+    try {
+        const getTheme = await prisma.credentials.findUnique({
+            where: {
+                id: 1
+            }
+        });
+        const { theme } = getTheme;
+        // console.log('theme: ', theme);
+        res.json(theme);
+    } catch (error) {
+        if (error) throw error;
+    }
+});
+
+app.put('/updatetheme', async (req, res) => {
+    try {
+        const { newTheme } = req.body;
+        console.log('update theme req.body', newTheme);
+        const updateTheme = await prisma.credentials.update({
+            where: {
+                id: 1,
+            },
+            data: newTheme
+        })
+        res.json(updateTheme)
+    } catch (error) {
+        if (error) throw error;
+    }
+});
 
 
 
@@ -525,7 +554,6 @@ app.post('/login', (req, res) => {
     console.log(req.body);
 
     if (req.body.username === 'a' && req.body.password === 'a') {
-        //res.header('Access-Control-Allow-Origin', '192.168.0.250');
         res.sendStatus(200)
     } else {
         res.sendStatus(500)

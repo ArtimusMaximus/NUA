@@ -14,6 +14,7 @@ model Credentials {
   hostname    String
   port        Int
   sslverify   Boolean
+  theme       String?
 }
 
 model Device {
