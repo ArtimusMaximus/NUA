@@ -98,7 +98,7 @@ export default function Devices({ data, toggleReRender, handleRenderToggle })
 
     return (
         <>
-            <div className="flex items-center justify-center w-full h-full sm:w-3/4 lg:w-1/2 mx-auto pb-12 pt-12">
+            <div className="flex items-center justify-center w-full h-full sm:w-3/4 lg:w-1/2 mx-auto pb-12">
                 <div className="flex w-full mx-2">
                     <div className="flex flex-col items-center justify-center w-full h-full mx-auto border rounded-lg shadow overflow-hidden border-neutral shadow-base-300 m-8">
                         <div className="flex w-full mt-2 justify-around">
@@ -121,7 +121,7 @@ export default function Devices({ data, toggleReRender, handleRenderToggle })
                                                             <IoEllipseOutline
                                                                 data-name={`${device?.id}`}
                                                                 className={`${device?.active ? 'text-green-500' : 'text-red-500'} animate-pulse w-8 h-8 z-50`}
-                                                                />
+                                                                />     
                                                             {device?.name}
 
                                                             {/* <div
@@ -138,6 +138,13 @@ export default function Devices({ data, toggleReRender, handleRenderToggle })
                                                                 onClick={() => handleSchedule(device?.id)}
                                                                 name={`${device?.id}`}
                                                                 />
+                                                        <div>
+                                                            <Link to={`/admin/${device?.id}/cronmanager`} className="w-fit hover:cursor-pointer" >
+                                                                <div className="btn btn-block">Schedule</div>
+                                                                {/* <IoAlarmOutline className="hover:text-warning h-12 w-12" /> */}
+                                                            </Link>
+                                                        </div>
+                                                        <div className="btn btn-error btn-block" /*onClick={handleDelete}*/>Delete</div>
                                                     </div>
                                                 </div>
                                             </li>
@@ -146,7 +153,6 @@ export default function Devices({ data, toggleReRender, handleRenderToggle })
                                 })
                             }
                         </ul>
-
                     </div>
                 </div>
             </div>

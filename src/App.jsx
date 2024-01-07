@@ -57,7 +57,7 @@ export default function App() {
   return (
     <>
       <Navbar title={title} themeValue={themeValue} callBackChanged={callBackChanged} />
-      <div className="bg-neutral flex items-center justify-center h-full w-full">
+      <div className="flex items-center justify-center h-full w-full">
         <Outlet />
       </div>
     </>

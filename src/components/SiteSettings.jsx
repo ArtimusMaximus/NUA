@@ -197,129 +197,135 @@ export default function SiteSettings()
 
     return (
         <>
-            <div className="flex items-center justify-center w-full h-full sm:w-3/4 lg:w-1/2 mx-auto border rounded-lg shadow overflow-hidden dark:border-gray-700 dark:shadow-gray-900 flex-col m-8">
-                <div className="flex mt-5"><div className="text-2xl font-bold">Connection Settings</div></div>
-                <div className="divider"></div>
-                <div className="flex flex-col gap-5">
-                    <div className="flex items-center justify-end">
-                        <div>Hostname:</div>
-                        <div className="pl-2">
-                            <label className="form-control w-full max-w-xs">
-                                <input
-                                    type="text"
-                                    placeholder={`${dataExists ? preExistingData?.hostname : 'unifi'}`}
-                                    className="input input-bordered w-full max-w-xs"
-                                    minLength={1}
-                                    maxLength={64}
-                                    name="hostname"
-                                    onChange={e => handleInput(e)}
-                                    ref={hostnameRef}
-                                />
-                            </label>
+            <div className="flex items-center justify-center w-full h-full sm:w-3/4 lg:w-1/2 mx-auto pb-12">
+                <div className="flex w-full mx-2">
+                    <div className="flex flex-col items-center justify-center w-full h-full mx-auto border rounded-lg shadow overflow-hidden border-neutral shadow-base-300 m-8">
+                        <div className="flex w-full mt-2 justify-around">
+                            <div className="text-2xl font-bold">Connection Settings</div>
                         </div>
-                    </div>
-                    <div className="flex items-center justify-end">
-                        <div>Username:</div>
-                        <div className="pl-2">
-                            <label className="form-control w-full max-w-xs">
-                                <input
-                                type="text"
-                                placeholder={`${dataExists ? preExistingData?.username : 'svc_unifi'}`}
-                                className="input input-bordered w-full max-w-xs"
-                                minLength={1}
-                                maxLength={64}
-                                name="username"
-                                onChange={e => handleInput(e)}
-                                ref={usernameRef}
-                            />
-                            </label>
+                        <div className="divider"></div>
+                        <div className="flex flex-col gap-5">
+                            <div className="flex items-center justify-end">
+                                <div>Hostname:</div>
+                                <div className="pl-2">
+                                    <label className="form-control w-full max-w-xs">
+                                        <input
+                                            type="text"
+                                            placeholder={`${dataExists ? preExistingData?.hostname : 'unifi'}`}
+                                            className="input input-bordered w-full max-w-xs"
+                                            minLength={1}
+                                            maxLength={64}
+                                            name="hostname"
+                                            onChange={e => handleInput(e)}
+                                            ref={hostnameRef}
+                                        />
+                                    </label>
+                                </div>
+                            </div>
+                            <div className="flex items-center justify-end">
+                                <div>Username:</div>
+                                <div className="pl-2">
+                                    <label className="form-control w-full max-w-xs">
+                                        <input
+                                        type="text"
+                                        placeholder={`${dataExists ? preExistingData?.username : 'svc_unifi'}`}
+                                        className="input input-bordered w-full max-w-xs"
+                                        minLength={1}
+                                        maxLength={64}
+                                        name="username"
+                                        onChange={e => handleInput(e)}
+                                        ref={usernameRef}
+                                    />
+                                    </label>
+                                </div>
+                            </div>
+                            <div className="flex items-center justify-end">
+                                <div>Password:</div>
+                                <div className="pl-2">
+                                    <label className="form-control w-full max-w-xs">
+                                        <input
+                                            type="password"
+                                            placeholder="Un1qu3"
+                                            className="input input-bordered w-full max-w-xs"
+                                            minLength={1}
+                                            maxLength={64}
+                                            name="password"
+                                            onChange={e => handleInput(e)}
+                                            ref={passwordRef}
+                                        />
+                                    </label>
+                                </div>
+                            </div>
+                            <div className="flex items-center justify-end">
+                                <div>Port:</div>
+                                <div className="pl-2">
+                                    <label className="form-control w-full max-w-xs">
+                                        <input
+                                            type="text"
+                                            placeholder={`${dataExists ? preExistingData?.port : '443'}`}
+                                            className="input input-bordered w-full max-w-xs"
+                                            minLength={1}
+                                            maxLength={5}
+                                            name="port"
+                                            onChange={e => handleInput(e)}
+                                            ref={portRef}
+                                        />
+                                    </label>
+                                </div>
+                            </div>
+                            <div className="flex items-center justify-end">
+                                <div>SSL Verify:</div>
+                                <div className="pl-2">
+                                    <label className="form-control w-full max-w-xs">
+                                        <input
+                                            type="text"
+                                            placeholder={`${dataExists ? preExistingData?.sslverify : 'true'}`}
+                                            className="input input-bordered w-full max-w-xs"
+                                            maxLength={5}
+                                            minLength={4}
+                                            name="sslverify"
+                                            onChange={e => handleInput(e)}
+                                            ref={sslverifyRef}
+                                        />
+                                    </label>
+                                </div>
+                            </div>
                         </div>
-                    </div>
-                    <div className="flex items-center justify-end">
-                        <div>Password:</div>
-                        <div className="pl-2">
-                            <label className="form-control w-full max-w-xs">
-                                <input
-                                    type="password"
-                                    placeholder="Un1qu3"
-                                    className="input input-bordered w-full max-w-xs"
-                                    minLength={1}
-                                    maxLength={64}
-                                    name="password"
-                                    onChange={e => handleInput(e)}
-                                    ref={passwordRef}
-                                />
-                            </label>
-                        </div>
-                    </div>
-                    <div className="flex items-center justify-end">
-                        <div>Port:</div>
-                        <div className="pl-2">
-                            <label className="form-control w-full max-w-xs">
-                                <input
-                                    type="text"
-                                    placeholder={`${dataExists ? preExistingData?.port : '443'}`}
-                                    className="input input-bordered w-full max-w-xs"
-                                    minLength={1}
-                                    maxLength={5}
-                                    name="port"
-                                    onChange={e => handleInput(e)}
-                                    ref={portRef}
-                                />
-                            </label>
-                        </div>
-                    </div>
-                    <div className="flex items-center justify-end">
-                        <div>SSL Verify:</div>
-                        <div className="pl-2">
-                            <label className="form-control w-full max-w-xs">
-                                <input
-                                    type="text"
-                                    placeholder={`${dataExists ? preExistingData?.sslverify : 'true'}`}
-                                    className="input input-bordered w-full max-w-xs"
-                                    maxLength={5}
-                                    minLength={4}
-                                    name="sslverify"
-                                    onChange={e => handleInput(e)}
-                                    ref={sslverifyRef}
-                                />
-                            </label>
+                        <div className="grid grid-flow-row grid-cols-2">
+                            <div
+                                className={`flex m-8 btn ${clicked ? 'btn-disabled' : ''}`}
+
+                                ref={testBtnRef}
+                                onClick={handleTest}
+                            >
+                                Test Connection
+                            </div>
+
+                            <div className={`flex m-8 btn ${locked ? 'hidden' : 'block'}`}>
+                                <GoUnlock
+                                    className={`w-8 h-8 hover:cursor-pointer `}
+                                    onClick={handleSubmit}
+                                    // data-id={cronData?.id}
+                                    // data-jobname={cronData?.jobName}
+                                    // ref={submitButtonRef}
+                                    />
+
+                            </div>
+                            <div
+                                className={`flex m-8 btn ${locked ? 'flex' : 'hidden'}`}
+                                onClick={handlelocked}
+                            >
+                                <GoLock
+                                    className={`items-center justify-center z-10 w-8 h-8 hover:cursor-pointer `}
+
+
+                                    />
+
+                            </div>
                         </div>
                     </div>
                 </div>
-                <div className="grid grid-flow-row grid-cols-2">
-                    <div
-                        className={`flex m-8 btn ${clicked ? 'btn-disabled' : ''}`}
-
-                        ref={testBtnRef}
-                        onClick={handleTest}
-                    >
-                        Test Connection
-                    </div>
-
-                    <div className={`flex m-8 btn ${locked ? 'hidden' : 'block'}`}>
-                        <GoUnlock
-                            className={`w-8 h-8 hover:cursor-pointer `}
-                            onClick={handleSubmit}
-                            // data-id={cronData?.id}
-                            // data-jobname={cronData?.jobName}
-                            // ref={submitButtonRef}
-                            />
-
-                    </div>
-                    <div
-                        className={`flex m-8 btn ${locked ? 'flex' : 'hidden'}`}
-                        onClick={handlelocked}
-                    >
-                        <GoLock
-                            className={`items-center justify-center z-10 w-8 h-8 hover:cursor-pointer `}
-
-
-                            />
-
-                    </div>
-                </div>
-                    {reveal && <Confirmation message={testMessage} alertType={alertType} duration={5000} reveal={reveal} />}
+                {reveal && <Confirmation message={testMessage} alertType={alertType} duration={5000} reveal={reveal} />}
             </div>
         </>
     )
