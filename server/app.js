@@ -190,7 +190,7 @@ app.get('/getdeviceinfo', async (req, res) => {
         const getClientDevices = await unifi.getClientDevices();
         // console.log('Client Data: ', getClientDevices);
         const getDeviceInfo = await prisma.device.findMany();
-        console.log(getDeviceInfo);
+        // console.log('getDeviceInfo from /getdeviceinfo ', getDeviceInfo);
 
         const doMacAddressMatch = (macAddress, array) => {
             return array.some(obj => obj.macAddress === macAddress)
@@ -201,6 +201,20 @@ app.get('/getdeviceinfo', async (req, res) => {
         res.json({ getDeviceInfo, matchedObjects })
     } catch (e) {
         if (e) throw e;
+    }
+});
+
+app.post('/getspecificdevice', async (req, res) => { // fetch individual device (cron manager)
+    const { id } = req.body;
+    try {
+        const deviceInfo = await prisma.device.findUnique({
+            where: {
+                id: id
+            }
+        });
+        res.json(deviceInfo);
+    } catch (error) {
+        if (error) throw error;
     }
 });
 
@@ -362,24 +376,97 @@ app.post('/getcrondata', async (req, res) => { // fetches cron data specific to 
         })
         res.json({ cronData: cronData });
 
-
         const getMacAddress = await prisma.device.findUnique({ where: { id: id } });
         const { macAddress } = getMacAddress;
         const { scheduledJobs } = schedule;
 
         for (const data of cronData) {
             console.log('data.jobName ', data.jobName)
-            console.log('data.jobName ', scheduledJobs[data.jobName] === undefined) // jobs not re initiated
+            console.log('data.jobName === undefined ', scheduledJobs[data.jobName] === undefined) // jobs not re initiated
             if (scheduledJobs[data.jobName] === undefined) {
                 // update many and also make async ?
             }
         }
-
         // console.log('jobs ', scheduledJobs[cronData[0].jobName] === undefined);
+     } catch (error) {
+        if (error) throw error;
+     }
+});
+
+app.get('/checkjobreinitiation', async (req, res) => {
+    try {
+        const previousJobData = await prisma.cron.findMany();
+        const getMacAddress = await prisma.device.findMany();
+
+        const { scheduledJobs } = schedule; // node-schedule
+
+        let matchingIds = [];
+        let newJobNames = [];
+        for (let i=0; i<previousJobData.length; i++) {
+            const matchedMacAddress = getMacAddress.find(
+                (item) => item.id === previousJobData[i].deviceId
+            );
+            if (matchedMacAddress) {
+                matchingIds.push({
+                    ...previousJobData[i],
+                    matchedMacAddress
+                });
+            }
+        }
+
+        // console.log('matchingIds ', matchingIds);
+
+        // let jb;
+        for (const data of matchingIds) {
+            // console.log('data.jobName ', data.jobName);
+            // console.log('data.jobName === undefined ', scheduledJobs[data.jobName] === undefined) // jobs not re initiated
+
+            // console.log('macToPreviousData ', matchingIds);
+            if (scheduledJobs[data.jobName] === undefined && data.toggleCron === true) { // reschedule jobs === undefined
+                // console.log(data.matchedMacAddress.macAddress);
+                // console.log('data.cron ', data.cron);
+
+                let reInitiatedJob = schedule.scheduleJob(data.crontime, () => jobFunction(data.crontype, data.matchedMacAddress.macAddress));
+                // console.log('reInitiatedJob', reInitiatedJob);
+                // jb = schedule.scheduleJob(data.cron, () => jobFunction(data.crontype, data.macAddress));
+                newJobNames.push({...data, jobName: reInitiatedJob.name})
+            }
+        }
+        // console.log('newJobIds ', newJobNames);
+
+        let updated = [];
+        for (let i=0; i<newJobNames.length; i++) {
+            const updateNewJobNames = await prisma.cron.update({
+                where: {
+                    id: newJobNames[i].id
+                },
+                data: {
+                    jobName: newJobNames[i].jobName,
+
+                }
+            });
+            updated.push(updateNewJobNames)
+        }
 
 
-
-
+        // const newJobNameIds = matchingIds.map(job => job.id)
+        // const newJobNameData = newJobNames.map(jobName => jobName.jobName);
+        // const updateNewJobNames = await prisma.cron.updateMany({
+        //     where: {
+        //         id: {
+        //             in: newJobNameIds
+        //         }
+        //     },
+        //     data: {
+        //         jobName: {
+        //             set: newJobNameData
+        //         }
+        //     }
+        // });
+        res.json({ previousJobData: previousJobData, getMacAddress: getMacAddress, updated: updated });
+        // res.json({ previousJobData: previousJobData, getMacAddress: getMacAddress, updateNewJobNames: updateNewJobNames });
+        // console.log('reInJob ', jb);
+        // console.log('jobs ', scheduledJobs[previousJobData[0].jobName] === undefined);
      } catch (error) {
         if (error) throw error;
      }

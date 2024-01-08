@@ -12,6 +12,7 @@ export default function App() {
     const [themeValue, setThemeValue] = useState('');
     const [changed, setChanged] = useState(false);
 
+
     // const dataThemeRef = useRef()
 
     const callBackChanged = () => {
@@ -19,8 +20,7 @@ export default function App() {
     }
 
 
-  useEffect(() => {
-    // console.log(location.pathname);
+  useEffect(() => { // title setter for navbar
     if (location.pathname === '/sitesettings') {
       setTitle({
         title: 'Site Settings'
@@ -32,21 +32,15 @@ export default function App() {
     }
   }, [location.pathname]);
 
-  useEffect(() => {
+  useEffect(() => { // get theme settings
     const getThemeSettings = async () => {
       try {
         const getTheme = await fetch('/getcurrenttheme');
       if (getTheme.ok) {
         const currentTheme = await getTheme.json();
-        // console.log('currentTheme: ', currentTheme);
-        // setThemeValue({ theme: 'dark' });
         document.querySelector('html').dataset.theme = currentTheme;
         setThemeValue(currentTheme);
       }
-      // else {
-      //   setThemeValue({ theme: 'light' });
-      //   // setThemeValue({ theme: 'light' });
-      // }
       } catch (error) {
         if (error) throw error;
       }

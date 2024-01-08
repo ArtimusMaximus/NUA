@@ -3,7 +3,6 @@ import Devices from "./Devices";
 import { IoAddCircleOutline } from "react-icons/io5";
 
 
-
 const device = {
     name: '',
     macAddress: '',
@@ -12,29 +11,32 @@ const device = {
     id: '',
 }
 
-
 export default function AdminConsole()
 {
-const [inputData, setInputData] = useState({
-    active: false,
-    // id: Math.floor(Math.random()*99999),
-});
-const [macData, setMacData] = useState({});
-const [validationError, setValidationError] = useState(false);
-const [toggleReRender, setToggleReRender] = useState(false);
-const macRef = useRef();
-const deviceNameRef = useRef();
+    const [inputData, setInputData] = useState({
+        active: false,
+    });
+    const [macData, setMacData] = useState({});
+    const [validationError, setValidationError] = useState(false);
+    const [toggleReRender, setToggleReRender] = useState(false);
+    const [cronJobCheck, setCronJobChecked] = useState({});
+    const [serverRestart, setServerRestart] = useState(true);
+    const macRef = useRef();
+    const deviceNameRef = useRef();
+    const initialized = useRef(false);
 
-const timer = t => new Promise(res => setTimeout(res, t));
+    const timer = t => new Promise(res => setTimeout(res, t));
 
-const macRegex = /^([0-9A-F]{2}:){5}[0-9A-F]{2}$/i;
-function validateMacAddress(mac) {
-    return macRegex.test(mac)
-}
+    const macRegex = /^([0-9A-F]{2}:){5}[0-9A-F]{2}$/i;
+    function validateMacAddress(mac) {
+        return macRegex.test(mac)
+    }
 
-const handleRenderToggle = () => {
-    setToggleReRender(prev => !prev)
-}
+
+
+    const handleRenderToggle = () => { // re-trigger
+        setToggleReRender(prev => !prev)
+    }
     const handleInput = e => {
         setValidationError(false)
         setInputData({
@@ -44,7 +46,7 @@ const handleRenderToggle = () => {
         })
         // console.log(inputData);
     }
-    const handleAddMacAddresses = async () => {
+    const handleAddMacAddresses = async () => { // add mac addresses
         try {
             if (validateMacAddress(inputData.macAddress)) {
                 setValidationError(false)
@@ -73,66 +75,51 @@ const handleRenderToggle = () => {
         }
     }
 
-// useEffect(() => {
-//     // handleCommand2();
-//     const getMacAddresses = async () => {
-//         try {
-//             const response = await fetch('/getmac');
-//             const macAddressData = await response.json()
-//             console.log('macADdressData:  ', macAddressData);
-
-//             setMacData(macAddressData)
-//         //    if (response.ok) {
-//         //    }
-
-//         } catch (error) {
-//             console.log(error);
-//         }
-//         // const parseMacAddress = JSON.parse(macAddressData)
-//         // console.log('parseMacADdress: ',);
-
-//         // const macAddressArray = parseMacAddress.split(',');
-//         // console.log('macAddressArray: ', macAddressArray);
-//     }
-//     getMacAddresses()
-// }, [])
-
-useEffect(() => {
-    // console.log('parent component fired off ', toggleReRender);
-    const handleGetMacAddresses = async () => {
-        try {
-            const response = await fetch('/getmacaddresses', {
-                method: 'GET',
-                mode: 'cors',
-            });
-            if (response.ok) {
-                const data = await response.json();
-                console.log(data);
-                setMacData(data ? data : {});
+    useEffect(() => { // /getmacaddresses
+        // console.log('parent component fired off ', toggleReRender);
+        const handleGetMacAddresses = async () => {
+            try {
+                const response = await fetch('/getmacaddresses', {
+                    method: 'GET',
+                    mode: 'cors',
+                });
+                if (response.ok) {
+                    const data = await response.json();
+                    console.log(data);
+                    setMacData(data ? data : {});
+                }
+            } catch (error) {
+                console.error(error);
             }
-        } catch (error) {
-            console.error(error);
         }
-    }
-    handleGetMacAddresses();
+        handleGetMacAddresses();
 
-}, [toggleReRender])
+    }, [toggleReRender])
 
-// useEffect(() => {
-//     console.log('fetch collections useEffect fired off');
-//     const fetchCollections = async () => {
-//         try {
-//             const response = await fetch('/collections')
-//             if (response.ok) {
-//                 const responseData = await response.json();
-//                 console.log(responseData);
-//             }
-//         } catch (error) {
-//             if (error) throw error;
-//         }
-//     }
-//     fetchCollections();
-// }, [])
+
+    useEffect(() => { // check if server crash & jobs need re-initiation
+        if (!initialized.current) {
+            initialized.current = true;
+            const getCronData = async () => {
+                try {
+                    const cronData = await fetch('/checkjobreinitiation');
+                    if(cronData.ok) {
+                        const cronJobCheckData = await cronData.json();
+                        setCronJobChecked(cronJobCheckData);
+                        console.log('Cron Job Check Data: ', cronJobCheckData);
+                    }
+                } catch (error) {
+                    if (error) throw error;
+                }
+            }
+            getCronData();
+        }
+        // if (serverRestart) {
+        //     getCronData();
+        //     setServerRestart(false);
+        // }
+
+    }, []);
 
     return (
         <>
@@ -144,7 +131,6 @@ useEffect(() => {
                         <summary className="collapse-title text-xl font-medium">Add Mac Address <div className="absolute right-5 top-4">&#9660;</div></summary>
                         {/* <div className={`flex flex-col items-center justify-center p-6 gap-4 border rounded`}> */}
                         <div className="collapse-content">
-
 
                         <div className={`flex flex-col items-center justify-center p-6 gap-4 border rounded-lg shadow overflow-hidden dark:border-gray-700 dark:shadow-gray-900`}>
                             <div className="flex flex-col">

@@ -19,11 +19,13 @@ export default function CronManager()
     const [returnData, setReturnData] = useState(null);
     const [changed, setChanged] = useState(false);
     const [invalidCronMessage, setInvalidCronMessage] = useState({});
+    const [deviceInfo, setDeviceInfo] = useState({});
+
 
     const triggerRender = () => {
         setChanged(prev => !prev);
     }
-    const handleChecked = e => {
+    const handleChecked = e => { // /togglecron
         setChecked(prev => !prev)
         console.log(e.target.checked);
 
@@ -167,13 +169,32 @@ export default function CronManager()
         }
     }
 
+    useEffect(() => { // get current device info (name)
+        const p = parseInt(params.id);
+        const getDeviceData = async () => {
+            const getDeviceName = await fetch('/getspecificdevice', {
+                method: 'POST',
+                mode: 'cors',
+                headers: {
+                    'Content-Type' : 'application/json'
+                },
+                body: JSON.stringify({ id: p })
+            });
+            if (getDeviceName.ok) {
+                const devInfo = await getDeviceName.json();
+                setDeviceInfo(devInfo);
+            }
+        }
+        getDeviceData();
+    }, []);
+
     return (
         <>
             <div className="flex items-center justify-center w-full h-full sm:w-3/4 lg:w-1/2 mx-auto pb-12 pt-12">
                 <div className="flex w-full mx-2">
                     <div className="flex flex-col items-center justify-center w-full h-full mx-auto border rounded-lg shadow overflow-hidden border-neutral shadow-base-300 m-8">
                         <div className="flex mt-8">
-                            <h1 className="italic text-3xl text-center my-2">Adjust Cron</h1>
+                            <h1 className="italic text-3xl text-center my-2">Adjust Cron for device &quot;{deviceInfo?.name}&quot;</h1>
                             <a href="https://cron.help" target="_blank" rel="noreferrer" className="link hover:text-info" >
                                 <GoInfo />
                             </a>
