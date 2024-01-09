@@ -57,8 +57,7 @@ info
     // .then(() => handleUnifiInit(loginData.hostname, loginData.port, loginData.sslverify))
     .then(() => logIntoUnifi(loginData.hostname, loginData.port, loginData.sslverify, loginData.username, loginData.password))
 
-async function getBlockedUsers()
-{
+async function getBlockedUsers() {
     const blockedUsers = await unifi.getBlockedUsers();
     return blockedUsers;
 }
@@ -90,6 +89,18 @@ async function unBlockMultiple(reqBodyArr) {
         }
     }
 }
+async function unblockSingle(reqBodyMac) {
+    try {
+        const result = await unifi.unblockClient(reqBodyMac);
+        if (typeof result === 'undefined' || result.length <= 0) {
+            throw new Error(`Error blocking mac address: ${reqBodyMac}. ${JSON.stringify(result)}`)
+        } else {
+            console.log(`Successfully unblocked ${reqBodyMac}`);
+        }
+    } catch (error) {
+        console.error(error);
+    }
+}
 function extractMacs(body) {
     // console.log(body);
     return body.macData.map(mac => mac.macAddress)
@@ -99,7 +110,7 @@ function validateCron(crontype) {
     console.log('validation func: ', validation)
     return validation;
 }
-const jobFunction = async (crontype, macAddress) => {
+const jobFunction = async (crontype, macAddress) => { // for crons
     if (crontype === 'allow') {
         await unifi.unblockClient(macAddress)
         console.log(`${macAddress} has been unblocked.`);
@@ -112,18 +123,24 @@ const jobFunction = async (crontype, macAddress) => {
 app.get('/getmacaddresses', async (req, res) => {
     try {
         const blockedUsers = await unifi.getBlockedUsers();
-        // console.log(blockedUsers);
-
-        /////////compare our database data with the blocked list, and set the data to acti
         const macData = await prisma.device.findMany();
+        /////////compare our database data with the blocked list, and set the data to active or not
 
         const doMacAddressMatch = (macAddress, array) => {
             return array.some(obj => obj.macAddress === macAddress)
         }
         const matchedObjects = blockedUsers.filter(obj1 => doMacAddressMatch(obj1.mac, macData))
-        console.log("Devices confirmed as blocked and reflected on front end: ", matchedObjects.length);
+        console.log("Devices confirmed as blocked and reflected on added device list: ", matchedObjects.length);
+        // console.log(matchedObjects);
 
-
+        // function compareBlocked(blocked, deviceData) {
+        //     return deviceData.map((device) => {
+        //         const matches = blocked.some(
+        //             (deviceMatches) => deviceMatches.mac === device.macAddress
+        //         )
+        //         return { ...device, active: matches }
+        //     })
+        // }
         res.json({ macData, blockedUsers })
     } catch (error) {
         if(error) throw error;
@@ -133,13 +150,15 @@ app.get('/getmacaddresses', async (req, res) => {
 app.post('/addmacaddresses', async (req, res) => {
 
     const blockedUsers = await unifi.getBlockedUsers();
-    const { name, macAddress, active } = req.body
+    const { name, macAddress } = req.body;
 
     const filterBlockedUsers = blockedUsers.filter((device) => {
-        return device.mac === macAddress
+        return device.mac === macAddress;
     });
-    if (!filterBlockedUsers.length) {
-        try {
+
+    try {
+        if (!filterBlockedUsers.length) {
+
             const newMacAddress = await prisma.device.create({
                 data: {
                     name,
@@ -148,12 +167,8 @@ app.post('/addmacaddresses', async (req, res) => {
                 },
             });
             res.send({ newMacAddress });
-        } catch (error) {
-            if (error) throw error;
-            res.send({ message: "There was an error."})
-        }
-    } else {
-        try {
+        } else {
+
             const newMacAddress = await prisma.device.create({
                 data: {
                     name,
@@ -162,10 +177,10 @@ app.post('/addmacaddresses', async (req, res) => {
                 },
             });
             res.send({ newMacAddress });
-        } catch (error) {
-            if (error) throw error;
-            res.send({ message: "There was an error."})
         }
+    } catch (error) {
+        if (error) throw error;
+        res.send({ message: "There was an error."})
     }
 
     // try {
@@ -183,22 +198,44 @@ app.post('/addmacaddresses', async (req, res) => {
     // }
 });
 
-app.get('/getdeviceinfo', async (req, res) => {
+app.post('/addtodevicelist', async (req, res) => {
+    const { oui, mac, blocked } = req.body; // blocked: true
+    try {
+        const deviceAddedToList = await prisma.device.create({
+                data: {
+                    name: oui,
+                    macAddress: mac,
+                    active: !blocked
+                },
+            });
+            res.send({ deviceAddedToList });
+    } catch (error) {
+        console.error(error);
+    }
+});
+
+app.post('/getdeviceinfo', async (req, res) => {
+
+    const { id } = req.body;
 
     try {
         // getBlockedUsers();
         const getClientDevices = await unifi.getClientDevices();
         // console.log('Client Data: ', getClientDevices);
-        const getDeviceInfo = await prisma.device.findMany();
-        // console.log('getDeviceInfo from /getdeviceinfo ', getDeviceInfo);
+        const getDeviceInfo = await prisma.device.findUnique({
+            where: {
+                id: parseInt(id)
+            }
+        });
 
-        const doMacAddressMatch = (macAddress, array) => {
-            return array.some(obj => obj.macAddress === macAddress)
-        }
-        const matchedObjects = getClientDevices.filter(obj1 => doMacAddressMatch(obj1.mac, getDeviceInfo))
-        // console.log("Device info for settings page: ", matchedObjects);
+        console.log(getDeviceInfo);
+        // getClientDevices.map((device) => {
+        //     console.log(device.mac === getDeviceInfo.macAddress);
+        // }); // investiage why pop os isnt listed on getClientDevices()
+        const allData = getClientDevices.filter(device => device.mac === getDeviceInfo.macAddress);
+        // console.log('allData ', allData);
 
-        res.json({ getDeviceInfo, matchedObjects })
+        res.json(getDeviceInfo)
     } catch (e) {
         if (e) throw e;
     }
@@ -230,7 +267,7 @@ app.put('/updatemacaddressstatus', async (req, res) => { // toggler
         const filterBlockedUsers = blockedUsers.filter((device) => {
             return device.mac === macAddress
         })
-        // console.log('Filtered only blocked users from db: ', filterBlockedUsers);
+        console.log('Filtered only blocked users from db: ', filterBlockedUsers);
         // console.log(blockedUsers);
     ///////////////////////////////////// bash block device command here///////////////
     //////////////////////////////////// to toggle we need to be able to unblock as well
@@ -307,7 +344,31 @@ app.put('/unblockallmacs', async (req, res) => {
     } catch (error) {
         if (error) throw error;
     }
-})
+});
+
+app.post('/unblockmac', async (req, res) => {
+    const { mac, prismaDeviceId } = req.body;
+    console.log(mac);
+    console.log(req.body);
+    try {
+        await unblockSingle(mac);
+        if (prismaDeviceId !== null) {
+            const updateIfOnList = await prisma.device.update({
+                where: {
+                    id: prismaDeviceId
+                },
+                data: {
+                    active: true
+                }
+            });
+            console.log('updated if on list: ', updateIfOnList);
+        }
+
+        res.sendStatus(200);
+    } catch (error) {
+        console.error(error);
+    }
+});
 
 app.delete('/removedevice', async (req, res) => {
     const { id } = req.body
@@ -617,6 +678,16 @@ app.get('/testconnection', async (req, res) => {
         }
     // }
     // getAdminLoginInfo();
+});
+
+app.get('/getallblockeddevices', async (req, res) => {
+    try {
+        const blockedUsers = await getBlockedUsers();
+        const deviceList = await prisma.device.findMany();
+        res.json({ blockedUsers: blockedUsers, deviceList: deviceList })
+    } catch (error) {
+        console.error(error);
+    }
 });
 
 //~~~~~~~theme~~~~~~~~

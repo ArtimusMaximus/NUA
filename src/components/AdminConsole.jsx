@@ -27,8 +27,8 @@ export default function AdminConsole()
 
     const timer = t => new Promise(res => setTimeout(res, t));
 
-    const macRegex = /^([0-9A-F]{2}:){5}[0-9A-F]{2}$/i;
     function validateMacAddress(mac) {
+        const macRegex = /^([0-9A-F]{2}:){5}[0-9A-F]{2}$/i;
         return macRegex.test(mac)
     }
 

@@ -1,9 +1,6 @@
 import { Link, redirect, useNavigate, useParams } from "react-router-dom";
-import { IoReturnUpBackSharp } from "react-icons/io5";
-import { RiDeleteBin6Line } from "react-icons/ri";
 import { useEffect, useRef, useState } from "react";
-import { IoAlarmOutline } from "react-icons/io5";
-import ReturnToPage from "./ReturnToPage";
+
 
 export default function Settings()
 {
@@ -17,7 +14,7 @@ export default function Settings()
 
 
     const handleDelete = async () => {
-        console.log(deviceInfo[0]);
+        console.log(deviceInfo);
         try {
             const submitForDeletion = await fetch('/removedevice', { // end point not yet defined 12/11
                 method: "delete",
@@ -25,7 +22,7 @@ export default function Settings()
                 headers: {
                     "Content-Type" : "application/json"
                 },
-                body: JSON.stringify(deviceInfo[0])
+                body: JSON.stringify(deviceInfo)
             });
             if(submitForDeletion.ok) {
                 const confirmation = await submitForDeletion.json();
@@ -38,41 +35,40 @@ export default function Settings()
         }
     }
 
-    console.log(params);
-    console.log(idLocation);
-
-
-
-
     useEffect(() => {
         const getDeviceInformation = async () => {
             try {
                 const response = await fetch(`/getdeviceinfo`, {
-                    method: "GET",
+                    method: "POST",
                     mode: "cors",
+                    headers: {
+                        "Content-Type" : "application/json"
+                    },
+                    body: JSON.stringify({ id: params.id})
                 })
-
                 // end point not yet defined 12/11
                 if (response.ok) {
                     const fetchedDeviceInfo = await response.json();
                     // console.log(response.json());
-                    // console.log(fetchedDeviceInfo);
-                    const filt = fetchedDeviceInfo.getDeviceInfo.filter((data) => {
-                        return data.id === parseInt(idLocation)
-                    });
+                    console.log(fetchedDeviceInfo);
+                    // const filt = fetchedDeviceInfo.getDeviceInfo.filter((data) => {
+                    //     return data.id === parseInt(idLocation)
+                    // });
 
-                    const filt2 = fetchedDeviceInfo.matchedObjects.filter((addy) => {
-                        return addy.mac === filt[0]?.macAddress
-                    })
+                    // const filt2 = fetchedDeviceInfo.matchedObjects.filter((addy) => {
+                    //     return addy.mac === filt[0]?.macAddress
+                    // });
 
 
-                    // filt.pop();
-                    console.log('filt: ', filt);
-                    console.log('filt2: ', filt2);
-                    setDeviceInfo([...filt]);
-                    setAllDeviceInfo([...filt2])
+                    // // filt.pop();
+                    // console.log('filt: ', filt);
+                    // console.log('filt2: ', filt2);
+                    // setDeviceInfo([...filt]);
+                    // setAllDeviceInfo([...filt2])
                     // setDeviceInfo(fetchedDeviceInfo)
                     // setDeviceInfo(response)
+                    setDeviceInfo(fetchedDeviceInfo)
+                    setAllDeviceInfo(fetchedDeviceInfo)
 
                 }
                 // }
@@ -92,7 +88,7 @@ export default function Settings()
     {
         return (
             <>
-                <div className="flex items-center justify-center w-full h-full sm:w-3/4 lg:w-1/2 mx-auto pb-12 pt-12">
+                <div className="flex items-center justify-center w-full h-full sm:w-3/4 mx-auto pb-12 pt-12">
                     <div className="flex w-full mx-2">
                         <div className="flex flex-col items-center justify-center w-full h-full mx-auto border rounded-lg shadow overflow-hidden border-neutral shadow-base-300 m-8">
                             <div className="flex mt-8">
@@ -100,19 +96,17 @@ export default function Settings()
                             </div>
                             <div className="divider"></div>
                             <div className="flex items-center justify-center flex-col">
-                                <ul className="flex flex-col w-full">
-                                    {
-                                        data.length ? data?.map((d, index) => {
-                                            return (
-                                                <>
-                                                    <li key={index} className="p-2 bg-base-100">Name: {d?.name}</li>
-                                                    <li key={index} className="p-2 bg-base-300">Mac Address: {d?.macAddress}</li>
-                                                    <li key={index} className={`p-2 bg-base-100`}>Status: <span className={`${d?.active ? 'text-green-500' : 'text-red-500'}`}>{d.active ? 'Active' : 'Disabled'}</span></li>
-                                                    <li key={index} className="p-2 bg-base-300">ID: {d?.id}</li>
-                                                </>
-                                            )
-                                        }) : <span className="loading loading-spinner w-24 h-24"></span>
-                                    }
+                            {!data && <span className="loading loading-spinner w-24 h-24"></span>}
+                            {data && <ul className="flex flex-col w-full">
+
+
+
+
+                                         <li className="p-2 bg-base-100">Name: {data?.name}</li>
+                                        <li className="p-2 bg-base-300">Mac Address: {data?.macAddress}</li>
+                                        <li className={`p-2 bg-base-100`}>Status: <span className={`${data?.active ? 'text-green-500' : 'text-red-500'}`}>{data.active ? 'Active' : 'Disabled'}</span></li>
+                                        <li className="p-2 bg-base-300">ID: {data?.id}</li>
+
                                     <li>
                                         <Link to={`/admin/${idLocation}/cronmanager`} className="w-fit hover:cursor-pointer" >
                                             <div className="btn btn-block">Schedule</div>
@@ -126,11 +120,11 @@ export default function Settings()
                                         {/* </a> */}
                                     </li>
 
-                                </ul>
+                                </ul>}
                                 <details className="collapse bg-base-200 hover:bg-base-300">
                                     <summary className="collapse-title text-xl font-medium">All Device Information<div className="absolute right-5 top-4">&#9660;</div></summary>
                                     <ul className="p-6 gap-4">
-                                        {
+                                        {/* {
                                             allDeviceData?.length ? allDeviceData?.map((allData, index) => {
                                                 return (
                                                     <>
@@ -141,9 +135,6 @@ export default function Settings()
                                                     </>
                                                 )
                                             }) : <ul>No data to display...</ul>
-                                        }
-                                        {/* {
-                                            allDeviceData?.length && Object.keys(allDeviceData).
                                         } */}
                                     </ul>
                                 </details>
@@ -154,19 +145,14 @@ export default function Settings()
             </>
         )
     }
-    const timer = t => new Promise(res => setTimeout(res, t))
 
     const handleTimer = async () => {
+        const timer = t => new Promise(res => setTimeout(res, t));
         try {
             await timer(1000)
                 setCountdown(1)
-
             await timer(1000)
                setCountdown(0)
-
-            // await timer(1000)
-            //    setCountdown(0)
-
                navigate('/')
         } catch (e) {
             if (e) throw e;
@@ -186,12 +172,12 @@ export default function Settings()
                <SettingsData data={deviceInfo} allDeviceData={allDeviceInfo} />
             </div>
 
-            {/* <dialog id="redirectModal" className="modal" ref={dialogRef}>
+            <dialog id="redirectModal" className="modal" ref={dialogRef}>
                 <div className="modal-box flex flex-col items-center justify-center">
                     <h3 className="font-bold text-lg">Redirecting In:</h3>
                     <p className="py-4 text-4xl italic font-bold">{countdown}</p>
                 </div>
-            </dialog> */}
+            </dialog>
         </>
     )
 }

@@ -23,7 +23,7 @@ export default function Devices({ data, toggleReRender, handleRenderToggle })
         navigate(`/admin/${device}`)
     }
 
-    const handleToggle = async e => {
+    const handleToggle = async e => { // toggle device blocked or unblocked
         setLoading(true)
         try {
             // const itemId = e.target.dataset.name;
@@ -113,7 +113,7 @@ export default function Devices({ data, toggleReRender, handleRenderToggle })
                                         <>
                                             <li key={device?.id} className="m-1">
                                                 <div className="collapse collapse-arrow bg-base-200">
-                                                <input type="radio" name="my-accordion-2" checked="checked" />
+                                                <input type="radio" name="my-accordion-2" />
                                                     <div className="collapse-title text-xl font-medium">
 
 
@@ -121,7 +121,7 @@ export default function Devices({ data, toggleReRender, handleRenderToggle })
                                                             <IoEllipseOutline
                                                                 data-name={`${device?.id}`}
                                                                 className={`${device?.active ? 'text-green-500' : 'text-red-500'} animate-pulse w-8 h-8 z-50`}
-                                                                />     
+                                                                />
                                                             {device?.name}
 
                                                             {/* <div
@@ -159,6 +159,7 @@ export default function Devices({ data, toggleReRender, handleRenderToggle })
             <div className="flex flex-row gap-6 mx-auto">
                 <div className="btn" onClick={handleUnBlockAll}>Unblock All</div>
                 <div className="btn" onClick={handleBlockAll}>Block All</div>
+                <Link to="/blockeddevices"><div className="btn">See All blocked</div></Link>
             </div>
 
         </>
