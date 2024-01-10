@@ -214,7 +214,7 @@ app.post('/addtodevicelist', async (req, res) => {
     }
 });
 
-app.post('/getdeviceinfo', async (req, res) => {
+app.post('/getdeviceinfo', async (req, res) => { // specific device information
 
     const { id } = req.body;
 
@@ -363,7 +363,6 @@ app.post('/unblockmac', async (req, res) => {
             });
             console.log('updated if on list: ', updateIfOnList);
         }
-
         res.sendStatus(200);
     } catch (error) {
         console.error(error);
@@ -371,10 +370,10 @@ app.post('/unblockmac', async (req, res) => {
 });
 
 app.delete('/removedevice', async (req, res) => {
-    const { id } = req.body
+    const { id } = req.body;
     const removeDevice = await prisma.device.delete({
         where: {
-            id: id,
+            id: parseInt(id),
         }
     });
     res.json({ message: "Deletion successful", dataDeleted: removeDevice })

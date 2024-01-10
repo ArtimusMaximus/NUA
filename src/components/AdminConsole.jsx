@@ -31,9 +31,9 @@ export default function AdminConsole()
         const macRegex = /^([0-9A-F]{2}:){5}[0-9A-F]{2}$/i;
         return macRegex.test(mac)
     }
-
-
-
+    const handleScroll = () => {
+        document.getElementById('top').scrollIntoView({ block: 'center', behavior: 'smooth' });
+    }
     const handleRenderToggle = () => { // re-trigger
         setToggleReRender(prev => !prev)
     }
@@ -96,7 +96,6 @@ export default function AdminConsole()
 
     }, [toggleReRender])
 
-
     useEffect(() => { // check if server crash & jobs need re-initiation
         if (!initialized.current) {
             initialized.current = true;
@@ -121,18 +120,26 @@ export default function AdminConsole()
 
     }, []);
 
+    useEffect(() => {
+        try {
+            const checkForStatusChanges = ''
+        } catch (error) {
+            console.error(error);
+        }
+    }, []);
+
     return (
         <>
             <div className="grid mx-auto grid-flow-row gap-6 w-full">
 
             <Devices data={macData && macData} toggleReRender={toggleReRender} handleRenderToggle={handleRenderToggle} />
                     <div className="flex flex-row items-center justify-center p-6 w-[350px] mx-auto">
-                    <details className="collapse bg-base-200 hover:bg-base-300">
+                    <details id="top" className="collapse bg-base-200 hover:bg-base-300 mb-80" onClick={handleScroll}>
                         <summary className="collapse-title text-xl font-medium">Add Mac Address <div className="absolute right-5 top-4">&#9660;</div></summary>
                         {/* <div className={`flex flex-col items-center justify-center p-6 gap-4 border rounded`}> */}
                         <div className="collapse-content">
 
-                        <div className={`flex flex-col items-center justify-center p-6 gap-4 border rounded-lg shadow overflow-hidden dark:border-gray-700 dark:shadow-gray-900`}>
+                        <div  className={`flex flex-col items-center justify-center p-6 gap-4 border rounded-lg shadow overflow-hidden dark:border-gray-700 dark:shadow-gray-900`}>
                             <div className="flex flex-col">
                                 <label htmlFor="Mac Address">Mac Address:</label>
                                 <input

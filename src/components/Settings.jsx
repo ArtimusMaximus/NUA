@@ -58,8 +58,6 @@ export default function Settings()
                     // const filt2 = fetchedDeviceInfo.matchedObjects.filter((addy) => {
                     //     return addy.mac === filt[0]?.macAddress
                     // });
-
-
                     // // filt.pop();
                     // console.log('filt: ', filt);
                     // console.log('filt2: ', filt2);
@@ -69,7 +67,6 @@ export default function Settings()
                     // setDeviceInfo(response)
                     setDeviceInfo(fetchedDeviceInfo)
                     setAllDeviceInfo(fetchedDeviceInfo)
-
                 }
                 // }
             } catch (error) {
@@ -88,7 +85,7 @@ export default function Settings()
     {
         return (
             <>
-                <div className="flex items-center justify-center w-full h-full sm:w-3/4 mx-auto pb-12 pt-12">
+                <div className="flex items-center justify-center w-full h-full mx-auto pb-12 pt-12">
                     <div className="flex w-full mx-2">
                         <div className="flex flex-col items-center justify-center w-full h-full mx-auto border rounded-lg shadow overflow-hidden border-neutral shadow-base-300 m-8">
                             <div className="flex mt-8">
@@ -102,7 +99,7 @@ export default function Settings()
 
 
 
-                                         <li className="p-2 bg-base-100">Name: {data?.name}</li>
+                                        <li className="p-2 bg-base-100">Name: {data?.name}</li>
                                         <li className="p-2 bg-base-300">Mac Address: {data?.macAddress}</li>
                                         <li className={`p-2 bg-base-100`}>Status: <span className={`${data?.active ? 'text-green-500' : 'text-red-500'}`}>{data.active ? 'Active' : 'Disabled'}</span></li>
                                         <li className="p-2 bg-base-300">ID: {data?.id}</li>

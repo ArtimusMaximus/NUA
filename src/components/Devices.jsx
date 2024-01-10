@@ -56,7 +56,6 @@ export default function Devices({ data, toggleReRender, handleRenderToggle })
             setLoading(false);
         }
     }
-
     const handleUnBlockAll = async () => {
         try {
             const blockAll = await fetch('unblockallmacs', {
@@ -95,6 +94,27 @@ export default function Devices({ data, toggleReRender, handleRenderToggle })
             if (error) throw error;
         }
     }
+    const handleDelete = async e => {
+        // console.log(deviceInfo);
+        e.target.dataset.deviceid
+        try {
+            const submitForDeletion = await fetch('/removedevice', { // end point not yet defined 12/11
+                method: "delete",
+                mode: "cors",
+                headers: {
+                    "Content-Type" : "application/json"
+                },
+                body: JSON.stringify({ id: e.target.dataset.deviceid })
+            });
+            if(submitForDeletion.ok) {
+                const confirmation = await submitForDeletion.json();
+                console.log(confirmation);
+                handleRenderToggle();
+            }
+        } catch (error) {
+            if (error) throw error;
+        }
+    }
 
     return (
         <>
@@ -112,8 +132,8 @@ export default function Devices({ data, toggleReRender, handleRenderToggle })
                                     return (
                                         <>
                                             <li key={device?.id} className="m-1">
-                                                <div className="collapse collapse-arrow bg-base-200">
-                                                <input type="radio" name="my-accordion-2" />
+                                                <div className="collapse bg-base-200">
+                                                <input type="checkbox"  />
                                                     <div className="collapse-title text-xl font-medium">
 
 
@@ -133,18 +153,27 @@ export default function Devices({ data, toggleReRender, handleRenderToggle })
                                                         </div>
                                                     </div>
                                                     <div className="collapse-content">
-                                                        <GoGear
+                                                        {/* <GoGear
                                                                 className="w-12 h-12 text-slate-500 hover:text-slate-700 hover:cursor-pointer z-50"
                                                                 onClick={() => handleSchedule(device?.id)}
                                                                 name={`${device?.id}`}
-                                                                />
+                                                                /> */}
+                                                                <p><span className="font-thin italic">Name:</span> {device?.name}</p>
+                                                                <p><span className="font-thin italic">Mac:</span> {device?.macAddress}</p>
+                                                                <p><span className="font-thin italic">Status:</span> <span className={`${device?.active ? 'text-green-500' : 'text-red-500'}`}>{device?.active ? 'Active' : 'Inactive'}</span></p>
+                                                                <p><span className="font-thin italic">Device Id:</span> {device?.id}</p>
                                                         <div>
                                                             <Link to={`/admin/${device?.id}/cronmanager`} className="w-fit hover:cursor-pointer" >
-                                                                <div className="btn btn-block">Schedule</div>
+                                                                <div className="btn btn-block bg-base-300 hover:bg-base-content hover:text-base-100 my-2">Schedule</div>
                                                                 {/* <IoAlarmOutline className="hover:text-warning h-12 w-12" /> */}
                                                             </Link>
                                                         </div>
-                                                        <div className="btn btn-error btn-block" /*onClick={handleDelete}*/>Delete</div>
+                                                        <div
+                                                            className="btn btn-error btn-block"
+                                                            onClick={e => handleDelete(e)}
+                                                            data-deviceid={device?.id}
+                                                        >Delete
+                                                        </div>
                                                     </div>
                                                 </div>
                                             </li>
