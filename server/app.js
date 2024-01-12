@@ -10,6 +10,9 @@ const { open } = require('sqlite');
 const { PrismaClient } = require('@prisma/client');
 const schedule = require('node-schedule');
 const cronValidate = require('node-cron');
+const customPORT = require('./globalSettings');
+
+
 
 
 (async () => {
@@ -123,7 +126,14 @@ const jobFunction = async (crontype, macAddress) => { // for crons
 app.get('/getmacaddresses', async (req, res) => {
     try {
         const blockedUsers = await unifi.getBlockedUsers();
-        const macData = await prisma.device.findMany();
+        let macData = await prisma.device.findMany();
+        let getRefreshTimer = await prisma.credentials.findUnique({
+            where: {
+                id: 1
+            }
+        });
+        let refreshRate = getRefreshTimer[0]?.refreshRate || 60000;
+        console.log(refreshRate);
         /////////compare our database data with the blocked list, and set the data to active or not
 
         const doMacAddressMatch = (macAddress, array) => {
@@ -131,17 +141,60 @@ app.get('/getmacaddresses', async (req, res) => {
         }
         const matchedObjects = blockedUsers.filter(obj1 => doMacAddressMatch(obj1.mac, macData))
         console.log("Devices confirmed as blocked and reflected on added device list: ", matchedObjects.length);
-        // console.log(matchedObjects);
+        // console.log('blocked users ', blockedUsers);
+        // console.log('matched Objects ', matchedObjects);
 
-        // function compareBlocked(blocked, deviceData) {
-        //     return deviceData.map((device) => {
-        //         const matches = blocked.some(
-        //             (deviceMatches) => deviceMatches.mac === device.macAddress
-        //         )
-        //         return { ...device, active: matches }
-        //     })
-        // }
-        res.json({ macData, blockedUsers })
+        if (matchedObjects.length === 0) {
+            const recordIds = macData.map(obj => obj.id);
+            const updateData = { active: true };
+            const updateRecordsToActive = async (recordIds, updateData) => {
+                try {
+                    const updatedMacData = await prisma.device.updateMany({
+                        where: {
+                            id: {
+                                in: recordIds,
+                            },
+                        },
+                        data: updateData
+                    });
+                    const newMacData = await prisma.device.findMany()
+                    res.json({ macData: newMacData, blockedUsers: blockedUsers, refreshRate: refreshRate });
+                } catch (error) {
+                    console.error(error);
+                }
+            }
+            updateRecordsToActive(recordIds, updateData);
+            // console.log('new macData ', macData);
+
+        } else if (matchedObjects.length >= 1) { // something is inactive
+            const findBlocked = matchedObjects.filter(obj => obj.blocked === true);
+            // const matchingMacs = compareBlocked(findBlocked, macData);
+            const extractedMacAddress = findBlocked.map(blockedMac => blockedMac.mac);
+
+            const matchedMacAddys = macData.filter(macData => extractedMacAddress.includes(macData.macAddress));
+
+            // console.log('matchedMacAddys', matchedMacAddys);
+
+            const recordIds = matchedMacAddys.map(obj => obj.id);
+            const updateData = { active: false };
+            const updateRecordsToActive = async (recordIds, updateData) => {
+                try {
+                    const updatedMacData = await prisma.device.updateMany({
+                        where: {
+                            id: {
+                                in: recordIds,
+                            },
+                        },
+                        data: updateData
+                    });
+                    const newMacData = await prisma.device.findMany()
+                    res.json({ macData: newMacData, blockedUsers: blockedUsers, refreshRate: refreshRate });
+                } catch (error) {
+                    console.error(error);
+                }
+            }
+            updateRecordsToActive(recordIds, updateData);
+        }
     } catch (error) {
         if(error) throw error;
     }
@@ -594,7 +647,7 @@ app.put('/togglecron', async (req, res) => {
 });
 
 app.post('/savesitesettings', async (req, res) => {
-    const { username, password, hostname, port, sslverify } = req.body;
+    const { username, password, hostname, port, sslverify, refreshRate } = req.body;
     console.log(req.body);
 
     try {
@@ -604,7 +657,8 @@ app.post('/savesitesettings', async (req, res) => {
                 password: password,
                 hostname: hostname,
                 port: parseInt(port),
-                sslverify: Boolean(sslverify)
+                sslverify: Boolean(sslverify),
+                refreshRate: parseInt(refreshRate)
             }
         });
         // res.json({ message: 'Credentials successfully saved!' }, { siteCredentials })
@@ -615,7 +669,7 @@ app.post('/savesitesettings', async (req, res) => {
 });
 
 app.put('/updatesitesettings', async (req, res) => {
-    const { username, password, hostname, port, sslverify, id } = req.body;
+    const { username, password, hostname, port, sslverify, id, refreshRate } = req.body;
     console.log(req.body);
 
     try {
@@ -628,7 +682,8 @@ app.put('/updatesitesettings', async (req, res) => {
                 password: password,
                 hostname: hostname,
                 port: parseInt(port),
-                sslverify: Boolean(sslverify)
+                sslverify: Boolean(sslverify),
+                refreshRate: parseInt(refreshRate)
             }
         });
         res.json({ message: 'Credentials successfully saved!' })
@@ -721,11 +776,6 @@ app.put('/updatetheme', async (req, res) => {
     }
 });
 
-
-
-
-
-
 app.post('/login', (req, res) => {
     console.log(req.body);
 
@@ -738,9 +788,9 @@ app.post('/login', (req, res) => {
 
 app.get('**', async (req, res) => {
     res.sendFile(process.cwd().slice(0, -7) + '/dist/index.html')
-})
+});
 
-const PORT = process.env.PORT || 4322;
+const PORT = process.env.PORT || customPORT; // portSettings.js
 app.listen(PORT, () => {
     console.log(`Server listening on ${PORT}....`)
 });

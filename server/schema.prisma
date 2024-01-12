@@ -15,6 +15,7 @@ model Credentials {
   port        Int
   sslverify   Boolean
   theme       String?
+  refreshRate Int?
 }
 
 model Device {

@@ -21,6 +21,7 @@ export default function AdminConsole()
     const [toggleReRender, setToggleReRender] = useState(false);
     const [cronJobCheck, setCronJobChecked] = useState({});
     const [serverRestart, setServerRestart] = useState(true);
+    const [refreshTimer, setRefreshTimer] = useState(60000)
     const macRef = useRef();
     const deviceNameRef = useRef();
     const initialized = useRef(false);
@@ -87,14 +88,48 @@ export default function AdminConsole()
                     const data = await response.json();
                     console.log(data);
                     setMacData(data ? data : {});
+                    // setRefreshTimer(data.refreshTimer)
                 }
             } catch (error) {
                 console.error(error);
             }
         }
         handleGetMacAddresses();
+    }, [toggleReRender]);
 
-    }, [toggleReRender])
+    useEffect(() => {
+        const handleGetMacAddresses = async () => {
+            try {
+                const response = await fetch('/getmacaddresses', {
+                    method: 'GET',
+                    mode: 'cors',
+                });
+                if (response.ok) {
+                    const data = await response.json();
+                    console.log(data);
+                    setMacData(data ? data : {});
+
+                }
+            } catch (error) {
+                console.error(error);
+            }
+        }
+        async function checkEvery60Seconds() {
+            // const minute = 60000;
+            const checker = new Promise((res) => {
+                setTimeout(() => {
+                    console.log('60 second check complete.')
+                    return res();
+                }, 60000)
+            });
+            handleGetMacAddresses();
+            await checker;
+            // clearTimeout(checker);
+            checkEvery60Seconds();
+        }
+        const timerId = checkEvery60Seconds();
+        // handleGetMacAddresses();
+    }, []);
 
     useEffect(() => { // check if server crash & jobs need re-initiation
         if (!initialized.current) {
@@ -122,7 +157,15 @@ export default function AdminConsole()
 
     useEffect(() => {
         try {
-            const checkForStatusChanges = ''
+            const fetchTimer = async () => {
+                const getTimer = await fetch('/getrefreshsettings');
+                if (getTimer.ok) {
+                    console.log('timer good');
+                    // const dbRefreshTimer = await getTimer.json();
+                    // console.log(dbRefreshTimer);
+                }
+            }
+            fetchTimer();
         } catch (error) {
             console.error(error);
         }

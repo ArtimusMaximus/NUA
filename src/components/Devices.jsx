@@ -95,8 +95,6 @@ export default function Devices({ data, toggleReRender, handleRenderToggle })
         }
     }
     const handleDelete = async e => {
-        // console.log(deviceInfo);
-        e.target.dataset.deviceid
         try {
             const submitForDeletion = await fetch('/removedevice', { // end point not yet defined 12/11
                 method: "delete",
@@ -133,7 +131,7 @@ export default function Devices({ data, toggleReRender, handleRenderToggle })
                                         <>
                                             <li key={device?.id} className="m-1">
                                                 <div className="collapse bg-base-200">
-                                                <input type="checkbox"  />
+                                                <input type="checkbox" />
                                                     <div className="collapse-title text-xl font-medium">
 
 
@@ -158,10 +156,12 @@ export default function Devices({ data, toggleReRender, handleRenderToggle })
                                                                 onClick={() => handleSchedule(device?.id)}
                                                                 name={`${device?.id}`}
                                                                 /> */}
-                                                                <p><span className="font-thin italic">Name:</span> {device?.name}</p>
-                                                                <p><span className="font-thin italic">Mac:</span> {device?.macAddress}</p>
-                                                                <p><span className="font-thin italic">Status:</span> <span className={`${device?.active ? 'text-green-500' : 'text-red-500'}`}>{device?.active ? 'Active' : 'Inactive'}</span></p>
-                                                                <p><span className="font-thin italic">Device Id:</span> {device?.id}</p>
+                                                                <div className="flex justify-between flex-wrap">
+                                                                    <p><span className="font-thin italic">Name:</span> {device?.name}</p>
+                                                                    <p><span className="font-thin italic">Mac:</span> {device?.macAddress}</p>
+                                                                    <p><span className="font-thin italic">Status:</span> <span className={`${device?.active ? 'text-green-500' : 'text-red-500'}`}>{device?.active ? 'Active' : 'Inactive'}</span></p>
+                                                                    <p><span className="font-thin italic">Device Id:</span> {device?.id}</p>
+                                                                </div>
                                                         <div>
                                                             <Link to={`/admin/${device?.id}/cronmanager`} className="w-fit hover:cursor-pointer" >
                                                                 <div className="btn btn-block bg-base-300 hover:bg-base-content hover:text-base-100 my-2">Schedule</div>

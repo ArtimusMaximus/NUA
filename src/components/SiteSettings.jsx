@@ -16,29 +16,34 @@ export default function SiteSettings()
     const [alertType, setAlertType] = useState("");
     const [reveal, setReveal] = useState(false);
     const [clicked, setClicked] = useState(false);
+    const [rangeValue, setRangeValue] = useState(0)
     const hostnameRef = useRef();
     const usernameRef = useRef();
     const passwordRef = useRef();
     const testBtnRef = useRef();
     const portRef = useRef();
     const sslverifyRef = useRef();
-
+    const timerRef = useRef();
 
 
 
     const handleInput = e => {
+        if (e.target.name === 'refreshRate') {
+            setRangeValue(e.target.value);
+        }
         if (dataExists) {
             setPreExistingData({
                 ...preExistingData,
                 [e.target.name]: e.target.value
             });
-            // console.log(preExistingData);
+            console.log(preExistingData);
         } else {
             setData({
                 ...data,
                 [e.target.name]: e.target.value
             });
-            // console.log(data);
+
+            console.log(data);
         }
     }
 
@@ -88,6 +93,7 @@ export default function SiteSettings()
                 passwordRef.current.disabled = true;
                 portRef.current.disabled = true;
                 sslverifyRef.current.disabled = true;
+                timerRef.current.disabled = true;
             }
         } catch (error) {
             if (error) throw error;
@@ -106,9 +112,10 @@ export default function SiteSettings()
                     passwordRef.current.disabled = true;
                     portRef.current.disabled = true;
                     sslverifyRef.current.disabled = true;
+                    timerRef.current.disabled = true;
                     // testBtnRef.current.disabled = false;
                     const dbData = await fetchSettings.json();
-                    // console.log('dbData: ', dbData);
+                    console.log('dbData: ', dbData);
                     setPreExistingData(dbData[0])
                 } else if (fetchSettings.status === 404) {
                     setDataExists(false);
@@ -118,6 +125,7 @@ export default function SiteSettings()
                     passwordRef.current.disabled = false;
                     portRef.current.disabled = false;
                     sslverifyRef.current.disabled = false;
+                    timerRef.current.disabled = false;
                     // testBtnRef.current.disabled = true;
                 }
             } catch (error) {
@@ -136,11 +144,12 @@ export default function SiteSettings()
             setlocked(false);
             setClicked(true)
             setDataExists(true);
-            hostnameRef.current.disabled = false
-            usernameRef.current.disabled = false
-            passwordRef.current.disabled = false
-            portRef.current.disabled = false
-            sslverifyRef.current.disabled = false
+            hostnameRef.current.disabled = false;
+            usernameRef.current.disabled = false;
+            passwordRef.current.disabled = false;
+            portRef.current.disabled = false;
+            sslverifyRef.current.disabled = false;
+            timerRef.current.disabled = false;
         }
     }
     const handleTest = async () => {
@@ -191,6 +200,12 @@ export default function SiteSettings()
             console.log(error)
             // if (error) throw error;
         }
+    }
+
+    const handleRange = e => {
+        setRangeValue(e.target.value);
+
+        console.log(e.target.value);
     }
 
 
@@ -290,17 +305,56 @@ export default function SiteSettings()
                                     </label>
                                 </div>
                             </div>
+                            {/* <div className="flex items-center justify-end">
+                                <div>Refresh Freq (s):</div>
+                                <div className="pl-2">
+                                    <label className="form-control w-full max-w-xs">
+                                        <input
+                                            type="number"
+                                            placeholder={`${dataExists ? preExistingData?.refreshRate !== null && preExistingData?.refreshRate : '60000'}`}
+                                            className="input input-bordered w-full max-w-xs"
+                                            maxLength={5}
+                                            minLength={4}
+                                            name="refreshTimer"
+                                            onChange={e => handleInput(e)}
+                                            ref={timerRef}
+                                        />
+                                    </label>
+                                </div>
+                            </div> */}
+                            <div className="flex items-center justify-end w-full">
+                                <div>Refresh:</div>
+                                <div className="pl-2 w-full flex justify-end">
+                                <label className="form-control  max-w-xs w-[215px]">
+                                    <input
+                                        type="range"
+                                        max={300000} min={60000}
+                                        value={rangeValue}
+                                        className="range w-full"
+                                        step={60000}
+                                        ref={timerRef}
+                                        name="refreshRate"
+                                        onChange={handleInput}
+                                    />
+                                    <div className="w-full flex justify-between text-xs px-2">
+                                        <span>1s</span>
+                                        <span>2s</span>
+                                        <span>3s</span>
+                                        <span>4s</span>
+                                        <span>5s</span>
+                                    </div>
+                                </label>
+                                </div>
+                            </div>
                         </div>
                         <div className="grid grid-flow-row grid-cols-2">
                             <div
                                 className={`flex m-8 btn ${clicked ? 'btn-disabled' : ''}`}
-
                                 ref={testBtnRef}
                                 onClick={handleTest}
                             >
                                 Test Connection
                             </div>
-
                             <div className={`flex m-8 btn ${locked ? 'hidden' : 'block'}`}>
                                 <GoUnlock
                                     className={`w-8 h-8 hover:cursor-pointer `}
@@ -309,7 +363,6 @@ export default function SiteSettings()
                                     // data-jobname={cronData?.jobName}
                                     // ref={submitButtonRef}
                                     />
-
                             </div>
                             <div
                                 className={`flex m-8 btn ${locked ? 'flex' : 'hidden'}`}
@@ -317,10 +370,7 @@ export default function SiteSettings()
                             >
                                 <GoLock
                                     className={`items-center justify-center z-10 w-8 h-8 hover:cursor-pointer `}
-
-
                                     />
-
                             </div>
                         </div>
                     </div>
