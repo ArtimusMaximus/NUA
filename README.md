@@ -35,7 +35,11 @@ We're going to use Node v18+:
 nvm install v18.18.1
 ```
 
-You can now verify that we're using the correct version of Node using `node -v` or `nvm list`
+You can now verify that we're using the correct version of Node:
+```bash
+node -v
+nvm list
+```
 
 Install prerequisite Linux packages
 ```bash
