@@ -47,11 +47,11 @@ export default function Navbar({ title, themeValue, callBackChanged })
   return (
     <>
         <div className="navbar bg-base-100 grid grid-flow-row grid-cols-3">
-          <div><Link className="btn btn-ghost text-xl" to="/">Node Unifi API</Link></div>
+          <div><Link className="btn btn-ghost text-xl" to="/">NUA</Link></div>
           <span className="mx-auto text-3xl font-bold flex justify-center">{title.title}</span>
           <div className="flex justify-end">
             <GoGear
-                className="w-6 h-6 ml-4 mr-4 hover:cursor-pointer"
+                className="w-10 h-10 ml-4 mr-4 hover:cursor-pointer"
                 onClick={handleNav}
                 />
                 <label className="swap swap-rotate">

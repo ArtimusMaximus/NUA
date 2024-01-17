@@ -7,12 +7,24 @@ const bodyParser = require('body-parser');
 const Unifi = require('node-unifi');
 const sqlite3 = require('sqlite3').verbose();
 const { open } = require('sqlite');
-const { PrismaClient } = require('@prisma/client');
+const { PrismaClient, Prisma } = require('@prisma/client');
 const schedule = require('node-schedule');
 const cronValidate = require('node-cron');
 const customPORT = require('./globalSettings');
+const { Queue, Worker } = require('bullmq');
+const { createPrismaRedisCache } = require('prisma-redis-middleware');
+const IORedis = require('ioredis');
+const { Schema, model } = require('mongoose');
+const mongoose = require('mongoose');
 
 
+
+
+
+
+function redLog(text) {
+    console.log('\x1b[31m\x1b[5m', text);
+}
 
 
 (async () => {
@@ -114,12 +126,17 @@ function validateCron(crontype) {
     return validation;
 }
 const jobFunction = async (crontype, macAddress) => { // for crons
-    if (crontype === 'allow') {
-        await unifi.unblockClient(macAddress)
-        console.log(`${macAddress} has been unblocked.`);
-    } else if (crontype === 'block') {
-        await unifi.blockClient(macAddress)
-        console.log(`${macAddress} has been blocked.`);
+    try {
+        if (crontype === 'allow') {
+            const confirmAllow = await unifi.unblockClient(macAddress)
+            console.log(`${macAddress} has been unblocked: ${confirmAllow}`);
+        } else if (crontype === 'block') {
+            const confirmBlocked = await unifi.blockClient(macAddress)
+            console.log(`${macAddress} has been blocked: ${confirmBlocked}`);
+        }
+    } catch (error) {
+        redLog('~~~~~~CATCH BLOCK IN JOB FUNCITON~~~~~~~~~~~');
+        console.error(error);
     }
 }
 
@@ -132,15 +149,15 @@ app.get('/getmacaddresses', async (req, res) => {
                 id: 1
             }
         });
-        let refreshRate = getRefreshTimer[0]?.refreshRate || 60000;
-        console.log(refreshRate);
+        let refreshRate = getRefreshTimer.refreshRate;
+        // console.log(refreshRate);
         /////////compare our database data with the blocked list, and set the data to active or not
 
         const doMacAddressMatch = (macAddress, array) => {
             return array.some(obj => obj.macAddress === macAddress)
         }
         const matchedObjects = blockedUsers.filter(obj1 => doMacAddressMatch(obj1.mac, macData))
-        console.log("Devices confirmed as blocked and reflected on added device list: ", matchedObjects.length);
+        // console.log("Devices confirmed as blocked and reflected on added device list: ", matchedObjects.length);
         // console.log('blocked users ', blockedUsers);
         // console.log('matched Objects ', matchedObjects);
 
@@ -422,7 +439,25 @@ app.post('/unblockmac', async (req, res) => {
     }
 });
 
-app.delete('/removedevice', async (req, res) => {
+app.put('/updatedevicedata', async (req, res) => { // Devices.jsx device edit
+    const { name, macAddress, id } = req.body;
+    try {
+        const updatedDeviceData = await prisma.device.update({
+            where: {
+                id: parseInt(id),
+            },
+            data: {
+                name: name,
+                macAddress: macAddress,
+            }
+        });
+        res.json(updatedDeviceData);
+    } catch (error) {
+        console.error(error);
+    }
+});
+
+app.delete('/removedevice', async (req, res) => { // Devices.jsx device delete
     const { id } = req.body;
     const removeDevice = await prisma.device.delete({
         where: {
@@ -605,29 +640,19 @@ app.delete('/deletecron', async (req, res) => {
 });
 
 app.put('/togglecron', async (req, res) => {
-    // const { id, toggleCron, jName, jobName, deviceId, c } = req.body;
     const { id, toggleCron, jobName, crontime, crontype, deviceId } = req.body;
-    // console.log('id from req.body: ', id);
-    // console.log('req.body: ', req.body);
-    // console.log('deviceId from req.body: ', deviceId);
-    // console.log('checked(c): ', c);
-    // console.log('jName: ', jName);
-
     // I believe the issue here is that you are not getting the job name from the front end, try node-schedule again -TRUE & Successful....
-
-    // console.log('cron getTasks(): ', cronSched.getTasks());
-    // console.log('cronSched: ', cronSched);
     let jb = jobName;
     try {
-        // console.log(req.body);
         const getMacAddress = await prisma.device.findUnique({ where: { id: deviceId } });
+        console.log('getMacAddress.macAddress: ', getMacAddress.macAddress);
 
         if (toggleCron === false && jobName !== '') {
             const cancelled = schedule?.cancelJob(jobName);
             console.log('Cancelled Job?: ', cancelled);
         } else if (toggleCron === true) {
             console.log('continue');
-            const reInitiatedJob = schedule.scheduleJob(crontime, () => jobFunction(crontype, getMacAddress.macAddress))
+            const reInitiatedJob = schedule.scheduleJob(crontime, () => jobFunction(crontype, getMacAddress.macAddress));
             jb = reInitiatedJob.name
             console.log('jb.name: ', jb.name);
         }
@@ -639,10 +664,9 @@ app.put('/togglecron', async (req, res) => {
                 // jobName: toggleCron ? jb.name : jobName
             }
         });
-        res.json(updateCronToggle)
-        // console.log('updateCronToggle from prisma: ', updateCronToggle);
+        res.json(updateCronToggle);
     } catch (error) {
-        if (error) throw error;
+        console.error(error);
     }
 });
 
@@ -744,6 +768,19 @@ app.get('/getallblockeddevices', async (req, res) => {
     }
 });
 
+app.get('/getalldevices', async (req, res) => {
+    try {
+        // const getAccessDevices = await unifi.getAccessDevices();
+        const getClientDevices = await unifi.getClientDevices();
+        const getDeviceList = await prisma.device.findMany();
+        console.log(getClientDevices.length);
+        res.json({ getClientDevices: getClientDevices, getDeviceList: getDeviceList })
+        // res.sendStatus(200)
+    } catch (error) {
+        console.error(error);
+    }
+});
+
 //~~~~~~~theme~~~~~~~~
 app.get('/getcurrenttheme', async (req, res) => {
     try {
@@ -776,6 +813,7 @@ app.put('/updatetheme', async (req, res) => {
     }
 });
 
+//~~~~~~potential login~~~~
 app.post('/login', (req, res) => {
     console.log(req.body);
 
@@ -786,6 +824,7 @@ app.post('/login', (req, res) => {
     }
 });
 
+//~~~~~~refresh redirect~~~~~~
 app.get('**', async (req, res) => {
     res.sendFile(process.cwd().slice(0, -7) + '/dist/index.html')
 });

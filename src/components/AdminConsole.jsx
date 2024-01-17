@@ -21,7 +21,7 @@ export default function AdminConsole()
     const [toggleReRender, setToggleReRender] = useState(false);
     const [cronJobCheck, setCronJobChecked] = useState({});
     const [serverRestart, setServerRestart] = useState(true);
-    const [refreshTimer, setRefreshTimer] = useState(60000)
+    const [refreshTimer, setRefreshTimer] = useState(null)
     const macRef = useRef();
     const deviceNameRef = useRef();
     const initialized = useRef(false);
@@ -88,7 +88,7 @@ export default function AdminConsole()
                     const data = await response.json();
                     console.log(data);
                     setMacData(data ? data : {});
-                    // setRefreshTimer(data.refreshTimer)
+
                 }
             } catch (error) {
                 console.error(error);
@@ -98,6 +98,7 @@ export default function AdminConsole()
     }, [toggleReRender]);
 
     useEffect(() => {
+        let time;
         const handleGetMacAddresses = async () => {
             try {
                 const response = await fetch('/getmacaddresses', {
@@ -108,27 +109,42 @@ export default function AdminConsole()
                     const data = await response.json();
                     console.log(data);
                     setMacData(data ? data : {});
+                    time = data.refreshRate;
 
                 }
             } catch (error) {
                 console.error(error);
             }
         }
-        async function checkEvery60Seconds() {
-            // const minute = 60000;
-            const checker = new Promise((res) => {
-                setTimeout(() => {
-                    console.log('60 second check complete.')
-                    return res();
-                }, 60000)
-            });
-            handleGetMacAddresses();
-            await checker;
-            // clearTimeout(checker);
-            checkEvery60Seconds();
+        // async function checkEvery60Seconds() {
+        //     // const minute = 60000;
+        //     const checker = new Promise((res) => {
+        //         setTimeout(() => {
+        //             console.log('60 second check complete.')
+        //             return res();
+        //         }, 60000)
+        //     });
+        //     handleGetMacAddresses();
+        //     await checker;
+        //     // clearTimeout(checker);
+        //     checkEvery60Seconds();
+        // }
+        // const timerId = checkEvery60Seconds();
+        // // handleGetMacAddresses();
+        // let time = refreshTimer;
+        console.log(time);
+        const checkEvery60Seconds = () => {
+            console.log(refreshTimer, typeof refreshTimer);
+            const timerId = setTimeout(async () => {
+                console.log('60 second check complete.');
+                await handleGetMacAddresses();
+                checkEvery60Seconds();
+            }, time !== null && time !== undefined ? time : 10000)
+            return () => clearTimeout(timerId)
         }
         const timerId = checkEvery60Seconds();
-        // handleGetMacAddresses();
+
+        return () => clearTimeout(timerId);
     }, []);
 
     useEffect(() => { // check if server crash & jobs need re-initiation
@@ -155,21 +171,22 @@ export default function AdminConsole()
 
     }, []);
 
-    useEffect(() => {
-        try {
-            const fetchTimer = async () => {
-                const getTimer = await fetch('/getrefreshsettings');
-                if (getTimer.ok) {
-                    console.log('timer good');
-                    // const dbRefreshTimer = await getTimer.json();
-                    // console.log(dbRefreshTimer);
-                }
-            }
-            fetchTimer();
-        } catch (error) {
-            console.error(error);
-        }
-    }, []);
+    // useEffect(() => {
+    //     try {
+    //         const fetchTimer = async () => {
+    //             const getTimer = await fetch('/getrefreshsettings');
+    //             if (getTimer.ok) {
+    //                 console.log('timer good');
+    //                 console.log(getTimer);
+    //                 // const dbRefreshTimer = await getTimer.json();
+    //                 // console.log('dbrefreshtimer ', dbRefreshTimer);
+    //             }
+    //         }
+    //         fetchTimer();
+    //     } catch (error) {
+    //         console.error(error);
+    //     }
+    // }, []);
 
     return (
         <>
