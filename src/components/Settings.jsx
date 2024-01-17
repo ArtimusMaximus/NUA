@@ -95,15 +95,10 @@ export default function Settings()
                             <div className="flex items-center justify-center flex-col">
                             {!data && <span className="loading loading-spinner w-24 h-24"></span>}
                             {data && <ul className="flex flex-col w-full">
-
-
-
-
                                         <li className="p-2 bg-base-100">Name: {data?.name}</li>
                                         <li className="p-2 bg-base-300">Mac Address: {data?.macAddress}</li>
                                         <li className={`p-2 bg-base-100`}>Status: <span className={`${data?.active ? 'text-green-500' : 'text-red-500'}`}>{data.active ? 'Active' : 'Disabled'}</span></li>
                                         <li className="p-2 bg-base-300">ID: {data?.id}</li>
-
                                     <li>
                                         <Link to={`/admin/${idLocation}/cronmanager`} className="w-fit hover:cursor-pointer" >
                                             <div className="btn btn-block">Schedule</div>
@@ -116,7 +111,6 @@ export default function Settings()
                                             <div className="btn btn-error btn-block" onClick={handleDelete}>Delete</div>
                                         {/* </a> */}
                                     </li>
-
                                 </ul>}
                                 <details className="collapse bg-base-200 hover:bg-base-300">
                                     <summary className="collapse-title text-xl font-medium">All Device Information<div className="absolute right-5 top-4">&#9660;</div></summary>

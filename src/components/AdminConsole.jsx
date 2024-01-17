@@ -76,7 +76,7 @@ export default function AdminConsole()
         }
     }
 
-    useEffect(() => { // /getmacaddresses
+    useEffect(() => { // /getmacaddresses initial fetch
         // console.log('parent component fired off ', toggleReRender);
         const handleGetMacAddresses = async () => {
             try {
@@ -97,7 +97,7 @@ export default function AdminConsole()
         handleGetMacAddresses();
     }, [toggleReRender]);
 
-    useEffect(() => {
+    useEffect(() => { // /getmacaddress with refresh timer
         let time;
         const handleGetMacAddresses = async () => {
             try {
@@ -110,7 +110,6 @@ export default function AdminConsole()
                     console.log(data);
                     setMacData(data ? data : {});
                     time = data.refreshRate;
-
                 }
             } catch (error) {
                 console.error(error);
@@ -168,25 +167,7 @@ export default function AdminConsole()
         //     getCronData();
         //     setServerRestart(false);
         // }
-
     }, []);
-
-    // useEffect(() => {
-    //     try {
-    //         const fetchTimer = async () => {
-    //             const getTimer = await fetch('/getrefreshsettings');
-    //             if (getTimer.ok) {
-    //                 console.log('timer good');
-    //                 console.log(getTimer);
-    //                 // const dbRefreshTimer = await getTimer.json();
-    //                 // console.log('dbrefreshtimer ', dbRefreshTimer);
-    //             }
-    //         }
-    //         fetchTimer();
-    //     } catch (error) {
-    //         console.error(error);
-    //     }
-    // }, []);
 
     return (
         <>
@@ -198,7 +179,6 @@ export default function AdminConsole()
                         <summary className="collapse-title text-xl font-medium">Add Mac Address <div className="absolute right-5 top-4">&#9660;</div></summary>
                         {/* <div className={`flex flex-col items-center justify-center p-6 gap-4 border rounded`}> */}
                         <div className="collapse-content">
-
                         <div  className={`flex flex-col items-center justify-center p-6 gap-4 border rounded-lg shadow overflow-hidden dark:border-gray-700 dark:shadow-gray-900`}>
                             <div className="flex flex-col">
                                 <label htmlFor="Mac Address">Mac Address:</label>

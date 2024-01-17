@@ -214,7 +214,7 @@ export default function Devices({ data, toggleReRender, handleRenderToggle })
                                                                     </span>
                                                                 </div>
                                                         <div>
-                                                            <Link to={`/admin/${device?.id}/cronmanager`} className="w-fit hover:cursor-pointer" >
+                                                            <Link to={`/admin/${device?.id}/cronmanager2`} className="w-fit hover:cursor-pointer" >
                                                                 <div className="btn btn-block bg-base-300 hover:bg-base-content hover:text-base-100 my-2">Schedule</div>
                                                                 {/* <IoAlarmOutline className="hover:text-warning h-12 w-12" /> */}
                                                             </Link>

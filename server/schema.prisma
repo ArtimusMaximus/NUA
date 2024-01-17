@@ -25,6 +25,7 @@ model Device {
   active        Boolean
   createdAt     DateTime     @default(now())
   crons         Cron[]
+  schedules     Schedule[]
 
 }
 
@@ -37,5 +38,16 @@ model Cron {
   device      Device?      @relation(fields: [deviceId], references: [id])
   deviceId    Int?
   toggleCron  Boolean?
+}
+
+model Schedule {
+  id              Int          @id @default(autoincrement())
+  createdAt       DateTime     @default(now())
+  scheduletime    String
+  scheduletype    String
+  jobName         String?
+  device          Device?      @relation(fields: [deviceId], references: [id])
+  deviceId        Int?
+  toggleschedule  Boolean?
 }
 

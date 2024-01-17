@@ -467,79 +467,7 @@ app.delete('/removedevice', async (req, res) => { // Devices.jsx device delete
     res.json({ message: "Deletion successful", dataDeleted: removeDevice })
 });
 
-app.post('/addschedule', async (req, res) => { // adds cron data specific front end device
-    const { id, crontype, croninput } = req.body;
-    try {
-        const deviceToSchedule = await prisma.device.findUnique({
-            where: {
-                id: id
-            }
-        })
-        console.log('Device to schedule ', deviceToSchedule) // job creation removed from here spefically to be performed in /togglecron
-        // const jobFunction = async (crontype, macAddress) => {
-        //     if (crontype === 'allow') {
-        //         await unifi.unblockClient(macAddress)
-        //         console.log(`${macAddress} has been unblocked.`);
-        //     } else if (crontype === 'block') {
-        //         await unifi.blockClient(macAddress)
-        //         console.log(`${macAddress} has been blocked.`);
-        //     }
-        // }
-            if (validateCron(croninput)) {
-                // const job = schedule.scheduleJob(`${croninput}`, () => jobFunction(croninput, deviceToSchedule.macAddress));
-                // console.log('job name from addschedule: ', job.name);
 
-
-                // const task = cronSched.schedule(`${croninput}`, () => jobFunction(type, deviceToSchedule.macAddress))
-
-
-                const addCron = await prisma.cron.create({
-                    data: {
-                        crontype: crontype,
-                        crontime: croninput,
-                        jobName: '',
-                        device: {
-                            connect: { id: id }
-                        }
-                    }
-                });
-                res.json(addCron)
-            } else {
-                res.status(422).send({ message: "Invalid Cron Type, please try again." })
-            }
-        } catch (error) {
-            if(error) throw error;
-        }
-});
-
-app.post('/getcrondata', async (req, res) => { // fetches cron data specific to front end device
-    const { id } = req.body;
-    // console.log('id from getcrondata req.body ', id);
-    // console.log('req.body from /getcrondata ', req.body);
-     try {
-        const cronData = await prisma.cron.findMany({
-            where: {
-                deviceId: id
-            }
-        })
-        res.json({ cronData: cronData });
-
-        const getMacAddress = await prisma.device.findUnique({ where: { id: id } });
-        const { macAddress } = getMacAddress;
-        const { scheduledJobs } = schedule;
-
-        for (const data of cronData) {
-            console.log('data.jobName ', data.jobName)
-            console.log('data.jobName === undefined ', scheduledJobs[data.jobName] === undefined) // jobs not re initiated
-            if (scheduledJobs[data.jobName] === undefined) {
-                // update many and also make async ?
-            }
-        }
-        // console.log('jobs ', scheduledJobs[cronData[0].jobName] === undefined);
-     } catch (error) {
-        if (error) throw error;
-     }
-});
 
 app.get('/checkjobreinitiation', async (req, res) => {
     try {
@@ -620,6 +548,52 @@ app.get('/checkjobreinitiation', async (req, res) => {
      }
 });
 
+// ~~~~~~~~~crons~~~~~~~~~~~
+// app.post('/addschedule', async (req, res) => { // adds cron data specific front end device && cron validator
+//     const { id, crontype, croninput } = req.body;
+//     try {
+//         const deviceToSchedule = await prisma.device.findUnique({
+//             where: {
+//                 id: id
+//             }
+//         })
+//         console.log('Device to schedule ', deviceToSchedule) // job creation removed from here spefically to be performed in /togglecron
+//         // const jobFunction = async (crontype, macAddress) => {
+//         //     if (crontype === 'allow') {
+//         //         await unifi.unblockClient(macAddress)
+//         //         console.log(`${macAddress} has been unblocked.`);
+//         //     } else if (crontype === 'block') {
+//         //         await unifi.blockClient(macAddress)
+//         //         console.log(`${macAddress} has been blocked.`);
+//         //     }
+//         // }
+//             if (validateCron(croninput)) {
+//                 // const job = schedule.scheduleJob(`${croninput}`, () => jobFunction(croninput, deviceToSchedule.macAddress));
+//                 // console.log('job name from addschedule: ', job.name);
+
+
+//                 // const task = cronSched.schedule(`${croninput}`, () => jobFunction(type, deviceToSchedule.macAddress))
+
+
+//                 const addCron = await prisma.cron.create({
+//                     data: {
+//                         crontype: crontype,
+//                         crontime: croninput,
+//                         jobName: '',
+//                         device: {
+//                             connect: { id: id }
+//                         }
+//                     }
+//                 });
+//                 res.json(addCron)
+//             } else {
+//                 res.status(422).send({ message: "Invalid Cron Type, please try again." })
+//             }
+//         } catch (error) {
+//             if(error) throw error;
+//         }
+// });
+
 app.delete('/deletecron', async (req, res) => {
     const { parseId, jobName } = req.body;
     try {
@@ -639,7 +613,7 @@ app.delete('/deletecron', async (req, res) => {
     }
 });
 
-app.put('/togglecron', async (req, res) => {
+app.put('/togglecron', async (req, res) => { // soon to be deprecated
     const { id, toggleCron, jobName, crontime, crontype, deviceId } = req.body;
     // I believe the issue here is that you are not getting the job name from the front end, try node-schedule again -TRUE & Successful....
     let jb = jobName;
@@ -670,6 +644,77 @@ app.put('/togglecron', async (req, res) => {
     }
 });
 
+app.post('/getcrondata', async (req, res) => { // fetches cron data specific to front end device
+    const { id } = req.body;
+    // console.log('id from getcrondata req.body ', id);
+    // console.log('req.body from /getcrondata ', req.body);
+     try {
+        const cronData = await prisma.cron.findMany({
+            where: {
+                deviceId: id
+            }
+        })
+        res.json({ cronData: cronData });
+
+        const getMacAddress = await prisma.device.findUnique({ where: { id: id } });
+        const { macAddress } = getMacAddress;
+        const { scheduledJobs } = schedule;
+
+        for (const data of cronData) {
+            console.log('data.jobName ', data.jobName)
+            console.log('data.jobName === undefined ', scheduledJobs[data.jobName] === undefined) // jobs not re initiated
+            if (scheduledJobs[data.jobName] === undefined) {
+                // update many and also make async ?
+            }
+        }
+        // console.log('jobs ', scheduledJobs[cronData[0].jobName] === undefined);
+     } catch (error) {
+        if (error) throw error;
+     }
+});
+
+// ~~~~~~~schedules~~~~~~~~~~
+app.put('/toggleschedule', async (req, res) => {
+    const { id, toggleCron, jobName, crontime, crontype, deviceId } = req.body;
+    // I believe the issue here is that you are not getting the job name from the front end, try node-schedule again -TRUE & Successful....
+    let jb = jobName;
+    try {
+        const getMacAddress = await prisma.device.findUnique({ where: { id: deviceId } });
+        console.log('getMacAddress.macAddress: ', getMacAddress.macAddress);
+
+        if (toggleCron === false && jobName !== '') {
+            const cancelled = schedule?.cancelJob(jobName);
+            console.log('Cancelled Job?: ', cancelled);
+        } else if (toggleCron === true) {
+            console.log('continue');
+            const reInitiatedJob = schedule.scheduleJob(crontime, () => jobFunction(crontype, getMacAddress.macAddress));
+            jb = reInitiatedJob.name
+            console.log('jb.name: ', jb.name);
+        }
+        const updateCronToggle = await prisma.cron.update({
+            where: { id: id },
+            data: {
+                toggleCron: toggleCron,
+                jobName: jb
+                // jobName: toggleCron ? jb.name : jobName
+            }
+        });
+        res.json(updateCronToggle);
+    } catch (error) {
+        console.error(error);
+    }
+});
+
+app.post('/addschedule', async (req, res) => {
+    const { id, scheduletype, toggleschedule, minute, hour, daysOfTheWeek } = req.body;
+
+    console.log(req.body);
+
+    res.sendStatus(200);
+
+});
+
+// ~~~~~~
 app.post('/savesitesettings', async (req, res) => {
     const { username, password, hostname, port, sslverify, refreshRate } = req.body;
     console.log(req.body);
