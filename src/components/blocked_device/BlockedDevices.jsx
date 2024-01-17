@@ -1,5 +1,7 @@
 import useFetchBlockedDevices from "./useFetchBlockedDevices";
 import BlockedDeviceCard from "./BlockedDeviceCard";
+import DeviceCardSkeleton from "../device_card_skeleton/DeviceCardSkeleton";
+
 
 
 export default function BlockedDevices()
@@ -8,7 +10,6 @@ const { blockedDevices, loading, reFetch } = useFetchBlockedDevices();
 
 
 const handleAddToDevices = async (deviceToAdd) => {
-    // console.log(deviceToAdd.mac); // works
     try {
         const response = await fetch('/addtodevicelist', {
             method: 'POST',
@@ -50,7 +51,7 @@ const handleUnblock = async (deviceToUnblock) => {
             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 xl:gap-8 pb-24">
             <h1 className="my-6 text-3xl italic mx-auto row-start-1 col-span-full text-center">Currently Blocked Devices</h1>
             {
-                loading ? <div className={`${loading ? 'loading loading-spinner' : ''} w-36 h-36 flex items-center justify-center col-span-full mx-auto text-4xl`}>{!blockedDevices && !loading && 'There is not data to display...'}</div>
+                loading ? <DeviceCardSkeleton devices={blockedDevices} loading={loading} />
                 : blockedDevices?.map((device) => {
                     return (
                         <>
