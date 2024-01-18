@@ -41,7 +41,19 @@ export default function useFetchAllDevices()
                 setClientDevices(
                     checkIfDeviceOnList(clientDev.getClientDevices, clientDev.getDeviceList)
                 );
-                // setClientDevices(clientDev.getClientDevices)
+                // setDeviceList(clientDev.getDeviceList);
+                const findDevicesOnList = () => {
+                    const result = [];
+                    for (const matches of clientDev.getDeviceList) {
+                        const dList = clientDev.getClientDevices.filter((deviceOnList) => {
+                            return matches.macAddress === deviceOnList.mac
+                        })
+                        result.push(...dList)
+                    }
+                    return result;
+                }
+                const devicesOnList = findDevicesOnList();
+                setDeviceList(devicesOnList)
                 setLoading(false);
             } catch (error) {
                 console.error(error);
@@ -50,9 +62,6 @@ export default function useFetchAllDevices()
         }
         fetchBlocked();
     }, [reRender])
-
-
-
 
     return { clientDevices, deviceList, loading, reFetch };
 }

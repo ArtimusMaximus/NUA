@@ -51,3 +51,4 @@ model Schedule {
   toggleschedule  Boolean?
 }
 
+

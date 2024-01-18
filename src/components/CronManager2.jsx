@@ -18,7 +18,8 @@ export default function CronManager2()
     const [changed, setChanged] = useState(false);
     const [invalidscheduleMessage, setInvalidscheduleMessage] = useState({});
     const [deviceInfo, setDeviceInfo] = useState({});
-
+    const oneTimeScheduleRef = useRef();
+    const recurringScheduleRef = useRef();
 
     const reFetch = () => { setChanged(prev => !prev); }
 
@@ -76,7 +77,6 @@ export default function CronManager2()
             ...schedule.daysOfTheWeek,
             [e.target.name]: isChecked ? parseInt(e.target.value) : undefined
         }
-
         setSchedule((prevSchedule) => ({
             ...prevSchedule,
             daysOfTheWeek: updatedDaysOfTheWeek,
@@ -187,6 +187,10 @@ export default function CronManager2()
         getDeviceData();
     }, []);
 
+
+
+
+
     return (
         <>
             <div className="flex items-center justify-center w-full h-full sm:w-3/4 lg:w-1/2 mx-auto pb-12 pt-12">
@@ -199,7 +203,15 @@ export default function CronManager2()
                             </a>
                         </div>
                         <div className="divider"></div>
-                        <div className="flex items-center justify-center flex-col">
+
+                        <div className="flex flex-row gap-4 my-4">
+                            <span>One Time Schedule:</span>
+                            <input type="radio" data-onetime="onetime" ref={oneTimeScheduleRef} name="radio-2" className="radio radio-primary" checked />
+                            <span>Recurring Schedule:</span>
+                            <input type="radio" data-recur="recur" ref={recurringScheduleRef} name="radio-2" className="radio radio-primary" />
+                        </div>
+
+                        <div className={`flex items-center justify-center flex-col`}>
                             <div className="flex flex-col">
                                 <div className="flex justify-center items-center gap-4">
                                     <div className="flex flex-row my-2">

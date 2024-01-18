@@ -177,15 +177,15 @@ export default function Devices({ data, toggleReRender, handleRenderToggle })
                                                 <div className="collapse bg-base-200">
                                                 <input type="checkbox" />
                                                     <div className="collapse-title text-xl font-medium">
-                                                        <div onClick={e => handleToggle(e)} className="w-full flex flex-row items-center justify-between hover:cursor-pointer z-50">
+                                                        <div onClick={e => handleToggle(e)} className="w-full flex flex-row items-center justify-between hover:cursor-pointer z-40">
                                                             <IoEllipseOutline
                                                                 data-name={`${device?.id}`}
-                                                                className={`${device?.active ? 'text-green-500' : 'text-red-500'} animate-pulse w-8 h-8 z-50`}
+                                                                className={`${device?.active ? 'text-green-500' : 'text-red-500'} animate-pulse w-8 h-8 z-40`}
                                                                 />
                                                             {device?.name}
 
                                                             {/* <div
-                                                                className="w-12 h-12 text-slate-500 hover:text-slate-700 hover:cursor-pointer z-50 bg-red-500"
+                                                                className="w-12 h-12 text-slate-500 hover:text-slate-700 hover:cursor-pointer z-40 bg-red-500"
                                                                 onClick={() => handleSchedule(device?.id)}
                                                                 name={`${device?.id}`}
                                                             >
@@ -194,7 +194,7 @@ export default function Devices({ data, toggleReRender, handleRenderToggle })
                                                     </div>
                                                     <div className="collapse-content">
                                                         {/* <GoGear
-                                                                className="w-12 h-12 text-slate-500 hover:text-slate-700 hover:cursor-pointer z-50"
+                                                                className="w-12 h-12 text-slate-500 hover:text-slate-700 hover:cursor-pointer z-40"
                                                                 onClick={() => handleSchedule(device?.id)}
                                                                 name={`${device?.id}`}
                                                                 /> */}
@@ -214,7 +214,7 @@ export default function Devices({ data, toggleReRender, handleRenderToggle })
                                                                     </span>
                                                                 </div>
                                                         <div>
-                                                            <Link to={`/admin/${device?.id}/cronmanager2`} className="w-fit hover:cursor-pointer" >
+                                                            <Link to={`/admin/${device?.id}/cronmanager`} className="w-fit hover:cursor-pointer" >
                                                                 <div className="btn btn-block bg-base-300 hover:bg-base-content hover:text-base-100 my-2">Schedule</div>
                                                                 {/* <IoAlarmOutline className="hover:text-warning h-12 w-12" /> */}
                                                             </Link>
@@ -239,8 +239,6 @@ export default function Devices({ data, toggleReRender, handleRenderToggle })
             <div className="flex flex-row gap-6 flex-wrap mx-auto">
                 <div className="btn" onClick={handleUnBlockAll}>Unblock All</div>
                 <div className="btn" onClick={handleBlockAll}>Block All</div>
-                <Link to="/blockeddevices"><div className="btn">See All blocked</div></Link>
-                <Link to="/alldevices"><div className="btn">See All Devices</div></Link>
             </div>
             <dialog id="my_modal_1" ref={editRef} className="modal">
                 <div className="modal-box">

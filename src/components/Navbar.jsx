@@ -1,6 +1,7 @@
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { GoGear } from "react-icons/go";
 import { useEffect, useState } from "react";
+import { GiHamburgerMenu } from "react-icons/gi";
 
 
 
@@ -47,13 +48,41 @@ export default function Navbar({ title, themeValue, callBackChanged })
   return (
     <>
         <div className="navbar bg-base-100 grid grid-flow-row grid-cols-3">
-          <div><Link className="btn btn-ghost text-xl" to="/">NUA</Link></div>
+          <div className="flex flex-row items-center justify-center w-fit z-50 mx-4">
+            <div className="drawer">
+              <input id="my-drawer" type="checkbox" className="drawer-toggle" />
+              <div className="drawer-content flex items-center justify-center">
+                {/* Page content here */}
+                <label
+                  htmlFor="my-drawer"
+                  className="text-primary drawer-button font-bold">
+                    <GiHamburgerMenu className="w-8 h-8 hover:text-base-300 hover:cursor-pointer" />
+                </label>
+              </div>
+              <div className="drawer-side">
+                <label htmlFor="my-drawer" aria-label="close sidebar" className="drawer-overlay"></label>
+                <ul className="menu p-4 w-80 min-h-full bg-base-200 text-base-content ">
+                  {/* Sidebar content here */}
+                  <Link to="/"><li className="font-bold text-lg"><a>Home</a></li></Link>
+                  <Link to="/sitesettings"><li className="font-bold text-lg"><a>Site Settings</a></li></Link>
+                  <Link to="/blockeddevices"><li className="font-bold text-lg"><a>See All blocked</a></li></Link>
+                  <Link to="/alldevices"><li className="font-bold text-lg"><a>See All Devices</a></li></Link>
+                </ul>
+              </div>
+
+            </div>
+              <Link className="btn btn-ghost text-xl ml-2" to="/">NUA</Link>
+          </div>
+
+
+
+
           <span className="mx-auto text-3xl font-bold flex justify-center">{title.title}</span>
           <div className="flex justify-end">
-            <GoGear
+            {/* <GoGear
                 className="w-10 h-10 ml-4 mr-4 hover:cursor-pointer"
                 onClick={handleNav}
-                />
+            /> */}
                 <label className="swap swap-rotate">
                   <input type="checkbox" className={`theme-controller`}  onClick={updateTheme} />
                   {
