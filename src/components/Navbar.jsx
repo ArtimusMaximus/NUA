@@ -65,7 +65,7 @@ export default function Navbar({ title, themeValue, callBackChanged })
                   {/* Sidebar content here */}
                   <Link to="/"><li className="font-bold text-lg"><a>Home</a></li></Link>
                   <Link to="/sitesettings"><li className="font-bold text-lg"><a>Site Settings</a></li></Link>
-                  <Link to="/blockeddevices"><li className="font-bold text-lg"><a>See All blocked</a></li></Link>
+                  <Link to="/blockeddevices"><li className="font-bold text-lg"><a>See All Blocked</a></li></Link>
                   <Link to="/alldevices"><li className="font-bold text-lg"><a>See All Devices</a></li></Link>
                 </ul>
               </div>

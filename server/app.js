@@ -820,7 +820,7 @@ app.get('/getalldevices', async (req, res) => {
 
         // const getClientDevices = await unifi.getClientDevices();
         const getDeviceList = await prisma.device.findMany();
-        console.log(getClientDevices);
+        // console.log(getClientDevices);
         res.json({ getClientDevices: getClientDevices, getDeviceList: getDeviceList })
         // res.sendStatus(200)
     } catch (error) {

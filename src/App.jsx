@@ -3,6 +3,7 @@ import { BrowserRouter, Link, Outlet, useLocation, useNavigate, useParams } from
 import { GoGear } from "react-icons/go";
 import Navbar from './components/Navbar.jsx'
 import { useEffect, useState } from "react";
+import BreadCrumbs from "./components/breadcrumbs/BreadCrumbs.jsx";
 
 
 export default function App() {
@@ -51,6 +52,7 @@ export default function App() {
   return (
     <>
       <Navbar title={title} themeValue={themeValue} callBackChanged={callBackChanged} />
+      <BreadCrumbs />
       <div className="flex items-center justify-center h-full w-full">
         <Outlet />
       </div>
