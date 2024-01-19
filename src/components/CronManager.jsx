@@ -194,7 +194,7 @@ export default function CronManager()
                 <div className="flex w-full mx-2">
                     <div className="flex flex-col items-center justify-center w-full h-full mx-auto border rounded-lg shadow overflow-hidden border-neutral shadow-base-300 m-8">
                         <div className="flex mt-8">
-                            <h1 className="italic text-3xl text-center my-2">Adjust Cron for device &quot;{deviceInfo?.name}&quot;</h1>
+                            <h1 className="text-3xl text-center my-2">Adjust Cron for device &quot;{deviceInfo?.name}&quot;</h1>
                             <a href="https://cron.help" target="_blank" rel="noreferrer" className="link hover:text-info" >
                                 <GoInfo />
                             </a>

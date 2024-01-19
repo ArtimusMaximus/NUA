@@ -55,7 +55,7 @@ export default function Navbar({ title, themeValue, callBackChanged })
                 {/* Page content here */}
                 <label
                   htmlFor="my-drawer"
-                  className="text-primary drawer-button font-bold">
+                  className="text-neutral drawer-button font-bold">
                     <GiHamburgerMenu className="w-8 h-8 hover:text-base-300 hover:cursor-pointer" />
                 </label>
               </div>

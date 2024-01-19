@@ -13,6 +13,7 @@ export default function BreadCrumbs()
 
         let crumbsArray = [];
         pathNames?.map((path, i) => {
+
             if (path === '/' || path === '') {
                 path = 'Home'
             }  else if (path === 'sitesettings') {
@@ -23,8 +24,10 @@ export default function BreadCrumbs()
                 path = 'Blocked Devices'
             } else if (path === 'cronmanager') {
                 path = 'Cron Manager'
+                pathNames[i] = '/'
             } else if (path === 'admin') {
                 path = 'Admin'
+                pathNames[i] = '/'
             } else if (Number(path)) {
                 path = null
             }
@@ -36,8 +39,8 @@ export default function BreadCrumbs()
             return crumbsArray;
         });
 
-        console.log('pnamelength \t', pathNames.length)
-        console.log('pnames \t', pathNames)
+        // console.log('pnamelength \t', pathNames.length)
+        // console.log('pnames \t', pathNames)
 
         if (pathNames.length === 2 && pathNames[1] === '') {
             console.log('fired off');
@@ -52,7 +55,7 @@ export default function BreadCrumbs()
 
     return (
         <>
-        <div className="flex items-center justify-center w-fit border border-primary border-opacity-75 mx-auto rounded-xl">
+        <div className="flex items-center justify-center w-fit mx-auto rounded-xl">
             <div className="text-sm breadcrumbs p-3 bg-transparent">
                 <ul>
                     {locationArr?.map((crumb) => {
