@@ -6,9 +6,8 @@ export default function BreadCrumbs()
     const location = useLocation();
     const [locationArr, setLocationArr] = useState([]);
 
-
     useEffect(() => {
-        console.log(location.pathname);
+        // console.log(location.pathname);
         let pathNames = location.pathname.split("/");
 
         let crumbsArray = [];
@@ -43,31 +42,30 @@ export default function BreadCrumbs()
         // console.log('pnames \t', pathNames)
 
         if (pathNames.length === 2 && pathNames[1] === '') {
-            console.log('fired off');
+            // console.log('fired off');
             setLocationArr([{ path: 'Home', link: '/' }])
         } else {
             setLocationArr(crumbsArray)
         }
-
 
     }, [location]);
 
 
     return (
         <>
-        <div className="flex items-center justify-center w-fit mx-auto rounded-xl">
-            <div className="text-sm breadcrumbs p-3 bg-transparent">
-                <ul>
-                    {locationArr?.map((crumb) => {
-                        return (
-                            <>
-                                {crumb.path !== null && <li className="italic"><Link to={`/${crumb.link}`}>{crumb.path}</Link></li>}
-                            </>
-                        )
-                    })}
-                </ul>
+            <div className="flex items-center justify-center w-fit mx-auto rounded-xl">
+                <div className="text-sm breadcrumbs p-3 bg-transparent">
+                    <ul>
+                        {locationArr?.map((crumb) => {
+                            return (
+                                <>
+                                    {crumb.path !== null && <li className="italic"><Link to={`/${crumb.link}`}>{crumb.path}</Link></li>}
+                                </>
+                            )
+                        })}
+                    </ul>
+                </div>
             </div>
-        </div>
         </>
     )
 }

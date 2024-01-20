@@ -55,6 +55,7 @@ const handleUnblock = async (deviceToUnblock) => {
     }
 }
 const handleSelect = e => {
+    console.log(e);
     selectRef.current.selected = false;
     setFilter(e.target.value);
 }
@@ -62,6 +63,7 @@ const handleSelect = e => {
 
 
 useEffect(() => {
+    console.log('useeffect fired by switch');
     const filterCriteria = (criteria) => {
         switch (criteria) {
             case 'all':
@@ -93,6 +95,7 @@ useEffect(() => {
                 setFilteredArray(() => clientDevices.filter((device) => device.is_wired === false));
                 break;
             default:
+                console.log();
                 setFilteredArray(clientDevices);
                 break;
         }
@@ -105,23 +108,18 @@ useEffect(() => {
             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 xl:gap-8 pb-24">
             <h1 className="my-6 text-3xl italic mx-auto row-start-1 col-span-full text-center">{filter === 'all' ? 'All Client Devices' : filter} ({filteredArray.length}<span className="font-thin italic text-lg ml-1">items<span className="text-3xl italic">)</span></span></h1>
 
-
-
             <div className="flex flex-row row-start-2 gap-2 col-span-full mx-auto">
-                <select className="select select-bordered w-full max-w-xs">
+                <select className="select select-bordered w-full max-w-xs" onChange={handleSelect}>
                     <option disabled ref={selectRef} selected value={'all'}>Filter Selection</option>
-                    <option onClick={handleSelect} value={'Blocked Devices'}>Blocked Devices</option>
-                    <option onClick={handleSelect} value={'Offline Devices'}>Offline Devices</option>
-                    <option onClick={handleSelect} value={'Online Devices'}>Online Devices</option>
-                    <option onClick={handleSelect} value={'Devices on NUA List'}>Devices on NUA List</option>
-                    <option onClick={handleSelect} value={'Wired Devices'}>Wired Devices</option>
-                    <option onClick={handleSelect} value={'Wireless Devices'}>Wireless Devices</option>
+                    <option value={'Blocked Devices'}>Blocked Devices</option>
+                    <option value={'Offline Devices'}>Offline Devices</option>
+                    <option value={'Online Devices'}>Online Devices</option>
+                    <option value={'Devices on NUA List'}>Devices on NUA List</option>
+                    <option value={'Wired Devices'}>Wired Devices</option>
+                    <option value={'Wireless Devices'}>Wireless Devices</option>
                 </select>
                 <div className="btn btn-circle" onClick={handleRefresh}><IoMdRefresh className="w-4 h-4 pointer-events-none" /></div>
-
             </div>
-
-
 
             {
                 loading ? <DeviceCardSkeleton devices={filteredArray} loading={loading} />

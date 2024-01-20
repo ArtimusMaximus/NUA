@@ -2,7 +2,7 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import { GoGear } from "react-icons/go";
 import { useEffect, useState } from "react";
 import { GiHamburgerMenu } from "react-icons/gi";
-
+import NuaSvg from "./images/nua.svg"
 
 
 export default function Navbar({ title, themeValue, callBackChanged })
@@ -71,7 +71,15 @@ export default function Navbar({ title, themeValue, callBackChanged })
               </div>
 
             </div>
-              <Link className="btn btn-ghost text-xl ml-2" to="/">NUA</Link>
+              <div className="flex justify-center items-center pl-2">
+                <img
+                  src={NuaSvg}
+                  alt="NUA Logo"
+                  className="w-10 h-10 p-0 "
+                  // style={{ fill: '#ff0000', stroke: '#ff0000'}}
+                />
+                <Link className="btn btn-ghost text-xl pl-2" to="/">NUA</Link>
+              </div>
           </div>
 
 

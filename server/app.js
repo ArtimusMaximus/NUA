@@ -11,11 +11,7 @@ const { PrismaClient, Prisma } = require('@prisma/client');
 const schedule = require('node-schedule');
 const cronValidate = require('node-cron');
 const customPORT = require('./globalSettings');
-const { Queue, Worker } = require('bullmq');
-const { createPrismaRedisCache } = require('prisma-redis-middleware');
-const IORedis = require('ioredis');
-const { Schema, model } = require('mongoose');
-const mongoose = require('mongoose');
+
 
 
 
@@ -42,8 +38,7 @@ app.use(express.static(process.cwd().slice(0, -7) + '/dist'));
 
 
 let unifi;
-async function logIntoUnifi(hostname, port, sslverify, username, password)
-{
+async function logIntoUnifi(hostname, port, sslverify, username, password) {
     unifi = new Unifi.Controller({hostname: hostname, port: port, sslverify: sslverify});
     const loginData = await unifi.login(username, password);
     // console.log('Login Data from unifi logIntoUnifi: ', loginData);
@@ -56,8 +51,9 @@ const fetchLoginInfo = async () => {
         try {
           const adminLogin = await prisma.credentials.findMany();
         //   console.log(adminLogin);
-          loginData = adminLogin.pop();
 
+
+          loginData = adminLogin.pop();
         //   console.log('loginData ', loginData);
           return loginData;
         } catch (error) {
@@ -71,6 +67,7 @@ info
     // .then(() => console.log('then ', loginData))
     // .then(() => handleUnifiInit(loginData.hostname, loginData.port, loginData.sslverify))
     .then(() => logIntoUnifi(loginData.hostname, loginData.port, loginData.sslverify, loginData.username, loginData.password))
+    .catch((error) => console.log(error))
 
 async function getBlockedUsers() {
     const blockedUsers = await unifi.getBlockedUsers();
@@ -120,7 +117,7 @@ function extractMacs(body) {
     // console.log(body);
     return body.macData.map(mac => mac.macAddress)
 }
-function validateCron(crontype) {
+function validateCron(crontype) { // return true/false
     let validation = cronValidate.validate(crontype);
     console.log('validation func: ', validation)
     return validation;
@@ -814,10 +811,7 @@ app.get('/getallblockeddevices', async (req, res) => {
 app.get('/getalldevices', async (req, res) => {
     try {
         // const getAccessDevices = await unifi.getAccessDevices();
-
         const getClientDevices = await unifi.getAllUsers();
-
-
         // const getClientDevices = await unifi.getClientDevices();
         const getDeviceList = await prisma.device.findMany();
         // console.log(getClientDevices);

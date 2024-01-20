@@ -98,6 +98,7 @@ export default function AdminConsole()
     }, [toggleReRender]);
 
     useEffect(() => { // /getmacaddress with refresh timer
+        // note 01 19 - 60 timer is fine until any forced re-render, then investigate if it goes to 10 second mode, may need to force one time call
         let time;
         const handleGetMacAddresses = async () => {
             try {
@@ -107,7 +108,7 @@ export default function AdminConsole()
                 });
                 if (response.ok) {
                     const data = await response.json();
-                    console.log(data);
+                    console.log('data in /getmacaddress initial useeffect: \t', data);
                     setMacData(data ? data : {});
                     time = data.refreshRate;
                 }
@@ -131,11 +132,11 @@ export default function AdminConsole()
         // const timerId = checkEvery60Seconds();
         // // handleGetMacAddresses();
         // let time = refreshTimer;
-        console.log(time);
+        console.log('time in getmacaddresses adminconsole: \t', time);
         const checkEvery60Seconds = () => {
             console.log(refreshTimer, typeof refreshTimer);
             const timerId = setTimeout(async () => {
-                console.log('60 second check complete.');
+                console.count('60 second check complete.');
                 await handleGetMacAddresses();
                 checkEvery60Seconds();
             }, time !== null && time !== undefined ? time : 10000)
@@ -152,7 +153,7 @@ export default function AdminConsole()
             const getCronData = async () => {
                 try {
                     const cronData = await fetch('/checkjobreinitiation');
-                    if(cronData.ok) {
+                    if (cronData.ok) {
                         const cronJobCheckData = await cronData.json();
                         setCronJobChecked(cronJobCheckData);
                         console.log('Cron Job Check Data: ', cronJobCheckData);
