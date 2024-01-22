@@ -23,10 +23,10 @@ export default function BreadCrumbs()
                 path = 'Blocked Devices'
             } else if (path === 'cronmanager') {
                 path = 'Cron Manager'
-                pathNames[i] = '/'
+                pathNames[i] = ''
             } else if (path === 'admin') {
                 path = 'Admin'
-                pathNames[i] = '/'
+                pathNames[i] = ''
             } else if (Number(path)) {
                 path = null
             }

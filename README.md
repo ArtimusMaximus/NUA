@@ -1,6 +1,6 @@
-# NUA
+![NUA Logo](nua-logo.webp)
 
-NUA intended provides you with a easy-to-use web interface for blocking and unblocking Unifi network clients.
+A NodeJS based web application, provides you with a easy-to-use web interface for blocking and unblocking Unifi network clients.
 
 ## Features
 * Add/Remove Unifi clients for management using a MAC address.
@@ -82,3 +82,22 @@ module.exports = customPORT;
 ```bash
 npm run start
 ```
+
+# Support
+If you think you've found a bug in NUA, try the following first:
+* Update to the latest version of NUA.
+* Turn the device off and on again.
+* Use the search function to see if this issue has already been reported/solved.
+* Check the Wiki (Not yet available).
+
+# Feature Requests
+1. Please check the issues tracker to see if someone else has already requestsed the feature. If a similar idea has already been requested, give it a thumbs up. Do not comment with +1 or something similar as it creates unnecessary spam. 
+# Warning
+* This software should not be used in production.
+* This software should not be accessible from the internet.
+
+Use at your own risk!
+
+# License
+This is free software under the GPL v3 open source license. Feel free to do with it what you wish, but any modification must be open sourced. 
+- [GNU GPL v3](http://www.gnu.org/licenses/gpl.html)	

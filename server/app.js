@@ -51,8 +51,6 @@ const fetchLoginInfo = async () => {
         try {
           const adminLogin = await prisma.credentials.findMany();
         //   console.log(adminLogin);
-
-
           loginData = adminLogin.pop();
         //   console.log('loginData ', loginData);
           return loginData;
@@ -139,75 +137,83 @@ const jobFunction = async (crontype, macAddress) => { // for crons
 
 app.get('/getmacaddresses', async (req, res) => {
     try {
-        const blockedUsers = await unifi.getBlockedUsers();
-        let macData = await prisma.device.findMany();
-        let getRefreshTimer = await prisma.credentials.findUnique({
-            where: {
-                id: 1
-            }
-        });
-        let refreshRate = getRefreshTimer.refreshRate;
-        // console.log(refreshRate);
-        /////////compare our database data with the blocked list, and set the data to active or not
+        if (unifi) {
+            // console.log('unifi: \t', unifi)
 
-        const doMacAddressMatch = (macAddress, array) => {
-            return array.some(obj => obj.macAddress === macAddress)
-        }
-        const matchedObjects = blockedUsers.filter(obj1 => doMacAddressMatch(obj1.mac, macData))
-        // console.log("Devices confirmed as blocked and reflected on added device list: ", matchedObjects.length);
-        // console.log('blocked users ', blockedUsers);
-        // console.log('matched Objects ', matchedObjects);
-
-        if (matchedObjects.length === 0) {
-            const recordIds = macData.map(obj => obj.id);
-            const updateData = { active: true };
-            const updateRecordsToActive = async (recordIds, updateData) => {
-                try {
-                    const updatedMacData = await prisma.device.updateMany({
-                        where: {
-                            id: {
-                                in: recordIds,
-                            },
-                        },
-                        data: updateData
-                    });
-                    const newMacData = await prisma.device.findMany()
-                    res.json({ macData: newMacData, blockedUsers: blockedUsers, refreshRate: refreshRate });
-                } catch (error) {
-                    console.error(error);
+            const blockedUsers = await unifi.getBlockedUsers();
+            let macData = await prisma.device.findMany();
+            let getRefreshTimer = await prisma.credentials.findUnique({
+                where: {
+                    id: 1
                 }
+            });
+            let refreshRate = getRefreshTimer.refreshRate;
+            // console.log(refreshRate);
+            /////////compare our database data with the blocked list, and set the data to active or not
+
+            const doMacAddressMatch = (macAddress, array) => {
+                return array.some(obj => obj.macAddress === macAddress)
             }
-            updateRecordsToActive(recordIds, updateData);
-            // console.log('new macData ', macData);
+            const matchedObjects = blockedUsers.filter(obj1 => doMacAddressMatch(obj1.mac, macData))
+            // console.log("Devices confirmed as blocked and reflected on added device list: ", matchedObjects.length);
+            // console.log('blocked users ', blockedUsers);
+            // console.log('matched Objects ', matchedObjects);
 
-        } else if (matchedObjects.length >= 1) { // something is inactive
-            const findBlocked = matchedObjects.filter(obj => obj.blocked === true);
-            // const matchingMacs = compareBlocked(findBlocked, macData);
-            const extractedMacAddress = findBlocked.map(blockedMac => blockedMac.mac);
-
-            const matchedMacAddys = macData.filter(macData => extractedMacAddress.includes(macData.macAddress));
-
-            // console.log('matchedMacAddys', matchedMacAddys);
-
-            const recordIds = matchedMacAddys.map(obj => obj.id);
-            const updateData = { active: false };
-            const updateRecordsToActive = async (recordIds, updateData) => {
-                try {
-                    const updatedMacData = await prisma.device.updateMany({
-                        where: {
-                            id: {
-                                in: recordIds,
+            if (matchedObjects.length === 0) {
+                const recordIds = macData.map(obj => obj.id);
+                const updateData = { active: true };
+                const updateRecordsToActive = async (recordIds, updateData) => {
+                    try {
+                        const updatedMacData = await prisma.device.updateMany({
+                            where: {
+                                id: {
+                                    in: recordIds,
+                                },
                             },
-                        },
-                        data: updateData
-                    });
-                    const newMacData = await prisma.device.findMany()
-                    res.json({ macData: newMacData, blockedUsers: blockedUsers, refreshRate: refreshRate });
-                } catch (error) {
-                    console.error(error);
+                            data: updateData
+                        });
+                        const newMacData = await prisma.device.findMany()
+                        res.json({ macData: newMacData, blockedUsers: blockedUsers, refreshRate: refreshRate });
+                    } catch (error) {
+                        console.error(error);
+                    }
                 }
+                updateRecordsToActive(recordIds, updateData);
+
+            } else if (matchedObjects.length >= 1) { // something is inactive
+                const findBlocked = matchedObjects.filter(obj => obj.blocked === true);
+                const extractedMacAddress = findBlocked.map(blockedMac => blockedMac.mac);
+                const matchedMacAddys = macData.filter(macData => extractedMacAddress.includes(macData.macAddress));
+                const recordIds = matchedMacAddys.map(obj => obj.id);
+                const updateData = { active: false };
+                const updateRecordsToActive = async (recordIds, updateData) => {
+                    try {
+                        const updatedMacData = await prisma.device.updateMany({
+                            where: {
+                                id: {
+                                    in: recordIds,
+                                },
+                            },
+                            data: updateData
+                        });
+                        const newMacData = await prisma.device.findMany()
+                        res.json({ macData: newMacData, blockedUsers: blockedUsers, refreshRate: refreshRate });
+                    } catch (error) {
+                        console.error(error);
+                    }
+                }
+                updateRecordsToActive(recordIds, updateData);
             }
-            updateRecordsToActive(recordIds, updateData);
+        } else {
+            try {
+                info
+                .then(() => logIntoUnifi(loginData.hostname, loginData.port, loginData.sslverify, loginData.username, loginData.password))
+                .catch((error) => console.log(error))
+
+            } catch(error) {
+                console.error(error)
+                res.sendStatus(401)
+            }
         }
     } catch (error) {
         if(error) throw error;
@@ -461,6 +467,9 @@ app.delete('/removedevice', async (req, res) => { // Devices.jsx device delete
             id: parseInt(id),
         }
     });
+
+    // delete crons - perhaps make all crons contain a deviceId as xubuntu device does
+    // cancel jobs associated (if exist)
     res.json({ message: "Deletion successful", dataDeleted: removeDevice })
 });
 

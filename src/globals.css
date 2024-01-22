@@ -1,0 +1,11 @@
+ @font-face{
+    font-family: 'Aqurine';
+    src: local('Aqurine'), url(./fonts/Aqurine.otf) format('opentype')
+}
+
+
+.nuaFont {
+    font-family: 'Aqurine';
+    /* font-size: large; */
+
+}

@@ -2,7 +2,8 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import { GoGear } from "react-icons/go";
 import { useEffect, useState } from "react";
 import { GiHamburgerMenu } from "react-icons/gi";
-import NuaSvg from "./images/nua.svg"
+import NuaSvg from "../images/nua.svg";
+// import '../globals.css'
 
 
 export default function Navbar({ title, themeValue, callBackChanged })
@@ -47,9 +48,9 @@ export default function Navbar({ title, themeValue, callBackChanged })
 
   return (
     <>
-        <div className="navbar bg-base-100 grid grid-flow-row grid-cols-3">
-          <div className="flex flex-row items-center justify-center w-fit z-50 mx-4">
-            <div className="drawer">
+        <div className="navbar bg-base-100 grid grid-flow-row grid-cols-2">
+          <div className="flex flex-row items-center justify-center w-fit z-50 mr-4 gap-1">
+            <div className="drawer w-fit">
               <input id="my-drawer" type="checkbox" className="drawer-toggle" />
               <div className="drawer-content flex items-center justify-center">
                 {/* Page content here */}
@@ -61,7 +62,17 @@ export default function Navbar({ title, themeValue, callBackChanged })
               </div>
               <div className="drawer-side">
                 <label htmlFor="my-drawer" aria-label="close sidebar" className="drawer-overlay"></label>
-                <ul className="menu p-4 w-80 min-h-full bg-base-200 text-base-content ">
+                <ul className="menu p-4 w-52 sm:w-80 min-h-full bg-base-200 text-base-content ">
+                  
+                  <Link to="/"><li><div>
+                    <img
+                      src={NuaSvg}
+                      alt="NUA Logo"
+                      className="w-16 h-16 p-0 "
+                      // style={{ fill: '#ff0000', stroke: '#ff0000'}}
+                    />
+                    <div className="px-1 nuaFont text-2xl ">NUA</div>
+                  </div></li></Link>
                   {/* Sidebar content here */}
                   <Link to="/"><li className="font-bold text-lg"><a>Home</a></li></Link>
                   <Link to="/sitesettings"><li className="font-bold text-lg"><a>Site Settings</a></li></Link>
@@ -71,21 +82,23 @@ export default function Navbar({ title, themeValue, callBackChanged })
               </div>
 
             </div>
-              <div className="flex justify-center items-center pl-2">
-                <img
-                  src={NuaSvg}
-                  alt="NUA Logo"
-                  className="w-10 h-10 p-0 "
-                  // style={{ fill: '#ff0000', stroke: '#ff0000'}}
-                />
-                <Link className="btn btn-ghost text-xl pl-2" to="/">NUA</Link>
+              <div className="flex justify-center items-center">
+                <Link className="btn btn-ghost px-1 nuaFont text-xl " to="/">
+                  <img
+                    src={NuaSvg}
+                    alt="NUA Logo"
+                    className="w-10 h-10 p-0 "
+                    // style={{ fill: '#ff0000', stroke: '#ff0000'}}
+                  />
+                  NUA
+                </Link>
               </div>
           </div>
 
 
 
 
-          <span className="mx-auto text-3xl font-bold flex justify-center">{title.title}</span>
+          {/* <span className="mx-auto text-3xl font-bold flex justify-center">{title.title}</span> */}
           <div className="flex justify-end">
             {/* <GoGear
                 className="w-10 h-10 ml-4 mr-4 hover:cursor-pointer"
