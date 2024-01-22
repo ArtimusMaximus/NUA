@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import Devices from "./Devices";
 import { IoAddCircleOutline } from "react-icons/io5";
+import { useNavigate } from 'react-router-dom';
 
 
 const device = {
@@ -25,8 +26,25 @@ export default function AdminConsole()
     const macRef = useRef();
     const deviceNameRef = useRef();
     const initialized = useRef(false);
+    const navigate = useNavigate();
+    const [countdown, setCountdown] = useState(2);
+    const dialogRef = useRef();
+
 
     const timer = t => new Promise(res => setTimeout(res, t));
+
+    const handleTimer = async () => {
+        const timer = t => new Promise(res => setTimeout(res, t));
+        try {
+            await timer(1000)
+            setCountdown(1)
+            await timer(1000)
+            setCountdown(0)
+            navigate('/sitesettings');
+        } catch (e) {
+            if (e) throw e;
+        }
+    }
 
     function validateMacAddress(mac) {
         const macRegex = /^([0-9A-F]{2}:){5}[0-9A-F]{2}$/i;
@@ -88,64 +106,70 @@ export default function AdminConsole()
                     const data = await response.json();
                     console.log(data);
                     setMacData(data ? data : {});
-
+                } else if (!response.ok) {
+                    console.log('response not okay!');
+                    await dialogRef.current.showModal();
+                    await handleTimer();
                 }
             } catch (error) {
-                console.error(error);
+                if (error) {
+                    console.error('consoleerror in /getmacaddresses', error);
+
+                }
             }
         }
         handleGetMacAddresses();
     }, [toggleReRender]);
 
-    useEffect(() => { // /getmacaddress with refresh timer
-        // note 01 19 - 60 timer is fine until any forced re-render, then investigate if it goes to 10 second mode, may need to force one time call
-        let time;
-        const handleGetMacAddresses = async () => {
-            try {
-                const response = await fetch('/getmacaddresses', {
-                    method: 'GET',
-                    mode: 'cors',
-                });
-                if (response.ok) {
-                    const data = await response.json();
-                    console.log('data in /getmacaddress initial useeffect: \t', data);
-                    setMacData(data ? data : {});
-                    time = data.refreshRate;
-                }
-            } catch (error) {
-                console.error(error);
-            }
-        }
-        // async function checkEvery60Seconds() {
-        //     // const minute = 60000;
-        //     const checker = new Promise((res) => {
-        //         setTimeout(() => {
-        //             console.log('60 second check complete.')
-        //             return res();
-        //         }, 60000)
-        //     });
-        //     handleGetMacAddresses();
-        //     await checker;
-        //     // clearTimeout(checker);
-        //     checkEvery60Seconds();
-        // }
-        // const timerId = checkEvery60Seconds();
-        // // handleGetMacAddresses();
-        // let time = refreshTimer;
-        console.log('time in getmacaddresses adminconsole: \t', time);
-        const checkEvery60Seconds = () => {
-            console.log(refreshTimer, typeof refreshTimer);
-            const timerId = setTimeout(async () => {
-                console.count('60 second check complete.');
-                await handleGetMacAddresses();
-                checkEvery60Seconds();
-            }, time !== null && time !== undefined ? time : 10000)
-            return () => clearTimeout(timerId)
-        }
-        const timerId = checkEvery60Seconds();
+    // useEffect(() => { // /getmacaddress with refresh timer
+    //     // note 01 19 - 60 timer is fine until any forced re-render, then investigate if it goes to 10 second mode, may need to force one time call
+    //     let time;
+    //     const handleGetMacAddresses = async () => {
+    //         try {
+    //             const response = await fetch('/getmacaddresses', {
+    //                 method: 'GET',
+    //                 mode: 'cors',
+    //             });
+    //             if (response.ok) {
+    //                 const data = await response.json();
+    //                 console.log('data in /getmacaddress initial useeffect: \t', data);
+    //                 setMacData(data ? data : {});
+    //                 time = data.refreshRate;
+    //             }
+    //         } catch (error) {
+    //             console.error(error);
+    //         }
+    //     }
+    //     // async function checkEvery60Seconds() {
+    //     //     // const minute = 60000;
+    //     //     const checker = new Promise((res) => {
+    //     //         setTimeout(() => {
+    //     //             console.log('60 second check complete.')
+    //     //             return res();
+    //     //         }, 60000)
+    //     //     });
+    //     //     handleGetMacAddresses();
+    //     //     await checker;
+    //     //     // clearTimeout(checker);
+    //     //     checkEvery60Seconds();
+    //     // }
+    //     // const timerId = checkEvery60Seconds();
+    //     // // handleGetMacAddresses();
+    //     // let time = refreshTimer;
+    //     console.log('time in getmacaddresses adminconsole: \t', time);
+    //     const checkEvery60Seconds = () => {
+    //         console.log(refreshTimer, typeof refreshTimer);
+    //         const timerId = setTimeout(async () => {
+    //             console.count('60 second check complete.');
+    //             await handleGetMacAddresses();
+    //             checkEvery60Seconds();
+    //         }, time !== null && time !== undefined ? time : 10000)
+    //         return () => clearTimeout(timerId)
+    //     }
+    //     const timerId = checkEvery60Seconds();
 
-        return () => clearTimeout(timerId);
-    }, []);
+    //     return () => clearTimeout(timerId);
+    // }, []);
 
     useEffect(() => { // check if server crash & jobs need re-initiation
         if (!initialized.current) {
@@ -219,6 +243,15 @@ export default function AdminConsole()
                     </div>
                 </div>
             </div>
+
+            {/* navigate to credentials modal */}
+            <dialog id="redirectModal" className="modal" ref={dialogRef}>
+                <div className="modal-box flex flex-col items-center justify-center">
+                    <h3 className="font-bold text-lg">Your unifi credentials must be set to proceed!</h3>
+                    <h3 className="font-bold text-lg">Redirecting In:</h3>
+                    <p className="py-4 text-4xl italic font-bold">{countdown}</p>
+                </div>
+            </dialog>
         </>
     )
 }

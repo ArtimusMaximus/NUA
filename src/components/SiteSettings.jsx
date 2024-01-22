@@ -36,14 +36,14 @@ export default function SiteSettings()
                 ...preExistingData,
                 [e.target.name]: e.target.value
             });
-            console.log(preExistingData);
+            // console.log(preExistingData);
         } else {
             setData({
                 ...data,
                 [e.target.name]: e.target.value
             });
 
-            console.log(data);
+            // console.log(data);
         }
     }
 
@@ -82,7 +82,7 @@ export default function SiteSettings()
             });
             if (submitSiteSettings.ok) {
                 const response = await submitSiteSettings.json();
-                console.log('Front end success.', response);
+                // console.log('Front end success.', response);
                 setlocked(true);
 
                 // testBtnRef.current.disabled = false;
@@ -115,9 +115,10 @@ export default function SiteSettings()
                     timerRef.current.disabled = true;
                     // testBtnRef.current.disabled = false;
                     const dbData = await fetchSettings.json();
-                    console.log('dbData: ', dbData);
+                    // console.log('dbData: ', dbData);
                     setPreExistingData(dbData[0])
-                } else if (fetchSettings.status === 404) {
+                // } else if (fetchSettings.status === 404) {
+                } else if (!fetchSettings.ok) {
                     setDataExists(false);
                     setlocked(false);
                     hostnameRef.current.disabled = false;
@@ -177,10 +178,10 @@ export default function SiteSettings()
 
                 } else if (!testConnection.ok) {
                     const errorMsg = await testConnection.json();
-                    console.log('error message from back end', errorMsg);
+                    console.log('error message from back end (/sitesettings)', errorMsg);
 
                     // setShowConfirmation(true)
-                    setTestMessage(`There was an error "${errorMsg.message}", please double check and try again.`);
+                    setTestMessage(`There was an error "${errorMsg.message}", please double check your username and password.`);
                     setAlertType("alert-error");
                     setReveal(true);
                     let interval2;
@@ -197,7 +198,7 @@ export default function SiteSettings()
                         // .then(() => setClicked(false))
             }
         } catch (error) {
-            console.log(error)
+            console.error(error)
             // if (error) throw error;
         }
     }
@@ -205,7 +206,7 @@ export default function SiteSettings()
     const handleRange = e => {
         setRangeValue(e.target.value);
 
-        console.log(e.target.value);
+        // console.log(e.target.value);
     }
 
 
