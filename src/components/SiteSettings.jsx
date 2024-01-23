@@ -47,13 +47,14 @@ export default function SiteSettings()
         }
     }
 
-    useEffect(() => { // this is not hitting more than once
-        // console.log('reset reveal here');
+    useEffect(() => { // this is not hitting more than once, yes it does when showConfirmation changes
+        console.log('reset reveal here???');
         let revealTimer;
         const handleReveal = () => {
             revealTimer = setTimeout(() => {
                 setReveal(false)
-                setClicked(false)
+                setClicked(prev => prev && locked ? false : true)
+                // console.log('setClicked(false)');
             }, 5000)
         }
         handleReveal();
@@ -101,6 +102,7 @@ export default function SiteSettings()
     }
 
     useEffect(() => { // check for settings...
+        console.log('fired how many times...');
         async function checkForSettings() {
             try {
                 const fetchSettings = await fetch('/checkforsettings');
@@ -151,11 +153,12 @@ export default function SiteSettings()
             portRef.current.disabled = false;
             sslverifyRef.current.disabled = false;
             timerRef.current.disabled = false;
+            // testBtnRef.current.disabled = false;
         }
     }
     const handleTest = async () => {
         setClicked(true)
-        // console.log(clicked);
+        console.log('clicked set to true', clicked);
         try {
             const testConnection = await fetch('/testconnection');
             if (testConnection.ok) {
@@ -165,16 +168,18 @@ export default function SiteSettings()
                 setReveal(true);
                 let interval1;
                 const resetReveal1 = async () => {
-                    interval1 = setTimeout(() => {
+                     interval1 = setTimeout(() => {
                         // setReveal(false);
                         // setShowConfirmation(prev => !prev);
+                        // setClicked(false)
                     }, 5000);
                 }
                 await resetReveal1()
                     .then(() => clearInterval(interval1))
                     .then(() => setShowConfirmation(prev => !prev))
-                    .then(() => testBtnRef.current.disabled = false)
                     // .then(() => setClicked(false))
+                    // .then(() => testBtnRef.current.disabled = false)
+
 
                 } else if (!testConnection.ok) {
                     const errorMsg = await testConnection.json();
@@ -189,16 +194,24 @@ export default function SiteSettings()
                         interval2 = setTimeout(() => {
                             // setReveal(false);
                             // setShowConfirmation(prev => !prev);
+                            // setClicked(false)
                         }, 5000);
                     }
                     await resetReveal2()
                         .then(() => clearInterval(interval2))
                         .then(() => setShowConfirmation(prev => !prev))
-                        .then(() => testBtnRef.current.disabled = false)
                         // .then(() => setClicked(false))
+
+
+                        // .then(() => testBtnRef.current.disabled = false)
+
+
             }
         } catch (error) {
-            console.error(error)
+            console.error(error);
+            (() => {
+                setClicked(false)
+            })()
             // if (error) throw error;
         }
     }
@@ -350,7 +363,7 @@ export default function SiteSettings()
                         </div>
                         <div className="grid grid-flow-row grid-cols-2">
                             <div
-                                className={`flex m-8 btn ${clicked ? 'btn-disabled' : ''}`}
+                                className={`flex m-8 btn ${locked && !clicked ? '' : clicked ? 'btn-disabled' : ''}`}
                                 ref={testBtnRef}
                                 onClick={handleTest}
                             >
@@ -371,7 +384,7 @@ export default function SiteSettings()
                             >
                                 <GoLock
                                     className={`items-center justify-center z-10 w-8 h-8 hover:cursor-pointer `}
-                                    />
+                                />
                             </div>
                         </div>
                     </div>
