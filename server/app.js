@@ -703,6 +703,7 @@ app.delete('/deletecron', async (req, res) => {
                 id: parseId
             }
         });
+        console.log('jobName: \t', jobName);
         const jobToCancel = schedule.scheduledJobs[jobName]
         console.log('Job Name cancelled: ', jobToCancel?.name);
         jobToCancel?.cancel();

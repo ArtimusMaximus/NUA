@@ -147,7 +147,10 @@ export default function CronManager()
     }
     const handleDeleteCron = async e => {
         // submitButtonRef.current.disabled = true
-        console.log(e?.target.dataset.id);
+        console.log(e.target.dataset.id);
+        console.log(e.target.dataset.jobname);
+        let jobName = e.target.dataset.jobname
+        console.log('jobName: \t', jobName);
         const parseId = parseInt(e.target.dataset.id);
 
         try {
@@ -157,7 +160,7 @@ export default function CronManager()
                 headers: {
                     "Content-Type" : "application/json"
                 },
-                body: JSON.stringify({ parseId })
+                body: JSON.stringify({ parseId, jobName })
             });
             if (deleteCron.ok) {
                 const deleteReply = await deleteCron.json();
@@ -274,11 +277,10 @@ export default function CronManager()
                                                                     className="w-fit hover:cursor-pointer"
                                                                     onClick={e => handleDeleteCron(e)}
                                                                     data-id={cronData?.id}
+                                                                    data-jobname={cronData?.jobName}
                                                                     >
                                                                         <GoTrash
                                                                             className="flex items-center justify-center z-10 w-6 h-6 pointer-events-none"
-
-                                                                            // data-jobname={cronData?.jobName}
                                                                             ref={submitButtonRef}
                                                                         />
                                                                     </div>
