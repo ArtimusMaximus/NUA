@@ -9,11 +9,11 @@ generator client {
 
 model Credentials {
   id          Int          @id @default(autoincrement())
-  username    String
-  password    String
-  hostname    String
-  port        Int
-  sslverify   Boolean
+  username    String?
+  password    String?
+  hostname    String?
+  port        Int?
+  sslverify   Boolean?
   theme       String?
   refreshRate Int?
 }
