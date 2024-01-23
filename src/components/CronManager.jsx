@@ -11,7 +11,8 @@ export default function CronManager()
     const [cron, setCron] = useState({
         crontype: 'allow',
         id: parseInt(params.id),
-        toggleCron: null
+        toggleCron: true,
+        jobName: ''
     });
     const submitButtonRef = useRef();
     const inputRef = useRef();
@@ -215,18 +216,6 @@ export default function CronManager()
                                     </div>
                                 </div>
                                 <div className="flex items-center justify-center">
-                                    {/* <div className="form-control">
-                                        <label className="label cursor-pointer p-2">
-                                            <span className="label-text p-2">Allow </span>
-                                            <input type="radio" name="radio-10" ref={allowRef} className="radio checked:bg-green-500 p-2" value="allow" onChange={e => handleChange(e)} />
-                                        </label>
-                                    </div>
-                                    <div className="form-control">
-                                        <label className="label cursor-pointer p-2">
-                                            <span className="label-text p-2">Block </span>
-                                            <input type="radio" name="radio-10" ref={blockRef} className="radio checked:bg-red-500 p-2" value="block" onChange={e => handleChange(e)} />
-                                        </label>
-                                    </div> */}
                                     <div className="join m-4">
                                         <input
                                             onClick={handleAllow}

@@ -363,7 +363,7 @@ export default function SiteSettings()
                         </div>
                         <div className="grid grid-flow-row grid-cols-2">
                             <div
-                                className={`flex m-8 btn ${locked && !clicked ? '' : clicked ? 'btn-disabled' : ''}`}
+                                className={`flex m-8 btn ${locked && !clicked ? '' : clicked && !locked ? 'btn-disabled' : ''}`}
                                 ref={testBtnRef}
                                 onClick={handleTest}
                             >
