@@ -35,6 +35,34 @@ app.use(cors());
 app.use(bodyParser.json());
 app.use(express.static(process.cwd().slice(0, -7) + '/dist'));
 
+const checkForCredentials = async () => {
+    try {
+        const creds = await prisma.credentials.findUnique({
+            where: {
+                id: 1
+            }
+        });
+        if (creds === null) {
+            const initialSiteCredentials = await prisma.credentials.create({
+                data: {
+                    username: null,
+                    password: null,
+                    hostname: 'unifi',
+                    port: 443,
+                    sslverify: false,
+                    refreshRate: 60000,
+                    theme: 'dark'
+                }
+            });
+        } else {
+            return;
+        }
+    } catch (error) {
+        console.error(error)
+    }
+}
+checkForCredentials();
+
 
 
 function credentialValidity(validity) {
@@ -61,7 +89,7 @@ async function logIntoUnifi(hostname, port, sslverify, username, password) {
 
 let loginData;
 const fetchLoginInfo = async () => {
-    redLog('fetchLoginInfo on server refetched');
+    // redLog('fetchLoginInfo on server refetched');
     const getAdminLoginInfo = async () => {
         try {
           const adminLogin = await prisma.credentials.findMany(); // 01/21 - fine for now...
@@ -769,7 +797,7 @@ app.post('/savesitesettings', async (req, res) => {
 
 app.put('/updatesitesettings', async (req, res) => {
     const { username, password, hostname, port, sslverify, id, refreshRate } = req.body;
-    console.log(req.body);
+    // console.log(req.body);
 
     try {
         const siteCredentials = await prisma.credentials.update({
