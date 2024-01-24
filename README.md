@@ -52,14 +52,24 @@ Clone this repository:
 git clone git@github.com:ArtimusMaximus/nodeunifireact.git
 ```
 
-Install Node prerequisites:
+Install Node client prerequisites:
 
 ```bash
 cd nodeunifireact
 npm install
-npm install nodemon
 ```
 
+Install Node Server prerequisites:
+```bash
+cd server
+npm install
+```
+
+Initiate Prisma DB (from inside server directory):
+```bash
+npx prisma generate
+npx prisma migrate dev
+```
 
 ### Optional - Set the port number
 The default port is 4322. If you'd like to change the port, create the `globalSettings.js` file using the existing template:
@@ -79,6 +89,7 @@ module.exports = customPORT;
 
 ## Start NUA Software
 
+Start NUA from `nodeunifireact/server` directory
 ```bash
 npm run start
 ```

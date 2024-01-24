@@ -18,8 +18,12 @@ const customPORT = require('./globalSettings');
 
 
 
-function redLog(text) {
-    console.log('\x1b[31m\x1b[5m', text);
+function red(text, color) {
+    if (color === 'red') {
+        console.log('\x1b[31m\x1b[5m', text);
+    } else if (color === 'teal') {
+        console.log('\x1b[36m\x1b[1m', text);
+    }
 }
 
 (async () => {
@@ -55,6 +59,7 @@ const checkForCredentials = async () => {
                 }
             });
         } else {
+            red('Credentials already existed!', 'teal')
             return;
         }
     } catch (error) {
@@ -80,18 +85,17 @@ async function logIntoUnifi(hostname, port, sslverify, username, password) {
     // console.log('Login Data from unifi logIntoUnifi: ', loginData);
     credentialValidity(loginData);
     if (loginData) {
-        console.log('logindata: \t', loginData);
-        console.log('unifi \t', unifi);
+        // console.log('logindata: \t', loginData);
+        // console.log('unifi \t', unifi);
         return { unifi, validCredentials: true};
     } else {
         return { validCredentials: false };
     }
 }
 
-
 let loginData;
 const fetchLoginInfo = async () => {
-    // redLog('fetchLoginInfo on server refetched');
+    // red('fetchLoginInfo on server refetched');
     const getAdminLoginInfo = async () => {
         try {
           const adminLogin = await prisma.credentials.findMany(); // 01/21 - fine for now...
@@ -100,17 +104,21 @@ const fetchLoginInfo = async () => {
         //   console.log('loginData ', loginData);
           return loginData;
         } catch (error) {
-            if (error) throw error;
+            if (error) {
+                console.error('getAdminLoginInfo error in fetchLoginInfo', error)
+                throw new Error('No credentials were found')
+            }
         }
     }
     return getAdminLoginInfo();
 }
 function handleLoginError(error, res=null) {
     console.log('handleLoginErrors: \t');
-    console.log(error.code);
-    console.log(error.response.data.code);
-    console.log(error.response.data.message);
-    if(res !== null) {
+    console.log(error?.code);
+    console.log(error?.response?.data?.code);
+    console.log(error?.response?.data?.message);
+
+    if (res !== null) {
         res.sendStatus(401);
     }
 }
@@ -185,7 +193,7 @@ const jobFunction = async (crontype, macAddress) => { // for crons
             console.log(`${macAddress} has been blocked: ${confirmBlocked}`);
         }
     } catch (error) {
-        redLog('~~~~~~CATCH BLOCK IN JOB FUNCITON~~~~~~~~~~~');
+        red('~~~~~~CATCH BLOCK IN JOB FUNCITON~~~~~~~~~~~');
         console.error(error);
     }
 }
@@ -201,8 +209,8 @@ app.get('/getmacaddresses', async (req, res) => {
         const { hostname, port, sslverify, username, password } = currentCredentials;
         const valid = await logIntoUnifi(hostname, port, sslverify, username, password);
 
-        // redLog('unifi.status \t', unifi)
-        // redLog('valid.valid:\t' , valid)
+        // red('unifi.status \t', unifi)
+        // red('valid.valid:\t' , valid)
         console.log('valid.valid:\t' , valid.validCredentials);
         if (valid.validCredentials) {
             // console.log('unifi: \t', unifi)
@@ -821,6 +829,13 @@ app.post('/savesitesettings', async (req, res) => {
     const { username, password, hostname, port, sslverify, refreshRate } = req.body;
     console.log(req.body);
 
+    red(sslverify, 'teal')
+    let sslBool;
+    if (sslverify === 'false') {
+        sslBool = false;
+    } else if (sslverify === 'true') {
+        sslBool = true;
+    }
     try {
         const siteCredentials = await prisma.credentials.create({
             data: {
@@ -828,7 +843,7 @@ app.post('/savesitesettings', async (req, res) => {
                 password: password,
                 hostname: hostname,
                 port: parseInt(port),
-                sslverify: Boolean(sslverify),
+                sslverify: sslBool,
                 refreshRate: parseInt(refreshRate)
             }
         });
@@ -842,7 +857,13 @@ app.post('/savesitesettings', async (req, res) => {
 app.put('/updatesitesettings', async (req, res) => {
     const { username, password, hostname, port, sslverify, id, refreshRate } = req.body;
     // console.log(req.body);
-
+    red(sslverify, 'teal')
+    let sslBool;
+    if (sslverify === 'false') {
+        sslBool = false;
+    } else if (sslverify === 'true') {
+        sslBool = true;
+    }
     try {
         const siteCredentials = await prisma.credentials.update({
             where: {
@@ -853,7 +874,7 @@ app.put('/updatesitesettings', async (req, res) => {
                 password: password,
                 hostname: hostname,
                 port: parseInt(port),
-                sslverify: Boolean(sslverify),
+                sslverify: sslBool,
                 refreshRate: parseInt(refreshRate)
             }
         });

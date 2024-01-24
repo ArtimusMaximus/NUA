@@ -114,7 +114,6 @@ export default function AdminConsole()
             } catch (error) {
                 if (error) {
                     console.error('consoleerror in /getmacaddresses', error);
-
                 }
             }
         }

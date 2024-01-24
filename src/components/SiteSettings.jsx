@@ -218,12 +218,8 @@ export default function SiteSettings()
 
     const handleRange = e => {
         setRangeValue(e.target.value);
-
         // console.log(e.target.value);
     }
-
-
-
     return (
         <>
             <div className="flex items-center justify-center w-full h-full sm:w-3/4 lg:w-1/2 mx-auto pb-12">
