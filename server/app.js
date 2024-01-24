@@ -33,6 +33,15 @@ function red(text, color) { // specific console color logger
         console.log('\x1b[36m\x1b[1m', text);
     }
 }
+function handleLoginError(error) {
+    if (error !== undefined) {
+        console.log('handleLoginErrors: \t');
+        console.log(error?.code);
+        console.log(error?.response?.data?.code);
+        console.log(error?.response?.data?.message);
+    }
+    red('There was an error logging in with your credentials. Set them up in /sitesettings!', 'cyan');
+}
 
 // initial check for existing credentials in db
 const checkForCredentials = async () => {
@@ -55,7 +64,7 @@ const checkForCredentials = async () => {
                 }
             });
         } else {
-            red('Credentials already existed!', 'teal')
+            red('Credentials already exist!', 'teal')
             return;
         }
     } catch (error) {
@@ -76,7 +85,7 @@ async function logIntoUnifi(hostname, port, sslverify, username, password) {
     }
 }
 
-let loginData;
+// let loginData;
 const fetchLoginInfo = async () => {
     const getAdminLoginInfo = async () => {
         try {
@@ -92,22 +101,23 @@ const fetchLoginInfo = async () => {
     }
     return getAdminLoginInfo();
 }
-function handleLoginError(error, res=null) {
-    if (error !== undefined) {
-        console.log('handleLoginErrors: \t');
-        console.log(error?.code);
-        console.log(error?.response?.data?.code);
-        console.log(error?.response?.data?.message);
-    }
-    red('There was an error loggin in with your credentials. Set them up on the front end!', 'cyan');
-    if (res !== null) {
-        res.sendStatus(401);
-    }
-}
+let loginData = fetchLoginInfo();
 const info = fetchLoginInfo();
-info
-    .then(() => logIntoUnifi(loginData.hostname, loginData.port, loginData.sslverify, loginData.username, loginData.password))
-    .catch((error) => handleLoginError(error))
+// app.get('/initialcreds', async (req, res) => {
+//     try {
+//         await loginData;
+//         red(loginData, 'cyan');
+//         await info;
+//         const confirm = await logIntoUnifi(loginData?.hostname, loginData?.port, loginData?.sslverify, loginData?.username, loginData?.password);
+//         if (confirm.validCredentials) {
+//             res.sendStatus(200);
+//         }
+//     } catch (error) {
+//         handleLoginError(error, res);
+//         res.sendStatus(401);
+//     }
+// });
+
 
 async function getBlockedUsers() {
     const blockedUsers = await unifi.getBlockedUsers();
@@ -187,7 +197,8 @@ app.get('/getmacaddresses', async (req, res) => {
         });
         const { hostname, port, sslverify, username, password } = currentCredentials;
         const valid = await logIntoUnifi(hostname, port, sslverify, username, password);
-        console.log('valid.Credentials=\t' , valid.validCredentials);
+        // console.log('valid.Credentials=\t' , valid.validCredentials);
+        red(`valid.Credentials=\t ${valid.validCredentials}` , 'cyan');
         if (valid.validCredentials) {
 
             const blockedUsers = await unifi.getBlockedUsers();
@@ -871,25 +882,26 @@ app.get('/testconnection', async (req, res) => {
     // const getAdminLoginInfo = async () => {
         // const unifiTest = new Unifi.Controller({ hostname: loginData.hostname, port: loginData.port,  sslverify: loginData.sslverify });
         try {
-            const adminLogin = await prisma.credentials.findMany();
-            const login = adminLogin.pop();
+            // const adminLogin = await prisma.credentials.findMany();
+            const adminLogin = await prisma.credentials.findUnique({ where: { id: 1 }});
+            // const login = adminLogin.pop();
             // console.log('adminLogin ', adminLogin);
-            console.log('login: \t ', login);
-            const unifiTest = new Unifi.Controller({ hostname: login.hostname, port: login.port,  sslverify: login.sslverify });
-            console.log('unifiTest \t', unifiTest);
-            const testCredentials = await unifiTest.login(login.username, login.password);
+            console.log('adminLogin: \t ', adminLogin);
+            const unifiTest = new Unifi.Controller({ hostname: adminLogin.hostname, port: adminLogin.port,  sslverify: adminLogin.sslverify });
+
+            // console.log('unifiTest \t', unifiTest);
+            const testCredentials = await unifiTest.login(adminLogin.username, adminLogin.password);
             console.log("Test Credentials: ", testCredentials); // returns true, not login info
         if (testCredentials === true) {
             res.sendStatus(200);
-
         }
 
         } catch (error) {
             // if (error) throw error;
             if (error) {
-                console.log('Catch Error: ', error.code);
+                console.log('Catch Error: ', error?.code);
                 // res.sendStatus(401);
-                res.status(401).json({ message: error.code })
+                res.status(401).json({ message: error?.code })
 
                 // console.log('Catch Error: ', error.request)
                 // throw error;

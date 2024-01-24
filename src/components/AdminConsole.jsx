@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import Devices from "./Devices";
 import { IoAddCircleOutline } from "react-icons/io5";
 import { useNavigate } from 'react-router-dom';
+import NuaSvg from "../images/nua.svg";
 
 
 export default function AdminConsole()
@@ -32,10 +33,12 @@ export default function AdminConsole()
             setCountdown(1)
             await timer(1000)
             setCountdown(0)
-            navigate('/sitesettings');
         } catch (e) {
             if (e) throw e;
         }
+    }
+    const handleProceed = () => {
+        navigate('/sitesettings');
     }
 
     function validateMacAddress(mac) {
@@ -90,6 +93,12 @@ export default function AdminConsole()
         // console.log('parent component fired off ', toggleReRender);
         const handleGetMacAddresses = async () => {
             try {
+                // const initialFetch = await fetch('/initialcreds');
+                // if (!initialFetch.ok) {
+                //     console.log('response not okay!');
+                //     //modal & timer
+                //     return;
+                // } // I believe this redundancy is adding to 'too many' login attempts & shutting me out
                 const response = await fetch('/getmacaddresses', {
                     method: 'GET',
                     mode: 'cors',
@@ -99,9 +108,8 @@ export default function AdminConsole()
                     console.log(data);
                     setMacData(data ? data : {});
                 } else if (!response.ok) {
-                    console.log('response not okay!');
                     await dialogRef.current.showModal();
-                    await handleTimer();
+                    // await handleTimer();
                 }
             } catch (error) {
                 if (error) {
@@ -237,10 +245,20 @@ export default function AdminConsole()
 
             {/* navigate to credentials modal */}
             <dialog id="redirectModal" className="modal" ref={dialogRef}>
-                <div className="modal-box flex flex-col items-center justify-center">
-                    <h3 className="font-bold text-lg">Your unifi credentials must be set to proceed!</h3>
-                    <h3 className="font-bold text-lg">Redirecting In:</h3>
-                    <p className="py-4 text-4xl italic font-bold">{countdown}</p>
+                <div className="modal-box flex flex-col items-center justify-center overflow-x-hidden">
+                    <h1 className="nuaFont text-2xl">NUA</h1>
+                    <h2 className="font-bold text-xl">Welcome!</h2>
+                    <h3 className="font-bold text-lg text-center">Your unifi login credentials must be set to proceed...</h3>
+                    <div className="btn btn-block mt-2 font-semi-bold italic text-green-500" onClick={handleProceed}>Proceed to Site Settings</div>
+                    <div className="absolute top-3 right-5">
+                        <img
+                            src={NuaSvg}
+                            alt="NUA Logo"
+                            className="w-10 h-10"
+                        />
+                    </div>
+                    {/* <h3 className="font-bold text-lg">Redirecting In:</h3> */}
+                    {/* <p className="py-4 text-4xl italic font-bold">{countdown}</p> */}
                 </div>
             </dialog>
         </>

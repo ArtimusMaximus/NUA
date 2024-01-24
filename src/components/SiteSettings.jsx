@@ -48,7 +48,6 @@ export default function SiteSettings()
     }
 
     useEffect(() => { // this is not hitting more than once, yes it does when showConfirmation changes
-        console.log('reset reveal here???');
         let revealTimer;
         const handleReveal = () => {
             revealTimer = setTimeout(() => {

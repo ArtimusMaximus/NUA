@@ -16,7 +16,6 @@ model Credentials {
   sslverify     Boolean?
   theme         String?
   refreshRate   Int?
-  initial       Boolean
 }
 
 model Device {
