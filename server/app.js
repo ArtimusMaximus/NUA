@@ -1,31 +1,17 @@
 const express = require('express');
-const util = require('node:util');
-const exec = util.promisify(require('node:child_process').exec);
 const cors = require('cors');
 const bodyParser = require('body-parser');
-// const Unifi = require('node-unifi');
 const Unifi = require('node-unifi');
 const sqlite3 = require('sqlite3').verbose();
 const { open } = require('sqlite');
-const { PrismaClient, Prisma } = require('@prisma/client');
+const { PrismaClient } = require('@prisma/client');
 const schedule = require('node-schedule');
 const cronValidate = require('node-cron');
 const customPORT = require('./globalSettings');
 
 
 
-
-
-
-
-function red(text, color) {
-    if (color === 'red') {
-        console.log('\x1b[31m\x1b[5m', text);
-    } else if (color === 'teal') {
-        console.log('\x1b[36m\x1b[1m', text);
-    }
-}
-
+// Init sqlite db
 (async () => {
     const db = await open({
         filename: './nodeunifi.db',
@@ -34,11 +20,21 @@ function red(text, color) {
 })();
 const prisma = new PrismaClient();
 
+// create server & add middleware
 const app = express();
 app.use(cors());
 app.use(bodyParser.json());
 app.use(express.static(process.cwd().slice(0, -7) + '/dist'));
 
+function red(text, color) { // specific console color logger
+    if (color === 'red') {
+        console.log('\x1b[31m\x1b[5m', text);
+    } else if (color === 'cyan') {
+        console.log('\x1b[36m\x1b[1m', text);
+    }
+}
+
+// initial check for existing credentials in db
 const checkForCredentials = async () => {
     try {
         const creds = await prisma.credentials.findUnique({
@@ -68,25 +64,12 @@ const checkForCredentials = async () => {
 }
 checkForCredentials();
 
-
-
-function credentialValidity(validity) {
-    if (validity) {
-        return true;
-    } else if (!validity) {
-        return false;
-    }
-}
-
+// unifi connection instance
 let unifi;
 async function logIntoUnifi(hostname, port, sslverify, username, password) {
     unifi = new Unifi.Controller({hostname: hostname, port: port, sslverify: sslverify});
     const loginData = await unifi.login(username, password);
-    // console.log('Login Data from unifi logIntoUnifi: ', loginData);
-    credentialValidity(loginData);
     if (loginData) {
-        // console.log('logindata: \t', loginData);
-        // console.log('unifi \t', unifi);
         return { unifi, validCredentials: true};
     } else {
         return { validCredentials: false };
@@ -95,17 +78,14 @@ async function logIntoUnifi(hostname, port, sslverify, username, password) {
 
 let loginData;
 const fetchLoginInfo = async () => {
-    // red('fetchLoginInfo on server refetched');
     const getAdminLoginInfo = async () => {
         try {
-          const adminLogin = await prisma.credentials.findMany(); // 01/21 - fine for now...
-        //   console.log(adminLogin);
+          const adminLogin = await prisma.credentials.findMany();
           loginData = adminLogin.pop();
-        //   console.log('loginData ', loginData);
           return loginData;
         } catch (error) {
             if (error) {
-                console.error('getAdminLoginInfo error in fetchLoginInfo', error)
+                console.error('getAdminLoginInfo error in fetchLoginInfo: ', error)
                 throw new Error('No credentials were found')
             }
         }
@@ -113,19 +93,19 @@ const fetchLoginInfo = async () => {
     return getAdminLoginInfo();
 }
 function handleLoginError(error, res=null) {
-    console.log('handleLoginErrors: \t');
-    console.log(error?.code);
-    console.log(error?.response?.data?.code);
-    console.log(error?.response?.data?.message);
-
+    if (error !== undefined) {
+        console.log('handleLoginErrors: \t');
+        console.log(error?.code);
+        console.log(error?.response?.data?.code);
+        console.log(error?.response?.data?.message);
+    }
+    red('There was an error loggin in with your credentials. Set them up on the front end!', 'cyan');
     if (res !== null) {
         res.sendStatus(401);
     }
 }
 const info = fetchLoginInfo();
 info
-//     // .then(() => console.log('then ', loginData))
-//     // .then(() => handleUnifiInit(loginData.hostname, loginData.port, loginData.sslverify))
     .then(() => logIntoUnifi(loginData.hostname, loginData.port, loginData.sslverify, loginData.username, loginData.password))
     .catch((error) => handleLoginError(error))
 
@@ -193,14 +173,13 @@ const jobFunction = async (crontype, macAddress) => { // for crons
             console.log(`${macAddress} has been blocked: ${confirmBlocked}`);
         }
     } catch (error) {
-        red('~~~~~~CATCH BLOCK IN JOB FUNCITON~~~~~~~~~~~');
+        red('~~~~~~CATCH BLOCK IN JOB FUNCITON~~~~~~~~~~~', 'red');
         console.error(error);
     }
 }
 
 app.get('/getmacaddresses', async (req, res) => {
     try {
-        // await info;
         const currentCredentials = await prisma.credentials.findUnique({
             where: {
                 id: 1
@@ -208,12 +187,9 @@ app.get('/getmacaddresses', async (req, res) => {
         });
         const { hostname, port, sslverify, username, password } = currentCredentials;
         const valid = await logIntoUnifi(hostname, port, sslverify, username, password);
-
-        // red('unifi.status \t', unifi)
-        // red('valid.valid:\t' , valid)
-        console.log('valid.valid:\t' , valid.validCredentials);
+        console.log('valid.Credentials=\t' , valid.validCredentials);
         if (valid.validCredentials) {
-            // console.log('unifi: \t', unifi)
+
             const blockedUsers = await unifi.getBlockedUsers();
             let macData = await prisma.device.findMany();
             let getRefreshTimer = await prisma.credentials.findUnique({
@@ -222,8 +198,6 @@ app.get('/getmacaddresses', async (req, res) => {
                 }
             });
             let refreshRate = getRefreshTimer.refreshRate;
-            // console.log(refreshRate);
-            /////////compare our database data with the blocked list, and set the data to active or not
 
             const doMacAddressMatch = (macAddress, array) => {
                 return array.some(obj => obj.macAddress === macAddress)
@@ -536,7 +510,6 @@ app.delete('/removedevice', async (req, res) => { // Devices.jsx device delete
             id: parseInt(id),
         }
     });
-
     // delete crons - perhaps make all crons contain a deviceId as xubuntu device does
     // cancel jobs associated (if exist)
     res.json({ message: "Deletion successful", dataDeleted: removeDevice })
@@ -847,7 +820,6 @@ app.post('/savesitesettings', async (req, res) => {
                 refreshRate: parseInt(refreshRate)
             }
         });
-        // res.json({ message: 'Credentials successfully saved!' }, { siteCredentials })
         res.json({ siteCredentials })
     } catch (error) {
         if(error) throw error;
@@ -856,8 +828,6 @@ app.post('/savesitesettings', async (req, res) => {
 
 app.put('/updatesitesettings', async (req, res) => {
     const { username, password, hostname, port, sslverify, id, refreshRate } = req.body;
-    // console.log(req.body);
-    red(sslverify, 'teal')
     let sslBool;
     if (sslverify === 'false') {
         sslBool = false;
@@ -971,24 +941,21 @@ app.get('/getcurrenttheme', async (req, res) => {
 
 app.put('/updatetheme', async (req, res) => {
     try {
-        // const { newTheme } = req.body;
-        console.log('update theme req.body', req.body);
         const updateTheme = await prisma.credentials.update({
             where: {
                 id: 1,
             },
             data: req.body
-        })
+        });
         res.json(updateTheme)
     } catch (error) {
         if (error) throw error;
     }
 });
 
-//~~~~~~potential login~~~~
+//~~~~~~potential login~~~~~~
 app.post('/login', (req, res) => {
     console.log(req.body);
-
     if (req.body.username === 'a' && req.body.password === 'a') {
         res.sendStatus(200)
     } else {

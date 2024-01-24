@@ -6,6 +6,7 @@ A NodeJS based web application, provides you with a easy-to-use web interface fo
 * Add/Remove Unifi clients for management using a MAC address.
 * Block or unblock all managed clients with a single click.
 * Schedule to block or unblock managed clients via a cron scheduler.
+* Optimized for mobile and desktop browsers.
 
 ## Screenshot
 
@@ -35,11 +36,7 @@ We're going to use Node v18+:
 nvm install v18.18.1
 ```
 
-You can now verify that we're using the correct version of Node:
-```bash
-node -v
-nvm list
-```
+**Verify** that we're using the correct version of Node by running `node -v` or `nvm list`
 
 Install prerequisite Linux packages
 ```bash
@@ -52,14 +49,14 @@ Clone this repository:
 git clone git@github.com:ArtimusMaximus/nodeunifireact.git
 ```
 
-Install Node client prerequisites:
+Install Node frontend prerequisites:
 
 ```bash
 cd nodeunifireact
 npm install
 ```
 
-Install Node Server prerequisites:
+Install Node server prerequisites:
 ```bash
 cd server
 npm install
@@ -67,16 +64,18 @@ npm install
 
 Initiate Prisma DB (from inside server directory):
 ```bash
-npx prisma generate
-npx prisma migrate dev
+npm run db
+```
+
+Build NUA frontend:
+```bash
+cd ../
+npm run build
 ```
 
 ### Optional - Set the port number
-The default port is 4322. If you'd like to change the port, create the `globalSettings.js` file using the existing template:
+The default port is 4323. If you'd like to change the port, open `<repo>/server/globalSettings.js`:
 
-```bash
-cp server/globalSettings.js.template server/globalSettings.js
-```
 
 Now change the `<port>` string to your port number:
 
@@ -91,8 +90,11 @@ module.exports = customPORT;
 
 Start NUA from `nodeunifireact/server` directory
 ```bash
+cd server
 npm run start
 ```
+## How do I run this in the background/autostart?
+[Check out this pm2 documentation](https://pm2.keymetrics.io/docs/usage/quick-start/)
 
 # Support
 If you think you've found a bug in NUA, try the following first:
@@ -102,13 +104,14 @@ If you think you've found a bug in NUA, try the following first:
 * Check the Wiki (Not yet available).
 
 # Feature Requests
-1. Please check the issues tracker to see if someone else has already requestsed the feature. If a similar idea has already been requested, give it a thumbs up. Do not comment with +1 or something similar as it creates unnecessary spam. 
+1. Please check the issues tracker to see if someone else has already requestsed the feature. If a similar idea has already been requested, give it a thumbs up. **Do not** comment with +1 or something similar as it creates unnecessary spam. 
+
 # Warning
 * This software should not be used in production.
 * This software should not be accessible from the internet.
 
-Use at your own risk!
+**Use at your own risk!**
 
 # License
-This is free software under the GPL v3 open source license. Feel free to do with it what you wish, but any modification must be open sourced. 
-- [GNU GPL v3](http://www.gnu.org/licenses/gpl.html)	
+This is free software under the LGPL v3 open source license. Feel free to do with it what you wish, but any modification must be open sourced. 
+- [GNU LGPL v3](https://www.gnu.org/licenses/lgpl-3.0.en.html)	

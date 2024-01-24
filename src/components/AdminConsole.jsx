@@ -4,14 +4,6 @@ import { IoAddCircleOutline } from "react-icons/io5";
 import { useNavigate } from 'react-router-dom';
 
 
-const device = {
-    name: '',
-    macAddress: '',
-    active: false,
-    url: '',
-    id: '',
-}
-
 export default function AdminConsole()
 {
     const [inputData, setInputData] = useState({

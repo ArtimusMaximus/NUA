@@ -9,7 +9,6 @@ import AllDevices from './components/all_devices/AllDevices.jsx';
 import NotFound from './components/NotFound.jsx';
 import CronManager from './components/CronManager.jsx';
 import CronManager2 from './components/CronManager2.jsx';
-import Settings from './components/Settings.jsx';
 import SiteSettings from './components/SiteSettings.jsx';
 import { createRoot } from 'react-dom/client';
 import {
@@ -32,7 +31,6 @@ root.render(
             <Route path="/blockeddevices" element={<BlockedDevices />} />
             <Route path="/alldevices" element={<AllDevices />} />
             <Route path="/sitesettings" element={<SiteSettings />} />
-            <Route path="/admin/:id" element={<Settings />} />
             <Route path="/admin/:id/cronmanager" element={<CronManager />} />
             <Route path="/admin/:id/cronmanager2" element={<CronManager2 />} />
             <Route path="*" element={<NotFound />} />

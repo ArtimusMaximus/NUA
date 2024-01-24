@@ -1,8 +1,5 @@
-import { useEffect, useRef, useState } from "react";
-import { IoAlarmOutline } from "react-icons/io5";
+import { useRef, useState } from "react";
 import { IoEllipseOutline } from "react-icons/io5";
-import { IoRefreshCircleOutline } from "react-icons/io5";
-import { GoGear } from "react-icons/go";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { HiMiniPencilSquare } from "react-icons/hi2";
 
@@ -184,20 +181,10 @@ export default function Devices({ data, toggleReRender, handleRenderToggle })
                                                                 />
                                                             {device?.name}
 
-                                                            {/* <div
-                                                                className="w-12 h-12 text-slate-500 hover:text-slate-700 hover:cursor-pointer z-40 bg-red-500"
-                                                                onClick={() => handleSchedule(device?.id)}
-                                                                name={`${device?.id}`}
-                                                            >
-                                                            </div> */}
                                                         </div>
                                                     </div>
                                                     <div className="collapse-content">
-                                                        {/* <GoGear
-                                                                className="w-12 h-12 text-slate-500 hover:text-slate-700 hover:cursor-pointer z-40"
-                                                                onClick={() => handleSchedule(device?.id)}
-                                                                name={`${device?.id}`}
-                                                                /> */}
+
                                                                 <div className="flex justify-between flex-wrap">
                                                                     <p><span className="font-thin italic">Name:</span> {device?.name}</p>
                                                                     <p><span className="font-thin italic">Mac:</span> {device?.macAddress}</p>
@@ -209,14 +196,13 @@ export default function Devices({ data, toggleReRender, handleRenderToggle })
                                                                     >
                                                                         <HiMiniPencilSquare
                                                                             className="w-6 h-6 pointer-events-none"
-
                                                                         />
                                                                     </span>
                                                                 </div>
                                                         <div>
                                                             <Link to={`/admin/${device?.id}/cronmanager`} className="w-fit hover:cursor-pointer" >
                                                                 <div className="btn btn-block bg-base-300 hover:bg-base-content hover:text-base-100 my-2">Schedule</div>
-                                                                {/* <IoAlarmOutline className="hover:text-warning h-12 w-12" /> */}
+
                                                             </Link>
                                                         </div>
                                                         <div
