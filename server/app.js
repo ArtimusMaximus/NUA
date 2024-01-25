@@ -56,11 +56,12 @@ const checkForCredentials = async () => {
                 data: {
                     username: '',
                     password: '',
-                    hostname: 'unifi',
+                    hostname: '',
                     port: 443,
                     sslverify: false,
                     refreshRate: 60000,
-                    theme: 'dark'
+                    theme: 'dark',
+                    initialSetup: true
                 }
             });
         } else {
@@ -85,7 +86,7 @@ async function logIntoUnifi(hostname, port, sslverify, username, password) {
     }
 }
 
-// let loginData;
+let loginData;
 const fetchLoginInfo = async () => {
     const getAdminLoginInfo = async () => {
         try {
@@ -94,30 +95,19 @@ const fetchLoginInfo = async () => {
           return loginData;
         } catch (error) {
             if (error) {
-                console.error('getAdminLoginInfo error in fetchLoginInfo: ', error)
-                throw new Error('No credentials were found')
+                console.error('getAdminLoginInfo error in fetchLoginInfo: ', error);
+                throw new Error('No credentials were found');
             }
         }
     }
     return getAdminLoginInfo();
 }
-let loginData = fetchLoginInfo();
-const info = fetchLoginInfo();
-// app.get('/initialcreds', async (req, res) => {
-//     try {
-//         await loginData;
-//         red(loginData, 'cyan');
-//         await info;
-//         const confirm = await logIntoUnifi(loginData?.hostname, loginData?.port, loginData?.sslverify, loginData?.username, loginData?.password);
-//         if (confirm.validCredentials) {
-//             res.sendStatus(200);
-//         }
-//     } catch (error) {
-//         handleLoginError(error, res);
-//         res.sendStatus(401);
-//     }
-// });
 
+const info = fetchLoginInfo();
+
+info
+    .then(() => logIntoUnifi(loginData?.hostname, loginData?.port, loginData?.sslverify, loginData?.username, loginData?.password))
+    .catch((error) => console.error(error))
 
 async function getBlockedUsers() {
     const blockedUsers = await unifi.getBlockedUsers();
@@ -195,12 +185,9 @@ app.get('/getmacaddresses', async (req, res) => {
                 id: 1
             }
         });
-        const { hostname, port, sslverify, username, password } = currentCredentials;
-        const valid = await logIntoUnifi(hostname, port, sslverify, username, password);
-        // console.log('valid.Credentials=\t' , valid.validCredentials);
-        red(`valid.Credentials=\t ${valid.validCredentials}` , 'cyan');
-        if (valid.validCredentials) {
+        const { initialSetup } = currentCredentials;
 
+        if (!initialSetup) {
             const blockedUsers = await unifi.getBlockedUsers();
             let macData = await prisma.device.findMany();
             let getRefreshTimer = await prisma.credentials.findUnique({
@@ -260,15 +247,13 @@ app.get('/getmacaddresses', async (req, res) => {
                 }
                 updateRecordsToActive(recordIds, updateData);
             }
-
         } else {
-            console.log('else in get mac addys...');
+            throw new Error('This is the initial setup, redirect.')
         }
     } catch (error) {
         if (error) {
             console.error('error in /getmacaddresses: \t');
             handleLoginError(error);
-            // console.error(error);
             res.sendStatus(401);
         }
     }
@@ -893,6 +878,7 @@ app.get('/testconnection', async (req, res) => {
             const testCredentials = await unifiTest.login(adminLogin.username, adminLogin.password);
             console.log("Test Credentials: ", testCredentials); // returns true, not login info
         if (testCredentials === true) {
+            const setInitialSetupFalse = await prisma.credentials.update({ where: { id: 1}, data: { initialSetup: false } }); // setup complete
             res.sendStatus(200);
         }
 

@@ -200,11 +200,7 @@ export default function SiteSettings()
                         .then(() => clearInterval(interval2))
                         .then(() => setShowConfirmation(prev => !prev))
                         // .then(() => setClicked(false))
-
-
                         // .then(() => testBtnRef.current.disabled = false)
-
-
             }
         } catch (error) {
             console.error(error);
@@ -214,7 +210,6 @@ export default function SiteSettings()
             // if (error) throw error;
         }
     }
-
     const handleRange = e => {
         setRangeValue(e.target.value);
         // console.log(e.target.value);

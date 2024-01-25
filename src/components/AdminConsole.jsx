@@ -248,7 +248,7 @@ export default function AdminConsole()
                 <div className="modal-box flex flex-col items-center justify-center overflow-x-hidden">
                     <h1 className="nuaFont text-2xl">NUA</h1>
                     <h2 className="font-bold text-xl">Welcome!</h2>
-                    <h3 className="font-bold text-lg text-center">Your unifi login credentials must be set to proceed...</h3>
+                    <h3 className="font-bold text-lg text-center">Your UniFi login credentials must be set to proceed...</h3>
                     <div className="btn btn-block mt-2 font-semi-bold italic text-green-500" onClick={handleProceed}>Proceed to Site Settings</div>
                     <div className="absolute top-3 right-5">
                         <img
