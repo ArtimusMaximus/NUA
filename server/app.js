@@ -104,7 +104,6 @@ const fetchLoginInfo = async () => {
 }
 
 const info = fetchLoginInfo();
-
 info
     .then(() => logIntoUnifi(loginData?.hostname, loginData?.port, loginData?.sslverify, loginData?.username, loginData?.password))
     .catch((error) => console.error(error))
@@ -256,6 +255,33 @@ app.get('/getmacaddresses', async (req, res) => {
             handleLoginError(error);
             res.sendStatus(401);
         }
+    }
+});
+
+app.get('/pingmacaddresses', async (req, res) => {
+    try {
+        const checkForInitial = await prisma.credentials.findUnique({ where: { id: 1 } });
+        const sendFakeEventObj = { refresh: true }
+
+        if (checkForInitial.initialSetup === false) {
+            const refreshRate = checkForInitial.refreshRate;
+            res.setHeader('Content-Type', 'text/event-stream');
+            res.setHeader('Cache-Control', 'no-cache');
+            res.setHeader('Connection', 'keep-alive');
+
+            const sendUpdate = () => {
+                res.write(`data: ${JSON.stringify({ sendFakeEventObj })}\n\n`)
+            };
+            sendUpdate();
+            const intervalId = setInterval(sendUpdate, refreshRate);
+
+            req.on('close', () => {
+                clearInterval(intervalId)
+            });
+        }
+    } catch (error) {
+        console.error(error);
+        res.sendStatus(500).json({ error: "Internal Server Error."})
     }
 });
 

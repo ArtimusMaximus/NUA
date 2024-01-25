@@ -15,7 +15,8 @@ export default function AdminConsole()
     const [toggleReRender, setToggleReRender] = useState(false);
     const [cronJobCheck, setCronJobChecked] = useState({});
     const [serverRestart, setServerRestart] = useState(true);
-    const [refreshTimer, setRefreshTimer] = useState(null)
+    const [refreshTimer, setRefreshTimer] = useState(null);
+    const [refresh, setRefresh] = useState(false);
     const macRef = useRef();
     const deviceNameRef = useRef();
     const initialized = useRef(false);
@@ -24,6 +25,9 @@ export default function AdminConsole()
     const dialogRef = useRef();
 
 
+    const refreshUI = () => {
+        setRefresh(prev => !prev)
+    }
     const timer = t => new Promise(res => setTimeout(res, t));
 
     const handleTimer = async () => {
@@ -56,9 +60,7 @@ export default function AdminConsole()
         setInputData({
             ...inputData,
             [e.target.name]: e.target.value,
-            // url: `${e.target.name+inputData.id}`,
         })
-        // console.log(inputData);
     }
     const handleAddMacAddresses = async () => { // add mac addresses
         try {
@@ -90,15 +92,9 @@ export default function AdminConsole()
     }
 
     useEffect(() => { // /getmacaddresses initial fetch
-        // console.log('parent component fired off ', toggleReRender);
         const handleGetMacAddresses = async () => {
             try {
-                // const initialFetch = await fetch('/initialcreds');
-                // if (!initialFetch.ok) {
-                //     console.log('response not okay!');
-                //     //modal & timer
-                //     return;
-                // } // I believe this redundancy is adding to 'too many' login attempts & shutting me out
+
                 const response = await fetch('/getmacaddresses', {
                     method: 'GET',
                     mode: 'cors',
@@ -120,55 +116,76 @@ export default function AdminConsole()
         handleGetMacAddresses();
     }, [toggleReRender]);
 
-    // useEffect(() => { // /getmacaddress with refresh timer
-    //     // note 01 19 - 60 timer is fine until any forced re-render, then investigate if it goes to 10 second mode, may need to force one time call
-    //     let time;
-    //     const handleGetMacAddresses = async () => {
-    //         try {
-    //             const response = await fetch('/getmacaddresses', {
-    //                 method: 'GET',
-    //                 mode: 'cors',
-    //             });
-    //             if (response.ok) {
-    //                 const data = await response.json();
-    //                 console.log('data in /getmacaddress initial useeffect: \t', data);
-    //                 setMacData(data ? data : {});
-    //                 time = data.refreshRate;
-    //             }
-    //         } catch (error) {
-    //             console.error(error);
-    //         }
-    //     }
-    //     // async function checkEvery60Seconds() {
-    //     //     // const minute = 60000;
-    //     //     const checker = new Promise((res) => {
-    //     //         setTimeout(() => {
-    //     //             console.log('60 second check complete.')
-    //     //             return res();
-    //     //         }, 60000)
-    //     //     });
-    //     //     handleGetMacAddresses();
-    //     //     await checker;
-    //     //     // clearTimeout(checker);
-    //     //     checkEvery60Seconds();
-    //     // }
-    //     // const timerId = checkEvery60Seconds();
-    //     // // handleGetMacAddresses();
-    //     // let time = refreshTimer;
-    //     console.log('time in getmacaddresses adminconsole: \t', time);
-    //     const checkEvery60Seconds = () => {
-    //         console.log(refreshTimer, typeof refreshTimer);
-    //         const timerId = setTimeout(async () => {
-    //             console.count('60 second check complete.');
-    //             await handleGetMacAddresses();
-    //             checkEvery60Seconds();
-    //         }, time !== null && time !== undefined ? time : 10000)
-    //         return () => clearTimeout(timerId)
-    //     }
-    //     const timerId = checkEvery60Seconds();
+    useEffect(() => { // /getmacaddress with refresh timer
+        let time;
+        // note 01 19 - 60 timer is fine until any forced re-render, then investigate if it goes to 10 second mode, may need to force one time call
+        // const handleGetMacAddresses = async () => {
+        //     try {
+        //         const response = await fetch('/getmacaddresses', {
+        //             method: 'GET',
+        //             mode: 'cors',
+        //         });
+        //         if (response.ok) {
+        //             const data = await response.json();
+        //             console.log('data in /getmacaddress initial useeffect: \t', data);
+        //             setMacData(data ? data : {});
+        //             time = data?.refreshRate;
+        //             // console.log('time in /getmacaddresses \t', time)
+        //         }
+        //     } catch (error) {
+        //         console.error(error);
+        //     }
+        // }
+        // handleGetMacAddresses();
+        // // async function checkEvery60Seconds() {
+        // //     // const minute = 60000;
+        // //     const checker = new Promise((res) => {
+        // //         setTimeout(() => {
+        // //             console.log('60 second check complete.')
+        // //             return res();
+        // //         }, 60000)
+        // //     });
+        // //     handleGetMacAddresses();
+        // //     await checker;
+        // //     // clearTimeout(checker);
+        // //     checkEvery60Seconds();
+        // // }
+        // // const timerId = checkEvery60Seconds();
+        // // // handleGetMacAddresses();
+        // // let time = refreshTimer;
+        // console.log('time in getmacaddresses adminconsole: \t', time);
+        // const checkEvery60Seconds = () => {
+        //     console.log(refreshTimer, typeof refreshTimer);
+        //     const timerId = setTimeout(async () => {
+        //         console.count('60 second check complete.');
+        //         await handleGetMacAddresses();
+        //         checkEvery60Seconds();
+        //     }, time !== null && time !== undefined ? time : 10000)
+        //     return () => clearTimeout(timerId)
+        // }
+        // const timerId = checkEvery60Seconds();
+        // return () => clearTimeout(timerId);
+    }, []);
 
-    //     return () => clearTimeout(timerId);
-    // }, []);
+    useEffect(() => {
+        const eventSource = new EventSource('/pingmacaddresses');
+        eventSource.onmessage = (event) => {
+            // const data = JSON.parse(event.data);
+            // // console.log('data received: \t', data);
+            // // setMacData(data)
+            // console.count('Event Received', data);
+            if (event) {
+                handleRenderToggle();
+                console.log('if event fired');
+            }
+        }
+        eventSource.onerror = (error) => {
+            console.error(error);
+        };
+        return () => {
+            eventSource.close();
+        }
+    }, [])
 
     useEffect(() => { // check if server crash & jobs need re-initiation
         if (!initialized.current) {
