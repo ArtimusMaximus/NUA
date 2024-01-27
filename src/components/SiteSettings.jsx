@@ -85,9 +85,7 @@ export default function SiteSettings()
                 // console.log('Front end success.', response);
                 setlocked(true);
 
-                // testBtnRef.current.disabled = false;
-                // console.log(testBtnRef.current);
-                // setMessage(response.message);
+
                 hostnameRef.current.disabled = true;
                 usernameRef.current.disabled = true;
                 passwordRef.current.disabled = true;
@@ -114,11 +112,9 @@ export default function SiteSettings()
                     portRef.current.disabled = true;
                     sslverifyRef.current.disabled = true;
                     timerRef.current.disabled = true;
-                    // testBtnRef.current.disabled = false;
                     const dbData = await fetchSettings.json();
-                    // console.log('dbData: ', dbData);
                     setPreExistingData(dbData[0])
-                // } else if (fetchSettings.status === 404) {
+
                 } else if (!fetchSettings.ok) {
                     setDataExists(false);
                     setlocked(false);
@@ -128,7 +124,7 @@ export default function SiteSettings()
                     portRef.current.disabled = false;
                     sslverifyRef.current.disabled = false;
                     timerRef.current.disabled = false;
-                    // testBtnRef.current.disabled = true;
+
                 }
             } catch (error) {
                 if (error) throw error;
@@ -136,10 +132,6 @@ export default function SiteSettings()
         }
         checkForSettings();
     }, [])
-
-    // useEffect(() => {
-    //     console.log('preExistingData: ', preExistingData);
-    // }, [preExistingData]);
 
     const handlelocked = () => {
         if (locked) {
@@ -152,7 +144,7 @@ export default function SiteSettings()
             portRef.current.disabled = false;
             sslverifyRef.current.disabled = false;
             timerRef.current.disabled = false;
-            // testBtnRef.current.disabled = false;
+
         }
     }
     const handleTest = async () => {
@@ -309,23 +301,6 @@ export default function SiteSettings()
                                     </label>
                                 </div>
                             </div>
-                            {/* <div className="flex items-center justify-end">
-                                <div>Refresh Freq (s):</div>
-                                <div className="pl-2">
-                                    <label className="form-control w-full max-w-xs">
-                                        <input
-                                            type="number"
-                                            placeholder={`${dataExists ? preExistingData?.refreshRate !== null && preExistingData?.refreshRate : '60000'}`}
-                                            className="input input-bordered w-full max-w-xs"
-                                            maxLength={5}
-                                            minLength={4}
-                                            name="refreshTimer"
-                                            onChange={e => handleInput(e)}
-                                            ref={timerRef}
-                                        />
-                                    </label>
-                                </div>
-                            </div> */}
                             <div className="flex items-center justify-end w-full">
                                 <div>Refresh:</div>
                                 <div className="pl-2 w-full flex justify-end">
@@ -341,11 +316,11 @@ export default function SiteSettings()
                                         onChange={handleInput}
                                     />
                                     <div className="w-full flex justify-between text-xs px-2">
-                                        <span>1s</span>
-                                        <span>2s</span>
-                                        <span>3s</span>
-                                        <span>4s</span>
-                                        <span>5s</span>
+                                        <span>1m</span>
+                                        <span>2m</span>
+                                        <span>3m</span>
+                                        <span>4m</span>
+                                        <span>5m</span>
                                     </div>
                                 </label>
                                 </div>

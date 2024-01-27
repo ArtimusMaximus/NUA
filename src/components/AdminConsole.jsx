@@ -81,7 +81,7 @@ export default function AdminConsole()
             });
             if (submitData.ok) {
                 const returnData = await submitData.json();
-                console.log(returnData);
+                // console.log(returnData);
                 macRef.current.value = '';
                 deviceNameRef.current.value = '';
                 handleRenderToggle();
@@ -94,14 +94,13 @@ export default function AdminConsole()
     useEffect(() => { // /getmacaddresses initial fetch
         const handleGetMacAddresses = async () => {
             try {
-
                 const response = await fetch('/getmacaddresses', {
                     method: 'GET',
                     mode: 'cors',
                 });
                 if (response.ok) {
                     const data = await response.json();
-                    console.log(data);
+                    // console.log(data);
                     setMacData(data ? data : {});
                 } else if (!response.ok) {
                     await dialogRef.current.showModal();
@@ -116,67 +115,11 @@ export default function AdminConsole()
         handleGetMacAddresses();
     }, [toggleReRender]);
 
-    useEffect(() => { // /getmacaddress with refresh timer
-        let time;
-        // note 01 19 - 60 timer is fine until any forced re-render, then investigate if it goes to 10 second mode, may need to force one time call
-        // const handleGetMacAddresses = async () => {
-        //     try {
-        //         const response = await fetch('/getmacaddresses', {
-        //             method: 'GET',
-        //             mode: 'cors',
-        //         });
-        //         if (response.ok) {
-        //             const data = await response.json();
-        //             console.log('data in /getmacaddress initial useeffect: \t', data);
-        //             setMacData(data ? data : {});
-        //             time = data?.refreshRate;
-        //             // console.log('time in /getmacaddresses \t', time)
-        //         }
-        //     } catch (error) {
-        //         console.error(error);
-        //     }
-        // }
-        // handleGetMacAddresses();
-        // // async function checkEvery60Seconds() {
-        // //     // const minute = 60000;
-        // //     const checker = new Promise((res) => {
-        // //         setTimeout(() => {
-        // //             console.log('60 second check complete.')
-        // //             return res();
-        // //         }, 60000)
-        // //     });
-        // //     handleGetMacAddresses();
-        // //     await checker;
-        // //     // clearTimeout(checker);
-        // //     checkEvery60Seconds();
-        // // }
-        // // const timerId = checkEvery60Seconds();
-        // // // handleGetMacAddresses();
-        // // let time = refreshTimer;
-        // console.log('time in getmacaddresses adminconsole: \t', time);
-        // const checkEvery60Seconds = () => {
-        //     console.log(refreshTimer, typeof refreshTimer);
-        //     const timerId = setTimeout(async () => {
-        //         console.count('60 second check complete.');
-        //         await handleGetMacAddresses();
-        //         checkEvery60Seconds();
-        //     }, time !== null && time !== undefined ? time : 10000)
-        //     return () => clearTimeout(timerId)
-        // }
-        // const timerId = checkEvery60Seconds();
-        // return () => clearTimeout(timerId);
-    }, []);
-
     useEffect(() => {
         const eventSource = new EventSource('/pingmacaddresses');
         eventSource.onmessage = (event) => {
-            // const data = JSON.parse(event.data);
-            // // console.log('data received: \t', data);
-            // // setMacData(data)
-            // console.count('Event Received', data);
             if (event) {
                 handleRenderToggle();
-                console.log('if event fired');
             }
         }
         eventSource.onerror = (error) => {
@@ -196,7 +139,7 @@ export default function AdminConsole()
                     if (cronData.ok) {
                         const cronJobCheckData = await cronData.json();
                         setCronJobChecked(cronJobCheckData);
-                        console.log('Cron Job Check Data: ', cronJobCheckData);
+                        // console.log('Cron Job Check Data: ', cronJobCheckData);
                     }
                 } catch (error) {
                     if (error) throw error;
@@ -213,7 +156,6 @@ export default function AdminConsole()
     return (
         <>
             <div className="grid mx-auto grid-flow-row gap-6 w-full">
-
             <Devices data={macData && macData} toggleReRender={toggleReRender} handleRenderToggle={handleRenderToggle} />
                     <div className="flex flex-row items-center justify-center p-6 w-[350px] mx-auto">
                     <details id="top" className="collapse bg-base-200 hover:bg-base-300 mb-80" onClick={handleScroll}>
