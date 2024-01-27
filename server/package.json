@@ -1,5 +1,5 @@
 {
-  "name": "NUA server",
+  "name": "nuaserver",
   "version": "1.0.0",
   "description": "",
   "main": "app.js",

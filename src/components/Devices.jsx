@@ -189,7 +189,6 @@ export default function Devices({ data, toggleReRender, handleRenderToggle })
                                                                     <p><span className="font-thin italic">Name:</span> {device?.name}</p>
                                                                     <p><span className="font-thin italic">Mac:</span> {device?.macAddress}</p>
                                                                     <p><span className="font-thin italic">Status:</span> <span className={`${device?.active ? 'text-green-500' : 'text-red-500'}`}>{device?.active ? 'Allowed' : 'Blocked'}</span></p>
-                                                                    <p><span className="font-thin italic">Device Id:</span> {device?.id}</p>
                                                                     <span className="flex items-center justify-center"
                                                                         onClick={openEditDialog}
                                                                         data-id={device?.id}

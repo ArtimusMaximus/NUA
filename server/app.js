@@ -33,6 +33,15 @@ function red(text, color) { // specific console color logger
         console.log('\x1b[36m\x1b[1m', text);
     }
 }
+function handleLoginError(error) {
+    if (error !== undefined) {
+        console.log('handleLoginErrors: \t');
+        console.log(error?.code);
+        console.log(error?.response?.data?.code);
+        console.log(error?.response?.data?.message);
+    }
+    red('There was an error logging in with your credentials. Set them up in /sitesettings!', 'cyan');
+}
 
 // initial check for existing credentials in db
 const checkForCredentials = async () => {
@@ -47,15 +56,16 @@ const checkForCredentials = async () => {
                 data: {
                     username: '',
                     password: '',
-                    hostname: 'unifi',
+                    hostname: '',
                     port: 443,
                     sslverify: false,
                     refreshRate: 60000,
-                    theme: 'dark'
+                    theme: 'dark',
+                    initialSetup: true
                 }
             });
         } else {
-            red('Credentials already existed!', 'teal')
+            red('Credentials already exist!', 'teal')
             return;
         }
     } catch (error) {
@@ -85,29 +95,18 @@ const fetchLoginInfo = async () => {
           return loginData;
         } catch (error) {
             if (error) {
-                console.error('getAdminLoginInfo error in fetchLoginInfo: ', error)
-                throw new Error('No credentials were found')
+                console.error('getAdminLoginInfo error in fetchLoginInfo: ', error);
+                throw new Error('No credentials were found');
             }
         }
     }
     return getAdminLoginInfo();
 }
-function handleLoginError(error, res=null) {
-    if (error !== undefined) {
-        console.log('handleLoginErrors: \t');
-        console.log(error?.code);
-        console.log(error?.response?.data?.code);
-        console.log(error?.response?.data?.message);
-    }
-    red('There was an error loggin in with your credentials. Set them up on the front end!', 'cyan');
-    if (res !== null) {
-        res.sendStatus(401);
-    }
-}
+
 const info = fetchLoginInfo();
 info
-    .then(() => logIntoUnifi(loginData.hostname, loginData.port, loginData.sslverify, loginData.username, loginData.password))
-    .catch((error) => handleLoginError(error))
+    .then(() => logIntoUnifi(loginData?.hostname, loginData?.port, loginData?.sslverify, loginData?.username, loginData?.password))
+    .catch((error) => console.error(error))
 
 async function getBlockedUsers() {
     const blockedUsers = await unifi.getBlockedUsers();
@@ -185,11 +184,9 @@ app.get('/getmacaddresses', async (req, res) => {
                 id: 1
             }
         });
-        const { hostname, port, sslverify, username, password } = currentCredentials;
-        const valid = await logIntoUnifi(hostname, port, sslverify, username, password);
-        console.log('valid.Credentials=\t' , valid.validCredentials);
-        if (valid.validCredentials) {
+        const { initialSetup } = currentCredentials;
 
+        if (!initialSetup) {
             const blockedUsers = await unifi.getBlockedUsers();
             let macData = await prisma.device.findMany();
             let getRefreshTimer = await prisma.credentials.findUnique({
@@ -249,17 +246,42 @@ app.get('/getmacaddresses', async (req, res) => {
                 }
                 updateRecordsToActive(recordIds, updateData);
             }
-
         } else {
-            console.log('else in get mac addys...');
+            throw new Error('This is the initial setup, redirect.')
         }
     } catch (error) {
         if (error) {
             console.error('error in /getmacaddresses: \t');
             handleLoginError(error);
-            // console.error(error);
             res.sendStatus(401);
         }
+    }
+});
+
+app.get('/pingmacaddresses', async (req, res) => {
+    try {
+        const checkForInitial = await prisma.credentials.findUnique({ where: { id: 1 } });
+        const sendFakeEventObj = { refresh: true }
+
+        if (checkForInitial.initialSetup === false) {
+            const refreshRate = checkForInitial.refreshRate;
+            res.setHeader('Content-Type', 'text/event-stream');
+            res.setHeader('Cache-Control', 'no-cache');
+            res.setHeader('Connection', 'keep-alive');
+
+            const sendUpdate = () => {
+                res.write(`data: ${JSON.stringify({ sendFakeEventObj })}\n\n`)
+            };
+            sendUpdate();
+            const intervalId = setInterval(sendUpdate, refreshRate);
+
+            req.on('close', () => {
+                clearInterval(intervalId)
+            });
+        }
+    } catch (error) {
+        console.error(error);
+        res.sendStatus(500).json({ error: "Internal Server Error."})
     }
 });
 
@@ -871,25 +893,27 @@ app.get('/testconnection', async (req, res) => {
     // const getAdminLoginInfo = async () => {
         // const unifiTest = new Unifi.Controller({ hostname: loginData.hostname, port: loginData.port,  sslverify: loginData.sslverify });
         try {
-            const adminLogin = await prisma.credentials.findMany();
-            const login = adminLogin.pop();
+            // const adminLogin = await prisma.credentials.findMany();
+            const adminLogin = await prisma.credentials.findUnique({ where: { id: 1 }});
+            // const login = adminLogin.pop();
             // console.log('adminLogin ', adminLogin);
-            console.log('login: \t ', login);
-            const unifiTest = new Unifi.Controller({ hostname: login.hostname, port: login.port,  sslverify: login.sslverify });
-            console.log('unifiTest \t', unifiTest);
-            const testCredentials = await unifiTest.login(login.username, login.password);
+            console.log('adminLogin: \t ', adminLogin);
+            const unifiTest = new Unifi.Controller({ hostname: adminLogin.hostname, port: adminLogin.port,  sslverify: adminLogin.sslverify });
+
+            // console.log('unifiTest \t', unifiTest);
+            const testCredentials = await unifiTest.login(adminLogin.username, adminLogin.password);
             console.log("Test Credentials: ", testCredentials); // returns true, not login info
         if (testCredentials === true) {
+            const setInitialSetupFalse = await prisma.credentials.update({ where: { id: 1}, data: { initialSetup: false } }); // setup complete
             res.sendStatus(200);
-
         }
 
         } catch (error) {
             // if (error) throw error;
             if (error) {
-                console.log('Catch Error: ', error.code);
+                console.log('Catch Error: ', error?.code);
                 // res.sendStatus(401);
-                res.status(401).json({ message: error.code })
+                res.status(401).json({ message: error?.code })
 
                 // console.log('Catch Error: ', error.request)
                 // throw error;
