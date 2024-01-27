@@ -11,13 +11,16 @@ const { clientDevices, deviceList, loading, reFetch } = useFetchAllDevices();
 
 const selectRef = useRef();
 const currentSelectedRef = useRef();
+const textSearchRef = useRef();
 const [filteredArray, setFilteredArray] = useState(clientDevices);
+const [searchableCopy, setSearchableCopy] = useState([])
 const [filter, setFilter] = useState('all');
 
 
 const handleRefresh = () => {
     selectRef.current.selected = true;
-    setFilter('all')
+    textSearchRef.current.value = '';
+    setFilter('all');
 }
 const handleAddToDevices = async (deviceToAdd) => {
     try {
@@ -62,15 +65,12 @@ const handleSelect = e => {
 }
 const handleSearchByNameMac = e => {
     const newArr = filteredArray.filter(i => {
-        return i?.name?.toLowerCase().includes(e.target.value) || i?.oui?.toLowerCase().includes(e.target.value) || i?.mac?.toLowerCase().includes(e.target.value)
+        return i?.name?.toLowerCase().includes(e.target.value) || i?.oui?.toLowerCase().includes(e.target.value) || i?.mac?.toLowerCase().includes(e.target.value);
     });
     setFilteredArray(newArr)
-    console.log(e.target.value);
-    if (e.target.value === '') {
-        setFilter(currentSelectedRef.current.value)
-        console.log('currentSelectedRef.current.value \t', currentSelectedRef.current.value);
+    if (e.target.value.length < 2 ) {
+        setFilteredArray(searchableCopy)
     }
-    // console.log(newArr);
 }
 
 useEffect(() => {
@@ -84,26 +84,32 @@ useEffect(() => {
             case 'Blocked Devices':
                 console.log('Blocked devices in switch statement');
                 setFilteredArray(() => clientDevices.filter((device) => device.blocked === true));
+                setSearchableCopy(() => clientDevices.filter((device) => device.blocked === true));
                 break;
             case 'Offline Devices':
                 console.log('Offline devices in switch statement');
                 setFilteredArray(() => clientDevices.filter((device) => device.blocked === true));
+                setSearchableCopy(() => clientDevices.filter((device) => device.blocked === true))
                 break;
             case 'Online Devices':
                 console.log('Online Devices in switch statement');
                 setFilteredArray(() => clientDevices.filter((device) => device.blocked === false));
+                setSearchableCopy(() => clientDevices.filter((device) => device.blocked === false))
                 break;
             case 'Devices on NUA List':
                 console.log('Devices on List in switch statement');
                 setFilteredArray(deviceList)
+                setSearchableCopy(deviceList)
                 break;
             case 'Wired Devices':
                 console.log('Wired Devices in switch statement');
                 setFilteredArray(() => clientDevices.filter((device) => device.is_wired === true));
+                setSearchableCopy(() => clientDevices.filter((device) => device.is_wired === true))
                 break;
             case 'Wireless Devices':
                 console.log('Wireless Devices in switch statement');
                 setFilteredArray(() => clientDevices.filter((device) => device.is_wired === false));
+                setSearchableCopy(() => clientDevices.filter((device) => device.is_wired === false))
                 break;
             default:
                 console.log();
@@ -132,16 +138,16 @@ useEffect(() => {
                 <div className="btn btn-circle" onClick={handleRefresh}><IoMdRefresh className="w-4 h-4 pointer-events-none" /></div>
                 <label className="form-control w-full max-w-xs flex flex-row">
                     <div className="label">
-                        <span className="label-text">Filter by Mac</span>
+                        <span className="label-text">Search</span>
                     </div>
                     <input
                         type="text" placeholder="Type here"
                         className="input input-bordered w-full max-w-xs"
+                        ref={textSearchRef}
                         onChange={handleSearchByNameMac}
                     />
                 </label>
             </div>
-
             {
                 loading ? <DeviceCardSkeleton devices={filteredArray} loading={loading} />
                 : filteredArray?.map((device) => {
@@ -151,6 +157,7 @@ useEffect(() => {
                                 <AllDevicesCard
                                     key={device?.mac}
                                     props={device}
+                                    length={filteredArray.length}
                                     handleAddToDevices={handleAddToDevices}
                                     handleUnblock={handleUnblock}
                                 />

@@ -1015,7 +1015,6 @@ app.delete('/deletecustomapi', async (req, res) => {
     try {
         // console.log('unifi.customApiRequest \t', unifi.customApiRequest)
         const path = `/v2/api/site/default/trafficrules/${_id}`
-
         const result = await unifi.customApiRequest(path, 'DELETE', null)
         console.log('result \t', result);
 
