@@ -154,6 +154,23 @@ export default function Devices({ data, toggleReRender, handleRenderToggle })
         }
         updateEdits();
     }
+    const deleteCustomRule = () => {
+        const _id = '65b4863e38fb85531f2e55f8'
+        const fetchStuff = async () => {
+            const response = await fetch('/deletecustomapi', {
+                method: 'DELETE',
+                mode: 'cors',
+                headers: {
+                    'Content-Type' : 'application/json'
+                },
+                body: JSON.stringify({ _id })
+            })
+            if (response.ok) {
+                console.log(response);
+            }
+        }
+        fetchStuff();
+    }
 
     return (
         <>
@@ -224,6 +241,7 @@ export default function Devices({ data, toggleReRender, handleRenderToggle })
             <div className="flex flex-row gap-6 flex-wrap mx-auto">
                 <div className="btn" onClick={handleUnBlockAll}>Unblock All</div>
                 <div className="btn" onClick={handleBlockAll}>Block All</div>
+                <div className="btn btn-circle" onClick={deleteCustomRule}>delete custom api</div>
             </div>
             <dialog id="my_modal_1" ref={editRef} className="modal">
                 <div className="modal-box">

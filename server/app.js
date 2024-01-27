@@ -11,6 +11,7 @@ const customPORT = require('./globalSettings');
 
 
 
+
 // Init sqlite db
 (async () => {
     const db = await open({
@@ -986,6 +987,45 @@ app.post('/login', (req, res) => {
         res.sendStatus(500)
     }
 });
+
+
+
+// ~~~~~potential firewall~~~~~~
+app.post('/fetchcustomapi', async (req, res) => {
+    const { instagramObject } = req.body
+    console.log('instagramObject \t', instagramObject);
+    try {
+        // console.log('unifi.customApiRequest \t', unifi.customApiRequest)
+        const path = '/v2/api/site/default/trafficrules'
+
+        const result = await unifi.customApiRequest(path, 'POST', instagramObject)
+        console.log('result \t', result);
+        result?.map(r => console.log(r))
+        result.forEach(r => r.target_devices.forEach(device => console.log('target_devices \t', device)))
+
+        // res.json(car)
+        res.sendStatus(200);
+    } catch (error) {
+        console.error(error);
+    }
+});
+app.delete('/deletecustomapi', async (req, res) => {
+    const { _id } = req.body;
+    console.log('instagramObject \t', _id);
+    try {
+        // console.log('unifi.customApiRequest \t', unifi.customApiRequest)
+        const path = `/v2/api/site/default/trafficrules/${_id}`
+
+        const result = await unifi.customApiRequest(path, 'DELETE', null)
+        console.log('result \t', result);
+
+        // res.json(car)
+        res.sendStatus(200);
+    } catch (error) {
+        console.error(error);
+    }
+});
+
 
 //~~~~~~refresh redirect~~~~~~
 app.get('**', async (req, res) => {

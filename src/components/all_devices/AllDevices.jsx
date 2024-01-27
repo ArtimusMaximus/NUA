@@ -10,15 +10,16 @@ export default function AllDevices()
 const { clientDevices, deviceList, loading, reFetch } = useFetchAllDevices();
 
 const selectRef = useRef();
+const currentSelectedRef = useRef();
 const [filteredArray, setFilteredArray] = useState(clientDevices);
 const [filter, setFilter] = useState('all');
+
 
 const handleRefresh = () => {
     selectRef.current.selected = true;
     setFilter('all')
 }
 const handleAddToDevices = async (deviceToAdd) => {
-    // console.log(deviceToAdd.mac); // works
     try {
         const response = await fetch('/addtodevicelist', {
             method: 'POST',
@@ -59,8 +60,18 @@ const handleSelect = e => {
     selectRef.current.selected = false;
     setFilter(e.target.value);
 }
-
-
+const handleSearchByNameMac = e => {
+    const newArr = filteredArray.filter(i => {
+        return i?.name?.toLowerCase().includes(e.target.value) || i?.oui?.toLowerCase().includes(e.target.value) || i?.mac?.toLowerCase().includes(e.target.value)
+    });
+    setFilteredArray(newArr)
+    console.log(e.target.value);
+    if (e.target.value === '') {
+        setFilter(currentSelectedRef.current.value)
+        console.log('currentSelectedRef.current.value \t', currentSelectedRef.current.value);
+    }
+    // console.log(newArr);
+}
 
 useEffect(() => {
     console.log('useeffect fired by switch');
@@ -101,7 +112,7 @@ useEffect(() => {
         }
     }
     filterCriteria(filter);
-}, [filter, clientDevices]);
+}, [filter, clientDevices, currentSelectedRef]);
 
     return (
         <>
@@ -109,7 +120,7 @@ useEffect(() => {
             <h1 className="my-6 text-3xl italic mx-auto row-start-1 col-span-full text-center">{filter === 'all' ? 'All Client Devices' : filter} ({filteredArray.length}<span className="font-thin italic text-lg ml-1">items<span className="text-3xl italic">)</span></span></h1>
 
             <div className="flex flex-row row-start-2 gap-2 col-span-full mx-auto">
-                <select className="select select-bordered w-full max-w-xs" onChange={handleSelect}>
+                <select className="select select-bordered w-full max-w-xs" ref={currentSelectedRef} onChange={handleSelect}>
                     <option disabled ref={selectRef} selected value={'all'}>Filter Selection</option>
                     <option value={'Blocked Devices'}>Blocked Devices</option>
                     <option value={'Offline Devices'}>Offline Devices</option>
@@ -119,6 +130,16 @@ useEffect(() => {
                     <option value={'Wireless Devices'}>Wireless Devices</option>
                 </select>
                 <div className="btn btn-circle" onClick={handleRefresh}><IoMdRefresh className="w-4 h-4 pointer-events-none" /></div>
+                <label className="form-control w-full max-w-xs flex flex-row">
+                    <div className="label">
+                        <span className="label-text">Filter by Mac</span>
+                    </div>
+                    <input
+                        type="text" placeholder="Type here"
+                        className="input input-bordered w-full max-w-xs"
+                        onChange={handleSearchByNameMac}
+                    />
+                </label>
             </div>
 
             {

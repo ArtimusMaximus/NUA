@@ -24,6 +24,27 @@ export default function AdminConsole()
     const [countdown, setCountdown] = useState(2);
     const dialogRef = useRef();
 
+    const instagramObject = {
+        action: 'BLOCK',
+        app_category_ids: [],
+        app_ids: [ 1573022 ],
+        bandwidth_limit: {
+          download_limit_kbps: 1024,
+          enabled: false,
+          upload_limit_kbps: 1024
+        },
+        description: 'Instagram',
+        domains: [],
+        enabled: true,
+        ip_addresses: [],
+        ip_ranges: [],
+        matching_target: 'APP',
+        network_ids: [],
+        regions: [],
+        schedule: { mode: 'ALWAYS', repeat_on_days: [], time_all_day: false },
+        target_devices: [ { network_id: '63c9eee5bf79960e3813bb10', type: 'NETWORK' } ]
+      }
+
 
     const refreshUI = () => {
         setRefresh(prev => !prev)
@@ -152,6 +173,30 @@ export default function AdminConsole()
         //     setServerRestart(false);
         // }
     }, []);
+
+    const addCustomRule = () => {
+        const fetchStuff = async () => {
+           try {
+            const response = await fetch('/fetchcustomapi', {
+                method: 'POST',
+                mode: 'cors',
+                headers: {
+                    'Content-Type' : 'application/json'
+                },
+                body: JSON.stringify({instagramObject})
+            })
+            if (response.ok) {
+                console.log(response)
+                let rj = await response.json();
+                console.log('rj: \t', rj);
+            }
+           } catch (error) {
+            console.error(error)
+           }
+        }
+        fetchStuff();
+    }
+
 
     return (
         <>
