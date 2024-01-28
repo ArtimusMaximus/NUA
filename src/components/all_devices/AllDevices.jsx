@@ -21,6 +21,7 @@ const handleRefresh = () => {
     selectRef.current.selected = true;
     textSearchRef.current.value = '';
     setFilter('all');
+    setFilteredArray(clientDevices);
 }
 const handleAddToDevices = async (deviceToAdd) => {
     try {
@@ -80,6 +81,7 @@ useEffect(() => {
             case 'all':
                 console.log('All devices in switch statement');
                 setFilteredArray(clientDevices);
+                setSearchableCopy(clientDevices)
                 break;
             case 'Blocked Devices':
                 console.log('Blocked devices in switch statement');
@@ -122,7 +124,15 @@ useEffect(() => {
 
     return (
         <>
-            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 xl:gap-8 pb-24">
+            <div
+                className={`
+                    grid grid-cols-1
+                    md:grid-cols-2
+                    gap-4 xl:gap-8 pb-24
+
+                    ${filteredArray.length <= 2 ? 'xl:grid-cols-2 mx-auto' : 'xl:grid-cols-3'}
+                    `
+                }>
             <h1 className="my-6 text-3xl italic mx-auto row-start-1 col-span-full text-center">{filter === 'all' ? 'All Client Devices' : filter} ({filteredArray.length}<span className="font-thin italic text-lg ml-1">items<span className="text-3xl italic">)</span></span></h1>
 
             <div className="flex flex-row row-start-2 gap-2 col-span-full mx-auto">
@@ -153,7 +163,7 @@ useEffect(() => {
                 : filteredArray?.map((device) => {
                     return (
                         <>
-                            <div className="flex items-center justify-center">
+                            <div className={`flex items-center justify-center `}>
                                 <AllDevicesCard
                                     key={device?.mac}
                                     props={device}

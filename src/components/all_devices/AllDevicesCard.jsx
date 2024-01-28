@@ -3,9 +3,10 @@ import { IoCheckmarkSharp } from "react-icons/io5";
 
 export default function AllDevicesCard({ props, length, handleAddToDevices })
 {
+    console.log('length, \t', length)
     return (
         <>
-            <div className={`card w-full mx-4 bg-base-100 shadow-xl hover:bg-base-300 ${length <= 2 ? 'row-span-full mx-auto' : ''}`}>
+            <div className={`card min-w-[375px] min-h-[384px] bg-base-100 mx-4 shadow-xl hover:bg-base-300`}>
                 <div className="card-body">
                     <h2 className="card-title"><span className="italic font-thin">oui: </span>{props?.oui ? props?.oui : '"none"'}</h2>
                     <p><span className="italic font-thin">hostname: </span>{props?.hostname}</p>
