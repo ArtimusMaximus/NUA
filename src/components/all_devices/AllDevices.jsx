@@ -79,42 +79,41 @@ useEffect(() => {
     const filterCriteria = (criteria) => {
         switch (criteria) {
             case 'all':
-                console.log('All devices in switch statement');
+                // console.log('All devices in switch statement');
                 setFilteredArray(clientDevices);
                 setSearchableCopy(clientDevices)
                 break;
             case 'Blocked Devices':
-                console.log('Blocked devices in switch statement');
+                // console.log('Blocked devices in switch statement');
                 setFilteredArray(() => clientDevices.filter((device) => device.blocked === true));
                 setSearchableCopy(() => clientDevices.filter((device) => device.blocked === true));
                 break;
             case 'Offline Devices':
-                console.log('Offline devices in switch statement');
+                // console.log('Offline devices in switch statement');
                 setFilteredArray(() => clientDevices.filter((device) => device.blocked === true));
                 setSearchableCopy(() => clientDevices.filter((device) => device.blocked === true))
                 break;
             case 'Online Devices':
-                console.log('Online Devices in switch statement');
+                // console.log('Online Devices in switch statement');
                 setFilteredArray(() => clientDevices.filter((device) => device.blocked === false));
                 setSearchableCopy(() => clientDevices.filter((device) => device.blocked === false))
                 break;
             case 'Devices on NUA List':
-                console.log('Devices on List in switch statement');
+                // console.log('Devices on List in switch statement');
                 setFilteredArray(deviceList)
                 setSearchableCopy(deviceList)
                 break;
             case 'Wired Devices':
-                console.log('Wired Devices in switch statement');
+                // console.log('Wired Devices in switch statement');
                 setFilteredArray(() => clientDevices.filter((device) => device.is_wired === true));
                 setSearchableCopy(() => clientDevices.filter((device) => device.is_wired === true))
                 break;
             case 'Wireless Devices':
-                console.log('Wireless Devices in switch statement');
+                // console.log('Wireless Devices in switch statement');
                 setFilteredArray(() => clientDevices.filter((device) => device.is_wired === false));
                 setSearchableCopy(() => clientDevices.filter((device) => device.is_wired === false))
                 break;
             default:
-                console.log();
                 setFilteredArray(clientDevices);
                 break;
         }
@@ -134,7 +133,6 @@ useEffect(() => {
                     `
                 }>
             <h1 className="my-6 text-3xl italic mx-auto row-start-1 col-span-full text-center">{filter === 'all' ? 'All Client Devices' : filter} ({filteredArray.length}<span className="font-thin italic text-lg ml-1">items<span className="text-3xl italic">)</span></span></h1>
-
             <div className="flex flex-row row-start-2 gap-2 col-span-full mx-auto">
                 <select className="select select-bordered w-full max-w-xs" ref={currentSelectedRef} onChange={handleSelect}>
                     <option disabled ref={selectRef} selected value={'all'}>Filter Selection</option>

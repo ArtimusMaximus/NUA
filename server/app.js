@@ -988,6 +988,30 @@ app.post('/login', (req, res) => {
     }
 });
 
+//~~~~~~reorder data~~~~~~
+app.put('/updatedeviceorder', async (req, res) => {
+    const { newData } = req.body;
+    try {
+        const updateOrder = async () => {
+            for (const device of newData) {
+                await prisma.device.update({
+                    where: {
+                        id: device.id
+                    },
+                    data: {
+                        order: parseInt(device.order)
+                    }
+                });
+            }
+        }
+        updateOrder();
+        // res.json({ message: 'Updated Successful'})
+        res.sendStatus(200);
+    } catch (error) {
+        console.error(error);
+    }
+});
+
 
 
 // ~~~~~potential firewall~~~~~~

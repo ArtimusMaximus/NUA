@@ -21,7 +21,7 @@ const handleAddToDevices = async (deviceToAdd) => {
         });
         if (response.ok) {
             const returnData = await response.json();
-            console.log('return data from blocked devices', returnData);
+            // console.log('return data from blocked devices', returnData);
             reFetch();
         }
     } catch (error) {

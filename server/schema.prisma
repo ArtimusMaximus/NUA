@@ -26,7 +26,7 @@ model Device {
   active        Boolean
   createdAt     DateTime     @default(now())
   crons         Cron[]
-
+  order         Int?
 }
 
 model Cron {

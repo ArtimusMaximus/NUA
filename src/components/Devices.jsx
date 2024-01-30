@@ -171,6 +171,49 @@ export default function Devices({ data, toggleReRender, handleRenderToggle })
         }
         fetchStuff();
     }
+    const handleDragStart = e => {
+        const deviceOrderId = e.currentTarget.getAttribute('data-devid');
+        e.dataTransfer.setData('text/plain', deviceOrderId);
+    }
+    const handleDragOver = e => {
+        e.preventDefault();
+
+    }
+    const handleDrop = async e => {
+        e.preventDefault();
+        const draggedDeviceId = e.dataTransfer.getData("text/plain");
+        const targetDeviceId = e.currentTarget.getAttribute("data-devid");
+        const newData = [...data?.macData];
+        let draggedDeviceIndex = newData.findIndex(device => device?.id === parseInt(draggedDeviceId));
+        let targetDeviceIndex = newData.findIndex(device => device?.id === parseInt(targetDeviceId));
+
+        if (draggedDeviceIndex !== -1 && targetDeviceIndex !== -1) {
+            const temp = newData[draggedDeviceIndex].order
+            newData[draggedDeviceIndex].order = newData[targetDeviceIndex].order
+            newData[targetDeviceIndex].order = temp
+
+            // const temp2 = newData[draggedDeviceIndex]
+            // newData[draggedDeviceIndex] = newData[targetDeviceIndex]
+            // newData[targetDeviceIndex] = temp2
+
+        }
+        newData.sort((a,b) => parseInt(a.order) - parseInt(b.order))
+        try {
+            const updateOrder = await fetch('/updatedeviceorder', {
+                method: 'PUT',
+                mode: 'cors',
+                headers: {
+                    'Content-Type' : 'application/json'
+                },
+                body: JSON.stringify({ newData })
+            });
+            if (updateOrder.ok) {
+                handleRenderToggle();
+            }
+        } catch (error) {
+            console.error(error);
+        }
+    }
 
     return (
         <>
@@ -184,10 +227,10 @@ export default function Devices({ data, toggleReRender, handleRenderToggle })
                         <div className="divider mt-2 mb-2"></div>
                         <ul className="flex flex-col w-full">
                             {
-                                data?.macData?.map((device) => {
+                                data?.macData?.sort((a, b) => parseInt(a?.order) - parseInt(b?.order)).map((device, index) => {
                                     return (
                                         <>
-                                            <li key={device?.id} className="m-1">
+                                            <li key={device?.id} className="m-1" >
                                                 <div className="collapse bg-base-200">
                                                 <input type="checkbox" />
                                                     <div className="collapse-title text-xl font-medium">
@@ -198,23 +241,33 @@ export default function Devices({ data, toggleReRender, handleRenderToggle })
                                                                 />
                                                             {device?.name}
 
+                                                            <div
+                                                                draggable={true}
+                                                                data-orderid={`${index+1}`}
+                                                                data-devid={device?.id}
+                                                                onDragStart={handleDragStart}
+                                                                onDragOver={handleDragOver}
+                                                                onDrop={handleDrop}
+                                                                className="rotate-90 z-50">
+                                                                |||
+                                                            </div>
                                                         </div>
+
                                                     </div>
                                                     <div className="collapse-content">
-
-                                                                <div className="flex justify-between flex-wrap">
-                                                                    <p><span className="font-thin italic">Name:</span> {device?.name}</p>
-                                                                    <p><span className="font-thin italic">Mac:</span> {device?.macAddress}</p>
-                                                                    <p><span className="font-thin italic">Status:</span> <span className={`${device?.active ? 'text-green-500' : 'text-red-500'}`}>{device?.active ? 'Allowed' : 'Blocked'}</span></p>
-                                                                    <span className="flex items-center justify-center"
-                                                                        onClick={openEditDialog}
-                                                                        data-id={device?.id}
-                                                                    >
-                                                                        <HiMiniPencilSquare
-                                                                            className="w-6 h-6 pointer-events-none"
-                                                                        />
-                                                                    </span>
-                                                                </div>
+                                                            <div className="flex justify-between flex-wrap">
+                                                                <p><span className="font-thin italic">Name:</span> {device?.name}</p>
+                                                                <p><span className="font-thin italic">Mac:</span> {device?.macAddress}</p>
+                                                                <p><span className="font-thin italic">Status:</span> <span className={`${device?.active ? 'text-green-500' : 'text-red-500'}`}>{device?.active ? 'Allowed' : 'Blocked'}</span></p>
+                                                                <span className="flex items-center justify-center"
+                                                                    onClick={openEditDialog}
+                                                                    data-id={device?.id}
+                                                                >
+                                                                    <HiMiniPencilSquare
+                                                                        className="w-6 h-6 pointer-events-none"
+                                                                    />
+                                                                </span>
+                                                            </div>
                                                         <div>
                                                             <Link to={`/admin/${device?.id}/cronmanager`} className="w-fit hover:cursor-pointer" >
                                                                 <div className="btn btn-block bg-base-300 hover:bg-base-content hover:text-base-100 my-2">Schedule</div>
@@ -229,6 +282,7 @@ export default function Devices({ data, toggleReRender, handleRenderToggle })
                                                         </div>
                                                     </div>
                                                 </div>
+
                                             </li>
                                         </>
                                     );

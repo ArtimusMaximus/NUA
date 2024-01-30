@@ -3,7 +3,6 @@ import { IoCheckmarkSharp } from "react-icons/io5";
 
 export default function AllDevicesCard({ props, length, handleAddToDevices })
 {
-    console.log('length, \t', length)
     return (
         <>
             <div className={`card min-w-[375px] min-h-[384px] bg-base-100 mx-4 shadow-xl hover:bg-base-300`}>
