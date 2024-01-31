@@ -59,13 +59,15 @@ export default function Navbar({ themeValue, callBackChanged })
                       alt="NUA Logo"
                       className="w-16 h-16 p-0 "
                     />
-                    <div className="px-1 nuaFont text-2xl ">NUA</div>
+                    <div className="px-1 nuaFont text-2xl">NUA</div>
                   </div></li></Link>
                   {/* Sidebar content here */}
                   <Link to="/"><li className="font-bold text-lg"><a>Home</a></li></Link>
                   <Link to="/sitesettings"><li className="font-bold text-lg"><a>Site Settings</a></li></Link>
                   <Link to="/blockeddevices"><li className="font-bold text-lg"><a>See All Blocked</a></li></Link>
                   <Link to="/alldevices"><li className="font-bold text-lg"><a>See All Devices</a></li></Link>
+                  <Link to="/trafficrules"><li className="font-bold text-lg"><a>Traffic Rules</a></li></Link>
+                  <Link to="/seeallapps"><li className="font-bold text-lg"><a>See All Apps</a></li></Link>
                 </ul>
               </div>
             </div>

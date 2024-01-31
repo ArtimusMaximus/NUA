@@ -240,7 +240,6 @@ export default function Devices({ data, toggleReRender, handleRenderToggle })
                                                                 className={`${device?.active ? 'text-green-500' : 'text-red-500'} animate-pulse w-8 h-8 z-40`}
                                                                 />
                                                             {device?.name}
-
                                                             <div
                                                                 draggable={true}
                                                                 data-orderid={`${index+1}`}
@@ -248,7 +247,7 @@ export default function Devices({ data, toggleReRender, handleRenderToggle })
                                                                 onDragStart={handleDragStart}
                                                                 onDragOver={handleDragOver}
                                                                 onDrop={handleDrop}
-                                                                className="rotate-90 z-50">
+                                                                className="rotate-90 z-50 hover:cursor-grab">
                                                                 |||
                                                             </div>
                                                         </div>

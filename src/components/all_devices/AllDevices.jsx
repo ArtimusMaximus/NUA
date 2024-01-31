@@ -81,7 +81,7 @@ useEffect(() => {
             case 'all':
                 // console.log('All devices in switch statement');
                 setFilteredArray(clientDevices);
-                setSearchableCopy(clientDevices)
+                setSearchableCopy(clientDevices);
                 break;
             case 'Blocked Devices':
                 // console.log('Blocked devices in switch statement');

@@ -21,6 +21,10 @@ export default function BreadCrumbs()
                 path = 'All Devices'
             } else if (path === 'blockeddevices') {
                 path = 'Blocked Devices'
+            } else if (path === 'trafficrules') {
+                path = 'Traffic Rules'
+            } else if (path === 'seeallapps') {
+                path = 'See All Apps'
             } else if (path === 'cronmanager') {
                 path = 'Cron Manager'
                 pathNames[i] = ''
