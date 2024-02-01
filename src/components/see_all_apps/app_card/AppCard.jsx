@@ -2,7 +2,7 @@ import { Link } from "react-router-dom"
 
 
 
-export default function AppCard({ props })
+export default function AppCard({ props, cat })
 {
     return (
         <>
@@ -15,7 +15,8 @@ export default function AppCard({ props })
                     ...
                     </p>
                     <div className="card-actions justify-end">
-                        <Link to={`/trafficrules/${props.id}`}><button className="btn btn-primary">Manage this App.</button></Link>
+                        {/* <Link to={`/manageapp/${cat}/${props.id}`}><button className="btn btn-primary btn-circle text-2xl font-bold">+</button></Link> */}
+                        <input type="checkbox" className="checkbox checkbox-primary" />
                     </div>
                 </div>
             </div>
