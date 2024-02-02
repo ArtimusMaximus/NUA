@@ -52,12 +52,11 @@ export default function Navbar({ themeValue, callBackChanged })
               <div className="drawer-side">
                 <label htmlFor="my-drawer" aria-label="close sidebar" className="drawer-overlay"></label>
                 <ul className="menu p-4 w-52 sm:w-80 min-h-full bg-base-200 text-base-content ">
-
                   <Link to="/"><li><div>
                     <img
                       src={NuaSvg}
                       alt="NUA Logo"
-                      className="w-16 h-16 p-0 "
+                      className="w-16 h-16 p-0"
                     />
                     <div className="px-1 nuaFont text-2xl">NUA</div>
                   </div></li></Link>
@@ -69,6 +68,9 @@ export default function Navbar({ themeValue, callBackChanged })
                   <Link to="/trafficrules"><li className="font-bold text-lg"><a>Traffic Rules</a></li></Link>
                   <Link to="/seeallapps"><li className="font-bold text-lg"><a>See All Apps</a></li></Link>
                 </ul>
+                <div className="absolute left-5 bottom-5">
+                  <div className="badge badge-outline">Version 1.0.0</div>
+                </div>
               </div>
             </div>
               <div className="flex justify-center items-center">
@@ -76,7 +78,7 @@ export default function Navbar({ themeValue, callBackChanged })
                   <img
                     src={NuaSvg}
                     alt="NUA Logo"
-                    className="w-10 h-10 p-0 "
+                    className="w-10 h-10 p-0"
                   />
                   NUA
                 </Link>

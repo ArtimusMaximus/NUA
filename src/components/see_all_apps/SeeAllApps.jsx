@@ -37,7 +37,8 @@ export default function SeeAllApps()
     const [selection, setSelection] = useState([]);
     const [categoryName, setCategoryName] = useState("");
     const manageDialogRef = useRef();
-    const selectionArray = [];
+    let selectionArray = [];
+
 
 
 
@@ -227,21 +228,18 @@ export default function SeeAllApps()
         console.log(e.target.dataset.id, e.target.dataset.name, e.target.checked);
         if (e.target.checked) {
             selectionArray.push({ id: e.target.dataset.id, name: e.target.dataset.name })
-        //     setSelection([...selectionArray]);
-            console.log('selectionArray \t', selectionArray);
-        //     console.log('selection \t', selection);
-        // } else if (!e.target.checked && selection.length) {
-        //     const filterOut = selectionArray.filter(i => i.name !== e.target.dataset.name);
-        //     setSelection([...filterOut]);
-        }
-        // setSelection([...selectionArray])
-        if (!e.target.checked) {
-            const filterOut = selectionArray.filter(i => i.name !== e.target.dataset.name);
-            // setSelection([...filterOut])
-            console.log('filterOut \t', filterOut)
-        }
 
+        } else if (!e.target.checked) {
+            const filterOut = selectionArray.filter(i => i.name !== e.target.dataset.name);
+            selectionArray = filterOut;
+
+        }
+        setSelection(selectionArray);
+        console.log('selection \t', selection);
     }
+
+
+
     function AppCard({ props, cat })
     {
         return (
@@ -294,7 +292,6 @@ export default function SeeAllApps()
                                 })}
             </div>
 
-
             <dialog ref={manageDialogRef} className="modal">
                 <div className="modal-box">
                     <h3 className="font-bold text-lg">Manage</h3>
@@ -302,6 +299,16 @@ export default function SeeAllApps()
                             {/* map devices */}
                         </select>
                     <div className="modal-action">
+                        <div className="m-1 flex flex-row items-center justify-center">
+                            {selection.map((app) => {
+                                return (
+                                    <>
+                                        <div key={app.id} className="badge badge-primary">{app?.name}</div>
+                                    </>
+                                )
+                            })}
+                        </div>
+
                     <form method="dialog">
                         <button className="btn">Exit</button>
                     </form>

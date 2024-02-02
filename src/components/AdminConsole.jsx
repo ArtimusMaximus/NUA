@@ -200,7 +200,7 @@ export default function AdminConsole()
 
     return (
         <>
-            <div className="grid mx-auto grid-flow-row gap-6 w-full">
+            {/* <div className="grid mx-auto grid-flow-row gap-6 w-full">
             <Devices data={macData && macData} toggleReRender={toggleReRender} handleRenderToggle={handleRenderToggle} />
                     <div className="flex flex-row items-center justify-center p-6 w-[350px] mx-auto">
                     <details id="top" className="collapse bg-base-200 hover:bg-base-300 mb-80" onClick={handleScroll}>
@@ -245,7 +245,7 @@ export default function AdminConsole()
                         <span>Invalid Mac Address</span>
                     </div>
                 </div>
-            </div>
+            </div> */}
 
             {/* navigate to credentials modal */}
             <dialog id="redirectModal" className="modal" ref={dialogRef}>
