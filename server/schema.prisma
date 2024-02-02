@@ -16,6 +16,7 @@ model Credentials {
   sslverify     Boolean?
   theme         String?
   refreshRate   Int?
+  defaultPage   String?
   initialSetup  Boolean?
 }
 

@@ -294,12 +294,12 @@ export default function Devices({ data, toggleReRender, handleRenderToggle })
             <div className="flex flex-row gap-6 flex-wrap mx-auto">
                 <div className="btn" onClick={handleUnBlockAll}>Unblock All</div>
                 <div className="btn" onClick={handleBlockAll}>Block All</div>
-                <div className="btn btn-circle" onClick={deleteCustomRule}>delete custom api</div>
+                {/* <div className="btn btn-circle" onClick={deleteCustomRule}>delete custom api</div> */}
             </div>
-            <div className="flex flex-row gap-6 flex-wrap mx-auto">
-                <Link to="/alldevices"><div className="btn">Add Device</div></Link>
+            <div className="flex flex-row flex-wrap mx-auto pt-4">
+                <Link to="/alldevices"><div className="btn px-10">Add Device</div></Link>
             </div>
-            {/* <dialog id="my_modal_1" ref={editRef} className="modal">
+            <dialog id="my_modal_1" ref={editRef} className="modal">
                 <div className="modal-box">
                     <h3 className="font-bold text-2xl">Edit</h3>
                     <div className="modal-action flex items-center justify-center m-0 p-0">
@@ -331,7 +331,7 @@ export default function Devices({ data, toggleReRender, handleRenderToggle })
                         </label>
                     </div>
                 </div>
-            </dialog> */}
+            </dialog>
         </>
     )
 }

@@ -62,6 +62,7 @@ const checkForCredentials = async () => {
                     sslverify: false,
                     refreshRate: 60000,
                     theme: 'dark',
+                    defaultPage: '/',
                     initialSetup: true
                 }
             });
@@ -875,6 +876,20 @@ app.put('/updatesitesettings', async (req, res) => {
     } catch (error) {
         if(error) throw error;
     }
+});
+
+app.post('/updategeneralsettings', async (req, res) => {
+    const { selectDefaultPage } = req.body;
+    const updateDefaultPage = await prisma.credentials.update({
+        where: {
+            id: 1
+        },
+        data: {
+            defaultPage: selectDefaultPage
+        }
+    });
+
+    res.sendStatus(200);
 });
 
 app.get('/checkforsettings', async (req, res) => {

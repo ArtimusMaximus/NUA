@@ -16,7 +16,8 @@ export default function SiteSettings()
     const [alertType, setAlertType] = useState("");
     const [reveal, setReveal] = useState(false);
     const [clicked, setClicked] = useState(false);
-    const [rangeValue, setRangeValue] = useState(0)
+    const [rangeValue, setRangeValue] = useState(0);
+    const [selectDefaultPage, setSelectDefaultPage] = useState("");
     const hostnameRef = useRef();
     const usernameRef = useRef();
     const passwordRef = useRef();
@@ -44,6 +45,27 @@ export default function SiteSettings()
             });
 
             // console.log(data);
+        }
+    }
+    const handleSelect = e => {
+        setSelectDefaultPage(e.target.value);
+    }
+    const handleUpdateGeneralSettings = async () => {
+        try {
+            const updateGeneralSettings = await fetch('/updategeneralsettings', {
+                method: 'POST',
+                mode: 'cors',
+                headers: {
+                    "Content-Type" : "application/json"
+                },
+                body: JSON.stringify({ selectDefaultPage: selectDefaultPage })
+            });
+            if (updateGeneralSettings.ok) {
+                console.log('confirmed');
+            }
+            // updateGeneralSettings();
+        } catch (error) {
+            console.error(error)
         }
     }
 
@@ -208,7 +230,7 @@ export default function SiteSettings()
     }
     return (
         <>
-            <div className="flex items-center justify-center w-full h-full sm:w-3/4 lg:w-1/2 mx-auto pb-12">
+            <div className="flex flex-col items-center justify-center w-full h-full sm:w-3/4 lg:w-1/2 mx-auto pb-24">
                 <div className="flex w-full mx-2">
                     <div className="flex flex-col items-center justify-center w-full h-full mx-auto border rounded-lg shadow overflow-hidden border-neutral shadow-base-300 m-8">
                         <div className="flex w-full mt-2 justify-around">
@@ -338,9 +360,6 @@ export default function SiteSettings()
                                 <GoUnlock
                                     className={`w-8 h-8 hover:cursor-pointer `}
                                     onClick={handleSubmit}
-                                    // data-id={cronData?.id}
-                                    // data-jobname={cronData?.jobName}
-                                    // ref={submitButtonRef}
                                     />
                             </div>
                             <div
@@ -355,6 +374,26 @@ export default function SiteSettings()
                     </div>
                 </div>
                 {reveal && <Confirmation message={testMessage} alertType={alertType} duration={5000} reveal={reveal} />}
+
+                    <div className="flex flex-col items-center justify-center w-full h-full mx-auto border rounded-lg shadow overflow-hidden border-neutral shadow-base-300 mt-4">
+                        <div className="flex w-full mt-2 justify-around">
+                            <div className="text-2xl font-bold">General</div>
+                        </div>
+                        <div className="divider"></div>
+                        <div className="flex items-center flex-col justify-end gap-4">
+                            <div>Choose default page:</div>
+                            <div className="pl-2">
+                                <select onChange={handleSelect} className="select select-bordered w-full max-w-xs">
+                                    <option disabled selected>Choose Page</option>
+                                    <option value="/">Device List</option>
+                                    <option value="/trafficrules">Traffic Rules</option>
+                                </select>
+                            </div>
+                            <div className="flex pb-4">
+                                <div className="btn" onClick={handleUpdateGeneralSettings}>Submit</div>
+                            </div>
+                        </div>
+                    </div>
             </div>
         </>
     )

@@ -308,7 +308,6 @@ export default function SeeAllApps()
                                 )
                             })}
                         </div>
-
                     <form method="dialog">
                         <button className="btn">Exit</button>
                     </form>
