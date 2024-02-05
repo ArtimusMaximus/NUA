@@ -1,6 +1,6 @@
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { GoGear } from "react-icons/go";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { GiHamburgerMenu } from "react-icons/gi";
 import NuaSvg from "../images/nua.svg";
 // import '../globals.css'
@@ -8,8 +8,10 @@ import NuaSvg from "../images/nua.svg";
 
 export default function Navbar({ themeValue, callBackChanged })
 {
-  const updateTheme = async () => {
+  const [open, setOpen] = useState(false);
+  const drawerRef = useRef();
 
+  const updateTheme = async () => {
     let theme;
     if (themeValue === 'light') {
       theme = 'dark';
@@ -35,12 +37,24 @@ export default function Navbar({ themeValue, callBackChanged })
     }
   }
 
+  const handleDrawerOn = () => {
+    if (drawerRef.current.value === 'on') {
+      setOpen(true);
+      drawerRef.current.value = 'off'
+    } else if (drawerRef.current.value === 'off') {
+      setOpen(false);
+      drawerRef.current.value = 'on'
+    }
+  }
+
+
+
   return (
     <>
-        <div className="navbar bg-base-100 grid grid-flow-row grid-cols-2">
+        <div className="navbar bg-base-100 grid grid-flow-row grid-cols-2 z-50">
           <div className="flex flex-row items-center justify-center w-fit z-50 mr-4 gap-1">
             <div className="drawer w-fit">
-              <input id="my-drawer" type="checkbox" className="drawer-toggle" />
+              <input id="my-drawer" type="checkbox" onClick={handleDrawerOn} ref={drawerRef} className="drawer-toggle" />
               <div className="drawer-content flex items-center justify-center">
                 {/* Page content here */}
                 <label
@@ -68,8 +82,8 @@ export default function Navbar({ themeValue, callBackChanged })
                   <Link to="/trafficrules"><li className="font-bold text-lg"><a>Traffic Rules</a></li></Link>
                   <Link to="/seeallapps"><li className="font-bold text-lg"><a>See All Apps</a></li></Link>
                 </ul>
-                <div className="absolute left-5 bottom-5">
-                  <div className="badge badge-outline">Version 1.0.0</div>
+                <div className={`${open ? "absolute left-5 bottom-5" : "hidden"}`}>
+                  <div className="badge badge-outline">Version <span className="text-primary">1.0.0</span></div>
                 </div>
               </div>
             </div>
