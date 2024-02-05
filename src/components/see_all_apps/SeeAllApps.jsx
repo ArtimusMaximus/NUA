@@ -35,11 +35,10 @@ export default function SeeAllApps()
     const [searchableCopy, setSearchableCopy] = useState([]);
     const [filter, setFilter] = useState('');
     const [selection, setSelection] = useState([]);
+    const [devices, setDevices] = useState([]);
 
     const [categoryName, setCategoryName] = useState("");
     const manageDialogRef = useRef();
-
-
 
 
 
@@ -52,6 +51,21 @@ export default function SeeAllApps()
         setFilteredArray(searchedArray)
         if (e.target.value.length <= 2) {
             setFilteredArray(searchableCopy)
+        }
+    }
+
+    const handleModalOpen = () => {
+        manageDialogRef.current.showModal();
+    }
+    const handleCheckbox = e => {
+        if (e.target.checked) {
+            setSelection([
+                ...selection,
+                { name: e.target.dataset.name, id: parseInt(e.target.dataset.id) }
+            ]);
+        } else if (!e.target.checked) {
+            const filteredOut = selection.filter(name => name.name !== e.target.dataset.name)
+            setSelection(filteredOut)
         }
     }
 
@@ -222,20 +236,22 @@ export default function SeeAllApps()
         Unknown_255,
     ]);
 
-    const handleModalOpen = () => {
-        manageDialogRef.current.showModal();
-    }
-    const handleCheckbox = e => {
-        if (e.target.checked) {
-            setSelection([
-                ...selection,
-                { name: e.target.dataset.name, id: parseInt(e.target.dataset.id) }
-            ]);
-        } else if (!e.target.checked) {
-            const filteredOut = selection.filter(name => name.name !== e.target.dataset.name)
-            setSelection(filteredOut)
+    useEffect(() => {
+        const getDevices = async () => {
+            try {
+                const fetchDevices = await fetch('/getalldevices');
+                if (fetchDevices.ok) {
+                    const deviceData = await fetchDevices.json();
+                    setDevices(deviceData.getDeviceList);
+                }
+            } catch (error) {
+                console.error(error);
+            }
         }
-    }
+        getDevices();
+    }, [])
+
+
 
 
 
@@ -285,7 +301,7 @@ export default function SeeAllApps()
                         Category:&nbsp;<span className="text-accent">{categoryName}</span>
                     </div>
                     <div className="flex flex-col mb-2">
-                        <span className="label">Apps in category:</span>
+                        <span className="label font-bold">Apps in category:</span>
                             <select className="select select-bordered">
                                 <option disabled selected>Choose apps</option>
                                 {filteredArray
@@ -300,14 +316,30 @@ export default function SeeAllApps()
                             </select>
                     </div>
                     <div className="m-1 flex flex-col items-center justify-center gap-2">
-                            {selection?.map((app) => {
-                                return (
-                                    <>
-                                        <div key={app.id} className="badge badge-primary">{app?.name}</div>
-                                    </>
-                                )
-                            })}
-                        </div>
+                        <h1 className=" font-bold">Selected Apps:</h1>
+                        {selection?.map((app) => {
+                            return (
+                                <>
+                                    <div key={app.id} className="badge badge-primary">{app?.name}</div>
+                                </>
+                            )
+                        })}
+                    </div>
+                    <div className="flex flex-col mb-2">
+                        <h1 className=" font-bold">Devices to manage Apps:</h1>
+                       {devices.map((device) => {
+                        return (
+                            <>
+                                <div className="form-control">
+                                    <label className="label cursor-pointer">
+                                        <span className="label-text">{device?.name}</span>
+                                        <input key={device?.id} type="checkbox" className="checkbox checkbox-primary" />
+                                    </label>
+                                </div>
+                            </>
+                        )
+                       })}
+                    </div>
                     <div className="modal-action">
 
                     <form method="dialog">
