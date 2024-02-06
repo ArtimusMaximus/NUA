@@ -12,7 +12,14 @@ This software only works with [UniFi Cloud Gateways](https://ui.com/us/en/cloud-
 
 ## Screenshot
 
-![Example](example.webp)
+|                                       |                                       |
+|:-------------------------------------:|:-------------------------------------:|
+| <img src="images/Home_Page.webp" width="500"> |<img src="images/Sidebar.webp" width="500">|
+| <img src="images/Connection_Settings.webp" width="500"> |<img src="images/Blocked_Devices.webp" width="500">|
+
+![Usage](images/Usage.gif)
+
+
 
 ## Install & Configure
 ### Install Node using Node Version Manager
