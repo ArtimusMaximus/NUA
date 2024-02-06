@@ -963,6 +963,15 @@ app.get('/getalldevices', async (req, res) => {
     }
 });
 
+app.get('/getcurrentdevices', async (req, res) => {
+    try {
+        const getDeviceList = await prisma.device.findMany();
+        res.json({ getDeviceList: getDeviceList });
+    } catch (error) {
+        console.error(error);
+    }
+});
+
 //~~~~~~~theme~~~~~~~~
 app.get('/getcurrenttheme', async (req, res) => {
     try {
@@ -1027,28 +1036,18 @@ app.put('/updatedeviceorder', async (req, res) => {
     }
 });
 
-
-
-// ~~~~~potential firewall~~~~~~
-app.post('/fetchcustomapi', async (req, res) => {
-    const { instagramObject } = req.body
-    console.log('instagramObject \t', instagramObject);
+//~~~~~~~category/app firewall rules~~~~~~
+app.get('/getcustomapirules', async (req, res) => {
     try {
-        // console.log('unifi.customApiRequest \t', unifi.customApiRequest)
-        const path = '/v2/api/site/default/trafficrules'
+        const path = '/v2/api/site/default/trafficrules';
+        const result = await unifi.customApiRequest(path, 'GET')
 
-        const result = await unifi.customApiRequest(path, 'POST', instagramObject)
-        console.log('result \t', result);
-        result?.map(r => console.log(r))
-        result.forEach(r => r.target_devices.forEach(device => console.log('target_devices \t', device)))
-
-        // res.json(car)
-        res.sendStatus(200);
+        res.json(result);
     } catch (error) {
         console.error(error);
     }
 });
-//~~~~~~~category firewall rules~~~~~~
+
 app.post('/addcategorytrafficrule', async (req, res) => {
     const { categoryObject } = req.body;
     console.log('catId \t', categoryObject); // verified
@@ -1068,9 +1067,47 @@ app.post('/addcategorytrafficrule', async (req, res) => {
     }
 });
 
+app.post('/addappstrafficrule', async (req, res) => {
+    const { appObject } = req.body;
+    console.log('catId \t', appObject); // verified
+    try {
+        // console.log('unifi.customApiRequest \t', unifi.customApiRequest)
+        const path = '/v2/api/site/default/trafficrules'
+
+        const result = await unifi.customApiRequest(path, 'POST', appObject)
+        console.log('result \t', result);
+        // result?.map(r => console.log(r))
+        // result.forEach(r => r.target_devices.forEach(device => console.log('target_devices \t', device)))
+
+        // res.json(car)
+        res.sendStatus(200);
+    } catch (error) {
+        console.error(error);
+    }
+});
+
+app.put('/updatecategorytrafficrule', async (req, res) => {
+    const { categoryObject } = req.body;
+    console.log('catId \t', categoryObject); // verified
+    try {
+        // console.log('unifi.customApiRequest \t', unifi.customApiRequest)
+        const path = '/v2/api/site/default/trafficrules'
+
+        const result = await unifi.customApiRequest(path, 'PUT', categoryObject._id)
+        console.log('result \t', result);
+        // result?.map(r => console.log(r))
+        // result.forEach(r => r.target_devices.forEach(device => console.log('target_devices \t', device)))
+
+        // res.json(car)
+        res.sendStatus(200);
+    } catch (error) {
+        console.error(error);
+    }
+});
+
 app.delete('/deletecustomapi', async (req, res) => {
     const { _id } = req.body;
-    console.log('instagramObject \t', _id);
+    console.log('id of rule to delete \t', _id);
     try {
         // console.log('unifi.customApiRequest \t', unifi.customApiRequest)
         const path = `/v2/api/site/default/trafficrules/${_id}`
@@ -1078,7 +1115,7 @@ app.delete('/deletecustomapi', async (req, res) => {
         console.log('result \t', result);
 
         // res.json(car)
-        res.sendStatus(200);
+        res.status(200).json({ result: result });
     } catch (error) {
         console.error(error);
     }

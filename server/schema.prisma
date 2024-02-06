@@ -27,6 +27,7 @@ model Device {
   active        Boolean
   createdAt     DateTime     @default(now())
   crons         Cron[]
+  trafficRules  TrafficRules[]
   order         Int?
 }
 
@@ -41,5 +42,14 @@ model Cron {
   toggleCron    Boolean?
 }
 
+
+model TrafficRules {
+  id            Int          @id @default(autoincrement())
+  createdAt     DateTime     @default(now())
+  device        Device?      @relation(fields: [deviceId], references: [id])
+  deviceId      Int?
+  ruleActive    Boolean?
+
+}
 
 

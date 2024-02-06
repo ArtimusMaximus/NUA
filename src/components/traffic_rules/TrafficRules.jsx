@@ -1,10 +1,17 @@
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-
 
 
 
 export default function TrafficRules()
 {
+    const [customAPIRules, setCustomAPIRules] = useState([]);
+    const [render, setRender] = useState(false);
+
+
+    const reRender = () => {
+        setRender(prev => !prev);
+    }
     const dummyData = [
         {description: 'Billys youtube', devices: [
             { name: 'Xubuntu', macAddress: 'xgsd:Gv:dafd:'},
@@ -12,6 +19,60 @@ export default function TrafficRules()
         ], id: '1'},
         {description: 'Johnny Tik Tok', devices: [{ name: 'Xubuntu', macAddress: 'xgsd:Gv:dafd:'}], id: '2'}
     ];
+
+    useEffect(() => {
+        const fetchCustomAPIRules = async () => {
+            try {
+                const getCustomRules = await fetch('/getcustomapirules');
+                if (getCustomRules.ok) {
+                    const customRulesJSON = await getCustomRules.json();
+                    console.log(customRulesJSON);
+                    setCustomAPIRules(customRulesJSON);
+                }
+            } catch (error) {
+                console.error(error);
+            }
+        }
+        fetchCustomAPIRules();
+    }, []);
+
+    useEffect(() => { // refresh after re-render
+        const fetchCustomAPIRules = async () => {
+            try {
+                const getCustomRules = await fetch('/getcustomapirules');
+                if (getCustomRules.ok) {
+                    const customRulesJSON = await getCustomRules.json();
+                    console.log(customRulesJSON);
+                    setCustomAPIRules(customRulesJSON);
+                }
+            } catch (error) {
+                console.error(error);
+            }
+        }
+        fetchCustomAPIRules();
+    }, [render])
+
+    const handleDeleteTrafficRule = async e => {
+        const _id = e.target.dataset.trafficid;
+        try {
+            const deleteTrafficRule = await fetch('/deletecustomapi', {
+                method: 'DELETE',
+                mode: 'cors',
+                headers: {
+                    "Content-Type" : "application/json"
+                },
+                body: JSON.stringify({ _id })
+            });
+            if (deleteTrafficRule.ok) {
+                console.log('Delete Successful.');
+                const res = await deleteTrafficRule.json();
+                console.log(res.result);
+                reRender();
+            }
+        } catch (error) {
+            console.error(error);
+        }
+    }
 
 
 
@@ -27,10 +88,10 @@ export default function TrafficRules()
                         <div className="divider mt-2 mb-2"></div>
                         <ul className="flex flex-col w-full justify-around">
                             {
-                                dummyData.map((data) => {
+                                customAPIRules?.map((data) => {
                                     return (
                                         <>
-                                            <li key={data.id}>
+                                            <li key={data._id}>
                                             <div className="collapse bg-base-200">
                                                 <input type="checkbox" />
                                                     <div className="collapse-title text-xl font-medium">
@@ -50,9 +111,9 @@ export default function TrafficRules()
                                                             </Link>
                                                         </div>
                                                         <div
-                                                            className="btn btn-error btn-block btn-disabled" aria-disabled
-                                                            onClick={(e) => console.log(e)}
-                                                            data-dataid={data?.id}
+                                                            className="btn btn-error btn-block" aria-disabled
+                                                            onClick={handleDeleteTrafficRule}
+                                                            data-trafficid={data?._id}
                                                         >Delete
                                                         </div>
                                                     </div>
