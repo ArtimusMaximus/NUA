@@ -1085,7 +1085,6 @@ app.post('/addcategorytrafficrule', async (req, res) => {
         // console.log('result \t', result);
         // console.log('result._id \t', result._id);
 
-
         const setTrafficRuleEntry = await prisma.trafficRules.create({
             data: {
                 unifiId: result._id,
