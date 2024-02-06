@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import { categoryDeviceObject, appDeviceObject } from "../see_all_apps/app_objects";
 
 
 
@@ -8,19 +9,11 @@ export default function TrafficRules()
     const [customAPIRules, setCustomAPIRules] = useState([]);
     const [render, setRender] = useState(false);
 
-
     const reRender = () => {
         setRender(prev => !prev);
     }
-    const dummyData = [
-        {description: 'Billys youtube', devices: [
-            { name: 'Xubuntu', macAddress: 'xgsd:Gv:dafd:'},
-            { name: 'Xubuntu', macAddress: 'xgsd:Gv:dafd:'}
-        ], id: '1'},
-        {description: 'Johnny Tik Tok', devices: [{ name: 'Xubuntu', macAddress: 'xgsd:Gv:dafd:'}], id: '2'}
-    ];
 
-    useEffect(() => {
+    useEffect(() => { // fetch customAPI rules
         const fetchCustomAPIRules = async () => {
             try {
                 const getCustomRules = await fetch('/getcustomapirules');
@@ -50,7 +43,7 @@ export default function TrafficRules()
             }
         }
         fetchCustomAPIRules();
-    }, [render])
+    }, [render]);
 
     const handleDeleteTrafficRule = async e => {
         const _id = e.target.dataset.trafficid;
@@ -123,68 +116,6 @@ export default function TrafficRules()
                                     )
                                 })
                             }
-
-                            {/* {
-                                data?.macData?.sort((a, b) => parseInt(a?.order) - parseInt(b?.order)).map((device, index) => {
-                                    return (
-                                        <>
-                                            <li key={device?.id} className="m-1" >
-                                                <div className="collapse bg-base-200">
-                                                <input type="checkbox" />
-                                                    <div className="collapse-title text-xl font-medium">
-                                                        <div onClick={e => handleToggle(e)} className="w-full flex flex-row items-center justify-between hover:cursor-pointer z-40">
-                                                            <IoEllipseOutline
-                                                                data-name={`${device?.id}`}
-                                                                className={`${device?.active ? 'text-green-500' : 'text-red-500'} animate-pulse w-8 h-8 z-40`}
-                                                                />
-                                                            {device?.name}
-                                                            <div
-                                                                draggable={true}
-                                                                data-orderid={`${index+1}`}
-                                                                data-devid={device?.id}
-                                                                onDragStart={handleDragStart}
-                                                                onDragOver={handleDragOver}
-                                                                onDrop={handleDrop}
-                                                                className="rotate-90 z-50 hover:cursor-grab">
-                                                                |||
-                                                            </div>
-                                                        </div>
-
-                                                    </div>
-                                                    <div className="collapse-content">
-                                                            <div className="flex justify-between flex-wrap">
-                                                                <p><span className="font-thin italic">Name:</span> {device?.name}</p>
-                                                                <p><span className="font-thin italic">Mac:</span> {device?.macAddress}</p>
-                                                                <p><span className="font-thin italic">Status:</span> <span className={`${device?.active ? 'text-green-500' : 'text-red-500'}`}>{device?.active ? 'Allowed' : 'Blocked'}</span></p>
-                                                                <span className="flex items-center justify-center"
-                                                                    onClick={openEditDialog}
-                                                                    data-id={device?.id}
-                                                                >
-                                                                    <HiMiniPencilSquare
-                                                                        className="w-6 h-6 pointer-events-none"
-                                                                    />
-                                                                </span>
-                                                            </div>
-                                                        <div>
-                                                            <Link to={`/admin/${device?.id}/cronmanager`} className="w-fit hover:cursor-pointer" >
-                                                                <div className="btn btn-block bg-base-300 hover:bg-base-content hover:text-base-100 my-2">Schedule</div>
-
-                                                            </Link>
-                                                        </div>
-                                                        <div
-                                                            className="btn btn-error btn-block"
-                                                            onClick={e => handleDelete(e)}
-                                                            data-deviceid={device?.id}
-                                                        >Delete
-                                                        </div>
-                                                    </div>
-                                                </div>
-
-                                            </li>
-                                        </>
-                                    );
-                                })
-                            } */}
                         </ul>
                     </div>
                 </div>

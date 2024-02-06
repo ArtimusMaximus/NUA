@@ -446,8 +446,21 @@ export default function SeeAllApps()
         }
         fetchCustomAPIRules();
     }, []);
-    useEffect(() => { // re-render after post
+    useEffect(() => { // re-render after post and reset devices list
         resetState();
+        const getDevices = async () => {
+            try {
+                const fetchDevices = await fetch('/getcurrentdevices');
+                if (fetchDevices.ok) {
+                    const deviceData = await fetchDevices.json();
+                    setDevices(deviceData.getDeviceList);
+                    console.log('deviceData on rerender: \t', deviceData);
+                }
+            } catch (error) {
+                console.error(error);
+            }
+        }
+        getDevices();
     }, [render])
 
 
@@ -544,8 +557,20 @@ export default function SeeAllApps()
                     </div>
                     <div className="modal-action">
                         <div className="mr-auto">
-                            <div className={` ${!appSelection.length ? 'btn' : 'hidden'} ${loading ? 'btn-disabled' : ''}`} onClick={handleManageCategory}>{loading ? <span className="loading loading-spinner w-6 h-6 text-accent"></span> : 'Manage Category'}</div>
-                            <div className={` ${appSelection.length ? 'btn' : 'hidden'}`} onClick={handleManageApps}>Manage Apps</div>
+                            <div
+                                className={`
+                                    ${!appSelection.length ? 'btn' : 'hidden'}
+                                    ${loading ? 'btn-disabled' : ''}
+                                    ${!deviceSelection.length ? 'btn-disabled' : ''}
+                                `}
+                                onClick={handleManageCategory}>{loading ? <span className="loading loading-spinner w-6 h-6 text-accent"></span> : 'Manage Category'}</div>
+                            <div
+                                className={`
+                                    ${appSelection.length ? 'btn' : 'hidden'}
+                                    ${loading ? 'btn-disabled' : ''}
+                                    ${!deviceSelection.length ? 'btn-disabled' : ''}
+                                `}
+                                onClick={handleManageApps}>{loading ? <span className="loading loading-spinner w-6 h-6 text-accent"></span> : 'Manage Apps'}</div>
                         </div>
                     <form method="dialog">
                         <button className="btn">Exit</button>

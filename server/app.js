@@ -1050,17 +1050,54 @@ app.get('/getcustomapirules', async (req, res) => {
 
 app.post('/addcategorytrafficrule', async (req, res) => {
     const { categoryObject } = req.body;
-    console.log('catId \t', categoryObject); // verified
+    // console.log('categoryObject \t', categoryObject); // verified
+    const { app_category_ids, description, enabled, matching_target, target_devices } = categoryObject;
     try {
-        // console.log('unifi.customApiRequest \t', unifi.customApiRequest)
-        const path = '/v2/api/site/default/trafficrules'
+        const path = '/v2/api/site/default/trafficrules';
+        const result = await unifi.customApiRequest(path, 'POST', categoryObject);
 
-        const result = await unifi.customApiRequest(path, 'POST', categoryObject)
-        console.log('result \t', result);
-        // result?.map(r => console.log(r))
-        // result.forEach(r => r.target_devices.forEach(device => console.log('target_devices \t', device)))
+        // console.log('result \t', result);
+        // console.log('result._id \t', result._id);
 
-        // res.json(car)
+
+        const setTrafficRuleEntry = await prisma.trafficRules.create({
+            data: {
+                unifiId: result._id,
+                description: description,
+                enabled: enabled
+            }
+        });
+        const setAppCatIds = await prisma.appCatIds.create({
+            data: {
+                app_cat_id: app_category_ids[0],
+                trafficRules: {
+                    connect: { id: setTrafficRuleEntry.id }
+                }
+            },
+        });
+        const setMultipleTargetDevices = async () => {
+            let allData = [];
+            for (const td of target_devices) {
+                const data = await prisma.targetDevice.create({
+                    data: {
+                        client_mac: td.client_mac,
+                        type: td.type,
+                        trafficRules: {
+                            connect: { id: setTrafficRuleEntry.id }
+                        }
+                    },
+                });
+                allData.push(data);
+            }
+            return allData;
+        }
+        await setMultipleTargetDevices();
+
+        // console.log('setTrafficRuleEntry \t', setTrafficRuleEntry);
+        // console.log('setAppCatIds \t', setAppCatIds);
+        // console.log('setAppIds \t', setAppIds);
+        // console.log('setTargetDevices \t', multipleData);
+
         res.sendStatus(200);
     } catch (error) {
         console.error(error);
@@ -1069,17 +1106,59 @@ app.post('/addcategorytrafficrule', async (req, res) => {
 
 app.post('/addappstrafficrule', async (req, res) => {
     const { appObject } = req.body;
-    console.log('catId \t', appObject); // verified
+    const { app_category_ids, app_ids, description, enabled, matching_target, target_devices } = appObject;
     try {
-        // console.log('unifi.customApiRequest \t', unifi.customApiRequest)
-        const path = '/v2/api/site/default/trafficrules'
+        const path = '/v2/api/site/default/trafficrules';
+        const result = await unifi.customApiRequest(path, 'POST', appObject);
 
-        const result = await unifi.customApiRequest(path, 'POST', appObject)
-        console.log('result \t', result);
-        // result?.map(r => console.log(r))
-        // result.forEach(r => r.target_devices.forEach(device => console.log('target_devices \t', device)))
-
-        // res.json(car)
+        const setTrafficRuleEntry = await prisma.trafficRules.create({
+            data: {
+                unifiId: result._id,
+                description: description,
+                enabled: enabled
+            }
+        });
+        const setAppCatIds = await prisma.appCatIds.create({
+            data: {
+                app_cat_id: app_category_ids[0],
+                trafficRules: {
+                    connect: { id: setTrafficRuleEntry.id }
+                }
+            },
+        });
+        const setMultipleAppIds = async () => {
+            let allData = [];
+            for (const appIds of app_ids) {
+                const setAppIds = await prisma.appIds.create({
+                    data: {
+                        app_id: appIds,
+                        trafficRules: {
+                            connect: { id: setTrafficRuleEntry.id }
+                        }
+                    }
+                });
+                allData.push(setAppIds)
+            }
+            return allData;
+        }
+        await setMultipleAppIds();
+        const setMultipleTargetDevices = async () => {
+            let allData = [];
+            for (const td of target_devices) {
+                const data = await prisma.targetDevice.create({
+                    data: {
+                        client_mac: td.client_mac,
+                        type: td.type,
+                        trafficRules: {
+                            connect: { id: setTrafficRuleEntry.id }
+                        }
+                    },
+                });
+                allData.push(data);
+            }
+            return allData;
+        }
+        await setMultipleTargetDevices();
         res.sendStatus(200);
     } catch (error) {
         console.error(error);
