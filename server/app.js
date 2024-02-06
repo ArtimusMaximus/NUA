@@ -1037,25 +1037,51 @@ app.put('/updatedeviceorder', async (req, res) => {
 });
 
 //~~~~~~~category/app firewall rules~~~~~~
-app.get('/getcustomapirules', async (req, res) => {
+app.get('/getcustomapirules', async (req, res) => { // unifi custom api rules
     try {
         const path = '/v2/api/site/default/trafficrules';
-        const result = await unifi.customApiRequest(path, 'GET')
-
+        const result = await unifi.customApiRequest(path, 'GET');
         res.json(result);
+    } catch (error) {
+        console.error(error);
+    }
+});
+app.get('/getdbcustomapirules', async (req, res) => {
+    try {
+        const fetchTrafficRules = await prisma.trafficRules.findMany();
+        const fetchAppCatIds = await prisma.appCatIds.findMany();
+        const fetchAppIds = await prisma.appIds.findMany();
+        const fetchTargetDevices = await prisma.targetDevice.findMany();
+
+        const joinedData = fetchTrafficRules.map((trafficRule) => {
+            const matchingFetchAppCatIds = fetchAppCatIds.find(appCatId => appCatId.trafficRulesId === trafficRule.id);
+            const matchingAppIds = fetchAppIds.filter(appId => appId.trafficRulesId === trafficRule.id);
+            const matchingTargetDevices = fetchTargetDevices.filter(targetDevice => targetDevice.trafficRulesId === trafficRule.id);
+
+            return {
+                trafficRule,
+                matchingFetchAppCatIds,
+                matchingAppIds,
+                matchingTargetDevices
+            }
+        });
+        res.json(joinedData);
     } catch (error) {
         console.error(error);
     }
 });
 
 app.post('/addcategorytrafficrule', async (req, res) => {
-    const { categoryObject } = req.body;
+    const { categoryObject, dbCatObject } = req.body;
+
     // console.log('categoryObject \t', categoryObject); // verified
-    const { app_category_ids, description, enabled, matching_target, target_devices } = categoryObject;
+    const { app_category_ids, description, enabled, matching_target, target_devices, categoryName, devices } = dbCatObject;
+
+    console.log('devices \t', devices);
+
     try {
         const path = '/v2/api/site/default/trafficrules';
         const result = await unifi.customApiRequest(path, 'POST', categoryObject);
-
         // console.log('result \t', result);
         // console.log('result._id \t', result._id);
 
@@ -1069,12 +1095,33 @@ app.post('/addcategorytrafficrule', async (req, res) => {
         });
         const setAppCatIds = await prisma.appCatIds.create({
             data: {
-                app_cat_id: app_category_ids[0],
+                app_cat_id: app_category_ids[0].categoryId,
+                app_cat_name: app_category_ids[0].categoryName,
                 trafficRules: {
                     connect: { id: setTrafficRuleEntry.id }
                 }
             },
         });
+        const setMultipleDevices = async () => {
+            let allData = [];
+            for (const device of devices) {
+                const update = await prisma.trafficRuleDevices.create({
+                    data: {
+                        deviceName: device.name,
+                        deviceId: device.id,
+                        macAddress: device.macAddress,
+                        trafficRules: {
+                            connect: { id: setTrafficRuleEntry.id }
+                        }
+                    }
+                });
+                allData.push(update)
+            }
+            return allData;
+        }
+        const updateDevices = await setMultipleDevices();
+        console.log('updateDevices \t', updateDevices);
+
         const setMultipleTargetDevices = async () => {
             let allData = [];
             for (const td of target_devices) {
@@ -1092,12 +1139,10 @@ app.post('/addcategorytrafficrule', async (req, res) => {
             return allData;
         }
         await setMultipleTargetDevices();
-
         // console.log('setTrafficRuleEntry \t', setTrafficRuleEntry);
         // console.log('setAppCatIds \t', setAppCatIds);
         // console.log('setAppIds \t', setAppIds);
         // console.log('setTargetDevices \t', multipleData);
-
         res.sendStatus(200);
     } catch (error) {
         console.error(error);
@@ -1184,7 +1229,7 @@ app.put('/updatecategorytrafficrule', async (req, res) => {
     }
 });
 
-app.delete('/deletecustomapi', async (req, res) => {
+app.delete('/deletecustomapi', async (req, res) => { // deletes unifi rule, not db (yet)
     const { _id } = req.body;
     console.log('id of rule to delete \t', _id);
     try {

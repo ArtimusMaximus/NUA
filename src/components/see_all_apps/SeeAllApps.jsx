@@ -25,7 +25,7 @@ import {
 	Unknown_255,
 
 } from "../../traffic_rule_apps/app_ids";
-import { categoryDeviceObject, appDeviceObject } from "./app_objects";
+import { categoryDeviceObject, dbCategoryDeviceObject, appDeviceObject } from "./app_objects";
 // import AppCard from "./app_card/AppCard";
 
 
@@ -139,9 +139,24 @@ export default function SeeAllApps()
             ...unifiObject
         }
     }
+    const createDBCategoryObjectRule = (unifiObject, devices, categoryId, categoryName, deviceSelection, description) => {
+        const formatDevices = devices.map((device) => {
+            return { client_mac: device.macAddress, type: 'CLIENT' }
+        });
+        // console.log(formatDevices);
+        unifiObject.target_devices.push(...formatDevices);
+        unifiObject.app_category_ids.push({ categoryId: categoryId, categoryName: categoryName});
+        unifiObject.devices.push(...deviceSelection)
+        unifiObject.description = description;
+        return {
+            ...unifiObject
+        }
+    }
     const handleManageCategory = async () => {
         const categoryObject = createCategoryObjectRule(categoryDeviceObject, deviceSelection, catId, description);
+        const dbCatObject = createDBCategoryObjectRule(dbCategoryDeviceObject, deviceSelection, catId, categoryName, deviceSelection, description);
         console.log('categoryObject \t', categoryObject);
+        console.log('dbCatObject \t', dbCatObject);
         setLoading(true);
         try {
             const updateManagedCat = await fetch('/addcategorytrafficrule', {
@@ -150,7 +165,7 @@ export default function SeeAllApps()
                 headers: {
                     "Content-Type" : "application/json"
                 },
-                body: JSON.stringify({ categoryObject })
+                body: JSON.stringify({ categoryObject, dbCatObject })
             });
             if (updateManagedCat.ok) {
                 console.log('POST Success');
@@ -164,6 +179,22 @@ export default function SeeAllApps()
         }
     }
     const createAppObjectRule = (unifiObject, devices, appIds, categoryIds, description) => {
+        const formatDevices = devices.map((device) => {
+            return { client_mac: device.macAddress, type: 'CLIENT' }
+        });
+        const formatAppIds = appIds.map((appId) => {
+            return appId.id;
+        });
+        // console.log(formatDevices);
+        unifiObject.target_devices.push(...formatDevices);
+        unifiObject.app_ids.push(...formatAppIds);
+        unifiObject.app_category_ids.push(...categoryIds);
+        unifiObject.description = description;
+        return {
+            ...unifiObject
+        }
+    }
+    const createDbAppObject = (unifiObject, devices, appIds, categoryIds, description) => {
         const formatDevices = devices.map((device) => {
             return { client_mac: device.macAddress, type: 'CLIENT' }
         });
@@ -431,7 +462,6 @@ export default function SeeAllApps()
         }
         getDevices();
     }, []);
-
     useEffect(() => { // fetch custom api rules
         const fetchCustomAPIRules = async () => {
             try {

@@ -20,6 +20,37 @@ export default function TrafficRules()
                 if (getCustomRules.ok) {
                     const customRulesJSON = await getCustomRules.json();
                     console.log(customRulesJSON);
+                    // setCustomAPIRules(customRulesJSON);
+                }
+            } catch (error) {
+                console.error(error);
+            }
+        }
+        fetchCustomAPIRules();
+    }, []);
+    useEffect(() => { // refresh after re-render
+        const fetchCustomAPIRules = async () => {
+            try {
+                const getCustomRules = await fetch('/getcustomapirules');
+                if (getCustomRules.ok) {
+                    const customRulesJSON = await getCustomRules.json();
+                    console.log(customRulesJSON);
+                    // setCustomAPIRules(customRulesJSON);
+                }
+            } catch (error) {
+                console.error(error);
+            }
+        }
+        fetchCustomAPIRules();
+    }, [render]);
+
+    useEffect(() => { // fetch DB customAPI rules
+        const fetchCustomAPIRules = async () => {
+            try {
+                const getCustomRules = await fetch('/getdbcustomapirules');
+                if (getCustomRules.ok) {
+                    const customRulesJSON = await getCustomRules.json();
+                    console.log('customRulesJSON \t', customRulesJSON);
                     setCustomAPIRules(customRulesJSON);
                 }
             } catch (error) {
@@ -29,21 +60,6 @@ export default function TrafficRules()
         fetchCustomAPIRules();
     }, []);
 
-    useEffect(() => { // refresh after re-render
-        const fetchCustomAPIRules = async () => {
-            try {
-                const getCustomRules = await fetch('/getcustomapirules');
-                if (getCustomRules.ok) {
-                    const customRulesJSON = await getCustomRules.json();
-                    console.log(customRulesJSON);
-                    setCustomAPIRules(customRulesJSON);
-                }
-            } catch (error) {
-                console.error(error);
-            }
-        }
-        fetchCustomAPIRules();
-    }, [render]);
 
     const handleDeleteTrafficRule = async e => {
         const _id = e.target.dataset.trafficid;
@@ -84,17 +100,24 @@ export default function TrafficRules()
                                 customAPIRules?.map((data) => {
                                     return (
                                         <>
-                                            <li key={data._id}>
+                                            <li key={data?.trafficRule.unifiId}>
                                             <div className="collapse bg-base-200">
                                                 <input type="checkbox" />
                                                     <div className="collapse-title text-xl font-medium">
                                                         <div onClick={() => console.log('clicked')} className="w-full flex flex-row items-center justify-between hover:cursor-pointer z-40">
-                                                            <input type="checkbox" className="toggle toggle-success z-30" />
-                                                            {data?.description}
+                                                            <input type="checkbox" checked={data?.trafficRule.enabled} className="toggle toggle-success z-30" />
+                                                            {data?.trafficRule.description}
                                                         </div>
                                                     </div>
                                                     <div className="collapse-content">
                                                             <div className="flex justify-between flex-wrap">
+                                                                {data?.matchingAppIds.map((appId) => {
+                                                                    return (
+                                                                        <>
+                                                                            <p><span className="font-thin italic">Apps:</span> {appId?.app_id}</p>
+                                                                        </>
+                                                                    )
+                                                                })}
                                                                 <p><span className="font-thin italic">Apps:</span> {data?.name}</p>
                                                                 <p><span className="font-thin italic">Devices:</span> {data?.macAddress}</p>
                                                             </div>
@@ -106,7 +129,7 @@ export default function TrafficRules()
                                                         <div
                                                             className="btn btn-error btn-block" aria-disabled
                                                             onClick={handleDeleteTrafficRule}
-                                                            data-trafficid={data?._id}
+                                                            data-trafficid={data?.trafficRule.unifiId}
                                                         >Delete
                                                         </div>
                                                     </div>
@@ -123,8 +146,6 @@ export default function TrafficRules()
                     <Link to="/seeallapps"><div className="btn">Manage New App</div></Link>
                 </div>
             </div>
-
-
         </>
     )
 }
