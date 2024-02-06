@@ -2,6 +2,7 @@
 const allAppsList = [
 	{
 		cat: "Media Streaming",
+		catId: 4,
 		apps: [
 			{ id: 262145, name:  "Windows Media Player" },
 			{ id: 262146, name:  "RealPlayer" },

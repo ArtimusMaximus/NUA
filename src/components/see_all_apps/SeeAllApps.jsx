@@ -40,8 +40,6 @@ export default function SeeAllApps()
     const [categoryName, setCategoryName] = useState("");
     const manageDialogRef = useRef();
 
-
-
     const handleChange = e => {
         console.log(e.target.value);
         setFilter(e.target.value);
@@ -66,6 +64,24 @@ export default function SeeAllApps()
         } else if (!e.target.checked) {
             const filteredOut = selection.filter(name => name.name !== e.target.dataset.name)
             setSelection(filteredOut)
+        }
+    }
+
+    const handleManageCategory = async () => {
+        try {
+            const updateManagedCat = await fetch('/addcategorytrafficrule', {
+                method: 'POST',
+                mode: 'cors',
+                headers: {
+                    "Content-Type" : "application/json"
+                },
+                body: JSON.stringify({ categoryObject })
+            });
+            if (updateManagedCat.ok) {
+                console.log('POST Success');
+            }
+        } catch (error) {
+            console.error(error);
         }
     }
 
@@ -300,7 +316,7 @@ export default function SeeAllApps()
                     <div className="flex flex-row mb-2">
                         Category:&nbsp;<span className="text-accent">{categoryName}</span>
                     </div>
-                    <div className="flex flex-col mb-2">
+                    {/* <div className="flex flex-col mb-2">
                         <span className="label font-bold">Apps in category:</span>
                             <select className="select select-bordered">
                                 <option disabled selected>Choose apps</option>
@@ -314,16 +330,16 @@ export default function SeeAllApps()
                                         )
                                 })}
                             </select>
-                    </div>
+                    </div> */}
                     <div className="m-1 flex flex-col items-center justify-center gap-2">
                         <h1 className=" font-bold">Selected Apps:</h1>
-                        {selection?.map((app) => {
+                        {selection.length ? selection?.map((app) => {
                             return (
                                 <>
                                     <div key={app.id} className="badge badge-primary">{app?.name}</div>
                                 </>
                             )
-                        })}
+                        }) : <span className="italic">'none selected'</span>}
                     </div>
                     <div className="flex flex-col mb-2">
                         <h1 className=" font-bold">Devices to manage Apps:</h1>
@@ -341,7 +357,7 @@ export default function SeeAllApps()
                        })}
                     </div>
                     <div className="modal-action">
-
+                    <div className="btn mr-auto" onClick={handleManageCategory}>Manage Category</div>
                     <form method="dialog">
                         <button className="btn">Exit</button>
                     </form>

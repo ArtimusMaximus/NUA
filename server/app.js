@@ -1048,6 +1048,26 @@ app.post('/fetchcustomapi', async (req, res) => {
         console.error(error);
     }
 });
+//~~~~~~~category firewall rules~~~~~~
+app.post('/addcategorytrafficrule', async (req, res) => {
+    const { categoryObject } = req.body;
+    console.log('catId \t', categoryObject); // verified
+    try {
+        // console.log('unifi.customApiRequest \t', unifi.customApiRequest)
+        const path = '/v2/api/site/default/trafficrules'
+
+        const result = await unifi.customApiRequest(path, 'POST', categoryObject)
+        console.log('result \t', result);
+        // result?.map(r => console.log(r))
+        // result.forEach(r => r.target_devices.forEach(device => console.log('target_devices \t', device)))
+
+        // res.json(car)
+        res.sendStatus(200);
+    } catch (error) {
+        console.error(error);
+    }
+});
+
 app.delete('/deletecustomapi', async (req, res) => {
     const { _id } = req.body;
     console.log('instagramObject \t', _id);
