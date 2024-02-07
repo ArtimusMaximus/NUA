@@ -3,13 +3,7 @@ import { IoEllipseOutline } from "react-icons/io5";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { HiMiniPencilSquare } from "react-icons/hi2";
 
-const device = {
-    name: '',
-    macAddress: '',
-    active: false,
-    url: '',
-    id: '',
-};
+
 
 export default function Devices({ data, toggleReRender, handleRenderToggle })
 {
@@ -28,10 +22,10 @@ export default function Devices({ data, toggleReRender, handleRenderToggle })
             // const itemId = e.target.dataset.name;
             const dataToUpdate = data?.macData?.filter((data) => data?.id === parseInt(e.target.dataset.name));
             // const dataToUpdate = data?.macData?.find((data) => data.id === itemId)
-            console.log(dataToUpdate);
+            // console.log(dataToUpdate);
 
             // dataToUpdate[0]?.active === true ? dataToUpdate[0].active = false : dataToUpdate[0].active = true
-            console.log('dataToUpdate[0]: ', dataToUpdate[0]);
+            // console.log('dataToUpdate[0]: ', dataToUpdate[0]);
 
                 const updateToggle = await fetch(`/updatemacaddressstatus`, {
                     method: "PUT",
@@ -126,7 +120,7 @@ export default function Devices({ data, toggleReRender, handleRenderToggle })
             ...updatedDeviceData,
             [e.target.name]: e.target.value
         });
-        console.log(updatedDeviceData);
+        // console.log(updatedDeviceData);
     }
     const handleSaveEdits = () => {
         setLoading(true)
@@ -154,30 +148,13 @@ export default function Devices({ data, toggleReRender, handleRenderToggle })
         }
         updateEdits();
     }
-    const deleteCustomRule = () => {
-        const _id = '65b4863e38fb85531f2e55f8'
-        const fetchStuff = async () => {
-            const response = await fetch('/deletecustomapi', {
-                method: 'DELETE',
-                mode: 'cors',
-                headers: {
-                    'Content-Type' : 'application/json'
-                },
-                body: JSON.stringify({ _id })
-            })
-            if (response.ok) {
-                console.log(response);
-            }
-        }
-        fetchStuff();
-    }
     const handleDragStart = e => {
         const deviceOrderId = e.currentTarget.getAttribute('data-devid');
         e.dataTransfer.setData('text/plain', deviceOrderId);
+        console.log('deviceOrderId \t', deviceOrderId);
     }
     const handleDragOver = e => {
         e.preventDefault();
-
     }
     const handleDrop = async e => {
         e.preventDefault();

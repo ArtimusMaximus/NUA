@@ -25,7 +25,7 @@ import {
 	Unknown_255,
 } from "../../traffic_rule_apps/app_ids";
 import { categoryDeviceObject, dbCategoryDeviceObject, appDeviceObject, appDbDeviceObject } from "./app_objects";
-// import AppCard from "./app_card/AppCard";
+import { IoMdRefresh } from "react-icons/io";
 
 
 export default function SeeAllApps()
@@ -73,6 +73,9 @@ export default function SeeAllApps()
         descriptionRef.current.value = "";
         allowRef.current.checked = false;
         blockRef.current.checked = false;
+    }
+    const handleResetManually = () => {
+        resetState();
     }
     const handleChange = e => {
         setFilter(e.target.value);
@@ -517,20 +520,20 @@ export default function SeeAllApps()
         }
         getDevices();
     }, []);
-    useEffect(() => { // fetch custom api rules
-        const fetchCustomAPIRules = async () => {
-            try {
-                const getCustomRules = await fetch('/getcustomapirules');
-                if (getCustomRules.ok) {
-                    const customRulesJSON = await getCustomRules.json();
-                    console.log(customRulesJSON);
-                }
-            } catch (error) {
-                console.error(error);
-            }
-        }
-        fetchCustomAPIRules();
-    }, []);
+    // useEffect(() => { // fetch custom api rules
+    //     const fetchCustomAPIRules = async () => {
+    //         try {
+    //             const getCustomRules = await fetch('/getcustomapirules'); // /getdbcustomapirules ??
+    //             if (getCustomRules.ok) {
+    //                 const customRulesJSON = await getCustomRules.json();
+    //                 console.log(customRulesJSON);
+    //             }
+    //         } catch (error) {
+    //             console.error(error);
+    //         }
+    //     }
+    //     fetchCustomAPIRules();
+    // }, []);
     useEffect(() => { // re-render after post and reset devices list
 
         const getDevices = async () => {
@@ -565,6 +568,7 @@ export default function SeeAllApps()
                             </select>
                             <input className="input input-bordered" placeholder="Search..." onChange={handleSearchByText} />
                         <button className="btn" onClick={handleModalOpen}>{appSelection.length ? 'Manage Apps in ' : 'Manage Category '} <span className="text-accent">{filter}</span></button>
+                        <div className="btn btn-circle" onClick={handleResetManually}><IoMdRefresh className="pointer-events-none w-7 h-7" /></div>
                     </div>
                     {filteredArray?.map((app) => {
                         return (
