@@ -61,29 +61,12 @@ export default function TrafficRules()
         }
     }
 
-    // useEffect(() => { // fetch customAPI rules
-    //     const fetchCustomAPIRules = async () => {
-    //         try {
-    //             const getCustomRules = await fetch('/getcustomapirules');
-    //             if (getCustomRules.ok) {
-    //                 const customRulesJSON = await getCustomRules.json();
-    //                 console.log('customUnifiRulesJSON reRender \t', customRulesJSON);
-    //                 setUnifiRuleObject(customRulesJSON);
-    //             }
-    //         } catch (error) {
-    //             console.error(error);
-    //         }
-    //     }
-    //     fetchCustomAPIRules();
-    // }, []);
     useEffect(() => { // refresh after re-render
         const fetchCustomAPIRules = async () => {
             try {
                 const getCustomRules = await fetch('/getdbcustomapirules');
                 if (getCustomRules.ok) {
                     const { trafficRuleDbData, unifiData } = await getCustomRules.json();
-                    // const customRulesJSON = await getCustomRules.json();
-                    // console.log('customRulesJSON \t', customRulesJSON);
                     console.log('trafficRuleDbData rerender: \t', trafficRuleDbData);
                     setCustomAPIRules(trafficRuleDbData);
                     console.log('unifiData rerender: \t', unifiData);
@@ -136,7 +119,7 @@ export default function TrafficRules()
                                             <div className="collapse bg-base-200">
                                                 <input type="checkbox" />
                                                     <div className="collapse-title text-xl font-medium">
-                                                        <div onClick={() => console.log('clicked')} className="w-full flex flex-row items-center justify-between hover:cursor-pointer z-40">
+                                                        <div className="w-full flex flex-row items-center justify-between hover:cursor-pointer z-40">
                                                             <input
                                                                 type="checkbox"
                                                                 checked={data?.trafficRule.enabled}
@@ -149,8 +132,8 @@ export default function TrafficRules()
                                                         </div>
                                                     </div>
                                                     <div className="collapse-content">
-                                                            <div className="flex justify-between flex-wrap">
                                                                 <h1 className="font-bold italic">Managing Apps:</h1>
+                                                            <div className="flex gap-4 flex-wrap items-center justify-center mt-2">
                                                                 {data?.matchingAppIds.map((appId) => {
                                                                     return (
                                                                         <>

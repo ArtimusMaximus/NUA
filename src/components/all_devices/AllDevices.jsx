@@ -23,7 +23,10 @@ const handleRefresh = () => {
     setFilter('all');
     setFilteredArray(clientDevices);
 }
-const handleAddToDevices = async (deviceToAdd) => {
+const handleAddToDevices = async (deviceToAdd, submittedName) => {
+    if (submittedName !== "" || submittedName !== undefined) {
+        deviceToAdd.oui = submittedName;
+    }
     try {
         const response = await fetch('/addtodevicelist', {
             method: 'POST',

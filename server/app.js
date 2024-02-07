@@ -1037,17 +1037,8 @@ app.put('/updatedeviceorder', async (req, res) => {
 });
 
 //~~~~~~~category/app firewall rules~~~~~~
-app.get('/getcustomapirules', async (req, res) => { // unifi custom api rules
-    try {
-        const path = '/v2/api/site/default/trafficrules';
-        const result = await unifi.customApiRequest(path, 'GET');
-        // console.log('result \t', result);
-        res.json(result);
-    } catch (error) {
-        console.error(error);
-    }
-});
-app.get('/getdbcustomapirules', async (req, res) => {
+
+app.get('/getdbcustomapirules', async (req, res) => { // get dbtrafficrules && unifi rules
     try {
         const path = '/v2/api/site/default/trafficrules';
         const result = await unifi.customApiRequest(path, 'GET');
