@@ -1049,6 +1049,9 @@ app.get('/getcustomapirules', async (req, res) => { // unifi custom api rules
 });
 app.get('/getdbcustomapirules', async (req, res) => {
     try {
+        const path = '/v2/api/site/default/trafficrules';
+        const result = await unifi.customApiRequest(path, 'GET');
+
         const fetchTrafficRules = await prisma.trafficRules.findMany();
         const fetchAppCatIds = await prisma.appCatIds.findMany();
         const fetchAppIds = await prisma.appIds.findMany();
@@ -1066,7 +1069,7 @@ app.get('/getdbcustomapirules', async (req, res) => {
                 matchingTargetDevices
             }
         });
-        res.json(joinedData);
+        res.json({ trafficRuleDbData: joinedData, unifiData: result });
     } catch (error) {
         console.error(error);
     }
@@ -1260,9 +1263,9 @@ app.put('/updatecategorytrafficrule', async (req, res) => {
     console.log('catId \t', categoryObject); // verified
     try {
         // console.log('unifi.customApiRequest \t', unifi.customApiRequest)
-        const path = '/v2/api/site/default/trafficrules'
+        const path = `/v2/api/site/default/trafficrules/${categoryObject._id}`;
 
-        const result = await unifi.customApiRequest(path, 'PUT', categoryObject._id)
+        const result = await unifi.customApiRequest(path, 'PUT', categoryObject._id);
         console.log('result \t', result);
         // result?.map(r => console.log(r))
         // result.forEach(r => r.target_devices.forEach(device => console.log('target_devices \t', device)))
@@ -1270,6 +1273,31 @@ app.put('/updatecategorytrafficrule', async (req, res) => {
         // res.json(car)
         res.sendStatus(200);
     } catch (error) {
+        console.error(error);
+    }
+});
+
+app.put('/updatetrafficruletoggle', async (req, res) => {
+    const { _id, trafficRuleId, unifiObjCopy } = req.body;
+    console.log('unifiObjCopy \t', unifiObjCopy);
+    try {
+        const path = `/v2/api/site/default/trafficrules/${_id}`
+
+        const result = await unifi.customApiRequest(path, 'PUT', unifiObjCopy)
+        console.log('result \t', result);
+
+        const updateTrafficRule = await prisma.trafficRules.update({
+            where: {
+                id: parseInt(trafficRuleId)
+            },
+            data: {
+                enabled: unifiObjCopy.enabled
+            }
+        });
+        console.log('updateTrafficRule \t', updateTrafficRule);
+        res.sendStatus(200);
+    } catch (error) {
+        res.status(400).json({ error: error })
         console.error(error);
     }
 });

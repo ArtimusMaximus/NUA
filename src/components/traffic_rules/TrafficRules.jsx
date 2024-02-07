@@ -7,60 +7,37 @@ import { categoryDeviceObject, appDeviceObject } from "../see_all_apps/app_objec
 export default function TrafficRules()
 {
     const [customAPIRules, setCustomAPIRules] = useState([]);
+    const [unifiRuleObject, setUnifiRuleObject] = useState([]);
     const [render, setRender] = useState(false);
 
     const reRender = () => {
         setRender(prev => !prev);
     }
+    const handleToggle = async e => {
+        const checked = e.target.checked;
+        console.log('checked \t', checked);
+        const _id = e.target.dataset.unifiruleid;
+        const findUnifiObj = unifiRuleObject.filter(rule => rule._id === _id).pop();
+        const unifiObjCopy = JSON.parse(JSON.stringify(findUnifiObj));
+        unifiObjCopy.enabled = checked;
 
-    useEffect(() => { // fetch customAPI rules
-        const fetchCustomAPIRules = async () => {
-            try {
-                const getCustomRules = await fetch('/getcustomapirules');
-                if (getCustomRules.ok) {
-                    const customRulesJSON = await getCustomRules.json();
-                    console.log('customRulesJSON reRender \t', customRulesJSON);
-                    // setCustomAPIRules(customRulesJSON);
-                }
-            } catch (error) {
-                console.error(error);
+        const trafficRuleId = e.target.dataset.dbtrafficruleid;
+        try {
+            const toggleEnabled = await fetch('/updatetrafficruletoggle', {
+                method: 'PUT',
+                mode: 'cors',
+                headers: {
+                    "Content-Type" : "application/json"
+                },
+                body: JSON.stringify({ _id, trafficRuleId, unifiObjCopy })
+            });
+            if (toggleEnabled.ok) {
+                reRender();
             }
+        } catch (error) {
+            console.error('There was an error toggling the Traffic Rule.');
         }
-        fetchCustomAPIRules();
-    }, []);
-    useEffect(() => { // refresh after re-render
-        const fetchCustomAPIRules = async () => {
-            try {
-                const getCustomRules = await fetch('/getdbcustomapirules');
-                if (getCustomRules.ok) {
-                    const customRulesJSON = await getCustomRules.json();
-                    console.log('customRulesJSON \t', customRulesJSON);
-                    setCustomAPIRules(customRulesJSON);
-                }
-            } catch (error) {
-                console.error(error);
-            }
-        }
-        fetchCustomAPIRules();
-    }, [render]);
-
-    useEffect(() => { // fetch DB customAPI rules
-        const fetchCustomAPIRules = async () => {
-            try {
-                const getCustomRules = await fetch('/getdbcustomapirules');
-                if (getCustomRules.ok) {
-                    const customRulesJSON = await getCustomRules.json();
-                    console.log('customRulesJSON \t', customRulesJSON);
-                    setCustomAPIRules(customRulesJSON);
-                }
-            } catch (error) {
-                console.error(error);
-            }
-        }
-        fetchCustomAPIRules();
-    }, []);
-
-
+    }
     const handleDeleteTrafficRule = async e => {
         const _id = e.target.dataset.trafficid;
         const trafficRuleId = e.target.dataset.trafficruleid;
@@ -84,6 +61,60 @@ export default function TrafficRules()
         }
     }
 
+    // useEffect(() => { // fetch customAPI rules
+    //     const fetchCustomAPIRules = async () => {
+    //         try {
+    //             const getCustomRules = await fetch('/getcustomapirules');
+    //             if (getCustomRules.ok) {
+    //                 const customRulesJSON = await getCustomRules.json();
+    //                 console.log('customUnifiRulesJSON reRender \t', customRulesJSON);
+    //                 setUnifiRuleObject(customRulesJSON);
+    //             }
+    //         } catch (error) {
+    //             console.error(error);
+    //         }
+    //     }
+    //     fetchCustomAPIRules();
+    // }, []);
+    useEffect(() => { // refresh after re-render
+        const fetchCustomAPIRules = async () => {
+            try {
+                const getCustomRules = await fetch('/getdbcustomapirules');
+                if (getCustomRules.ok) {
+                    const { trafficRuleDbData, unifiData } = await getCustomRules.json();
+                    // const customRulesJSON = await getCustomRules.json();
+                    // console.log('customRulesJSON \t', customRulesJSON);
+                    console.log('trafficRuleDbData rerender: \t', trafficRuleDbData);
+                    setCustomAPIRules(trafficRuleDbData);
+                    console.log('unifiData rerender: \t', unifiData);
+                    setUnifiRuleObject(unifiData);
+                }
+            } catch (error) {
+                console.error(error);
+            }
+        }
+        fetchCustomAPIRules();
+    }, [render]);
+
+    useEffect(() => { // fetch DB customAPI rules && unifi rules
+        const fetchCustomAPIRules = async () => {
+            try {
+                const getCustomRules = await fetch('/getdbcustomapirules');
+                if (getCustomRules.ok) {
+                    const { trafficRuleDbData, unifiData } = await getCustomRules.json();
+                    console.log('customDATABASERulesJSON \t', trafficRuleDbData);
+                    console.log('unifiData initial \t', unifiData);
+                    setCustomAPIRules(trafficRuleDbData);
+                    setUnifiRuleObject(unifiData);
+                }
+            } catch (error) {
+                console.error(error);
+            }
+        }
+        fetchCustomAPIRules();
+    }, []);
+
+
 
 
     return (
@@ -96,7 +127,7 @@ export default function TrafficRules()
                             <div className="text-xl font-bold">Description</div>
                         </div>
                         <div className="divider mt-2 mb-2"></div>
-                        <ul className="flex flex-col w-full justify-around">
+                        <ul className="flex flex-col w-full justify-around gap-2">
                             {
                                 customAPIRules?.map((data) => {
                                     return (
@@ -106,21 +137,29 @@ export default function TrafficRules()
                                                 <input type="checkbox" />
                                                     <div className="collapse-title text-xl font-medium">
                                                         <div onClick={() => console.log('clicked')} className="w-full flex flex-row items-center justify-between hover:cursor-pointer z-40">
-                                                            <input type="checkbox" checked={data?.trafficRule.enabled} className="toggle toggle-success z-30" />
+                                                            <input
+                                                                type="checkbox"
+                                                                checked={data?.trafficRule.enabled}
+                                                                className="toggle toggle-success z-30"
+                                                                onClick={handleToggle}
+                                                                data-unifiruleid={data.trafficRule.unifiId}
+                                                                data-dbtrafficruleid={data.trafficRule.id}
+                                                            />
                                                             {data?.trafficRule.description}
                                                         </div>
                                                     </div>
                                                     <div className="collapse-content">
                                                             <div className="flex justify-between flex-wrap">
+                                                                <h1 className="font-bold italic">Managing Apps:</h1>
                                                                 {data?.matchingAppIds.map((appId) => {
                                                                     return (
                                                                         <>
-                                                                            <p><span className="font-thin italic">App:</span> {appId?.app_name}</p>
+                                                                            <span className="badge badge-primary">{appId?.app_name}</span>
                                                                         </>
                                                                     )
                                                                 })}
-                                                                <p><span className="font-thin italic">Apps:</span> {data?.name}</p>
-                                                                <p><span className="font-thin italic">Devices:</span> {data?.macAddress}</p>
+                                                                {/* <p><span className="font-thin italic">Apps:</span> {data?.name}</p> */}
+                                                                {/* <p><span className="font-thin italic">Devices:</span> {data?.macAddress}</p> */}
                                                             </div>
                                                         <div>
                                                             <Link to={`/`} className="w-fit hover:cursor-pointer" >
