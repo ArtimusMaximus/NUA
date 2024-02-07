@@ -52,6 +52,7 @@ model TrafficRules {
   trafficRuleDevices    TrafficRuleDevices[]
   description           String
   enabled               Boolean
+  blockAllow            String
 }
 
 model AppCatIds {

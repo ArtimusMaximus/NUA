@@ -23,9 +23,8 @@ import {
 	networkp20,
 	privateProtocols,
 	Unknown_255,
-
 } from "../../traffic_rule_apps/app_ids";
-import { categoryDeviceObject, dbCategoryDeviceObject, appDeviceObject } from "./app_objects";
+import { categoryDeviceObject, dbCategoryDeviceObject, appDeviceObject, appDbDeviceObject } from "./app_objects";
 // import AppCard from "./app_card/AppCard";
 
 
@@ -45,10 +44,13 @@ export default function SeeAllApps()
     const [catIds, setCatIds] = useState([]); // for apps in multiple cats
     const [loading, setLoading] = useState(false);
     const [render, setRender] = useState(false);
+    const [blockAllow, setBlockAllow] = useState("");
+    const [catNameId, setCatNameId] = useState([]);
     const manageDialogRef = useRef();
     const selectCatRef = useRef();
     const descriptionRef = useRef();
-
+    const blockRef = useRef();
+    const allowRef = useRef();
 
     const reRenderPage = () => {
         setRender(prev => !prev);
@@ -65,17 +67,21 @@ export default function SeeAllApps()
         setCategoryName("");
         setCatId(Number);
         setCatIds([]);
+        setBlockAllow("");
+        setCatNameId([]);
         selectCatRef.current.value = "default";
         descriptionRef.current.value = "";
+        allowRef.current.checked = false;
+        blockRef.current.checked = false;
     }
     const handleChange = e => {
         setFilter(e.target.value);
     }
     const handleSearchByText = e => {
         const searchedArray = filteredArray.filter(name => name.name.toLowerCase().includes(e.target.value.toLowerCase()));
-        setFilteredArray(searchedArray)
+        setFilteredArray([...searchedArray])
         if (e.target.value.length <= 2) {
-            setFilteredArray(searchableCopy)
+            setFilteredArray([...searchableCopy])
         }
     }
     const handleModalOpen = () => {
@@ -95,19 +101,27 @@ export default function SeeAllApps()
     //         setSelection(filteredOut)
     //     }
     // }
+    const handleAllow = () => {
+        setBlockAllow("ALLOW")
+    }
+    const handleBlock = () => {
+        setBlockAllow("BLOCK")
+    }
+
     const handleCheckbox = (e, id) => {
         setChecked(prevState => ({
             ...prevState,
             [id]: !prevState[id]
         }));
         if (e.target.checked) {
-            setAppSelection([
-                ...appSelection,
+            setAppSelection(prev => ([
+                ...prev,
                 { name: e.target.dataset.name, id: parseInt(e.target.dataset.id) }
-            ]);
+            ]));
         } else if (!e.target.checked) {
             const filteredOut = appSelection.filter(name => name.name !== e.target.dataset.name)
-            setAppSelection(filteredOut)
+            const noDuplicates = [...new Set(filteredOut)];
+            setAppSelection([...noDuplicates])
         }
     }
     const handleDescription = e => {
@@ -116,9 +130,10 @@ export default function SeeAllApps()
     const handleSelectDevice = e => {
         if (e.target.checked) {
             const filterDevices = devices.filter(device => device.id === parseInt(e.target.dataset.deviceid));
+            const noDuplicates = [...new Set(filterDevices)];
             setDeviceSelection(prev => ([
                 ...prev,
-                ...filterDevices
+                ...noDuplicates
             ]));
         } else if (!e.target.checked && deviceSelection.length) {
             const filterOutDevices = deviceSelection.filter(device => device.id !== parseInt(e.target.dataset.deviceid));
@@ -127,7 +142,7 @@ export default function SeeAllApps()
         console.log('deviceSelection \t', deviceSelection);
     }
 
-    const createCategoryObjectRule = (unifiObject, devices, categoryId, description) => {
+    const createCategoryObjectRule = (unifiObject, devices, categoryId, description, blockAllow) => {
         const formatDevices = devices.map((device) => {
             return { client_mac: device.macAddress, type: 'CLIENT' }
         });
@@ -135,28 +150,30 @@ export default function SeeAllApps()
         unifiObject.target_devices.push(...formatDevices);
         unifiObject.app_category_ids.push(categoryId);
         unifiObject.description = description;
+        unifiObject.action = blockAllow;
         return {
             ...unifiObject
         }
     }
-    const createDBCategoryObjectRule = (unifiObject, devices, categoryId, categoryName, deviceSelection, description) => {
+    const createDBCategoryObjectRule = (unifiObject, devices, categoryId, categoryName, deviceSelection, description, blockAllow) => {
         const formatDevices = devices.map((device) => {
             return { client_mac: device.macAddress, type: 'CLIENT' }
         });
         // console.log(formatDevices);
         unifiObject.target_devices.push(...formatDevices);
         unifiObject.app_category_ids.push({ categoryId: categoryId, categoryName: categoryName});
-        unifiObject.devices.push(...deviceSelection)
+        unifiObject.devices.push(...deviceSelection);
         unifiObject.description = description;
+        unifiObject.action = blockAllow;
         return {
             ...unifiObject
         }
     }
-    const handleManageCategory = async () => {
-        const categoryObject = createCategoryObjectRule(categoryDeviceObject, deviceSelection, catId, description);
-        const dbCatObject = createDBCategoryObjectRule(dbCategoryDeviceObject, deviceSelection, catId, categoryName, deviceSelection, description);
-        console.log('categoryObject \t', categoryObject);
-        console.log('dbCatObject \t', dbCatObject);
+    const handleManageCategory = async () => { // submit category
+        let unifiObjectCatCopy = JSON.parse(JSON.stringify(categoryDeviceObject))
+        let unifiDbObjectCatCopy = JSON.parse(JSON.stringify(dbCategoryDeviceObject))
+        const categoryObject = createCategoryObjectRule(unifiObjectCatCopy, deviceSelection, catId, description, blockAllow);
+        const dbCatObject = createDBCategoryObjectRule(unifiDbObjectCatCopy, deviceSelection, catId, categoryName, deviceSelection, description, blockAllow);
         setLoading(true);
         try {
             const updateManagedCat = await fetch('/addcategorytrafficrule', {
@@ -171,6 +188,7 @@ export default function SeeAllApps()
                 console.log('POST Success');
                 setLoading(false);
                 handleModalClose();
+                resetState();
                 reRenderPage();
             }
         } catch (error) {
@@ -178,7 +196,8 @@ export default function SeeAllApps()
             console.error(error);
         }
     }
-    const createAppObjectRule = (unifiObject, devices, appIds, categoryIds, description) => {
+
+    const createAppObjectRule = (unifiObject, devices, appIds, description, blockAllow) => {
         const formatDevices = devices.map((device) => {
             return { client_mac: device.macAddress, type: 'CLIENT' }
         });
@@ -188,13 +207,14 @@ export default function SeeAllApps()
         // console.log(formatDevices);
         unifiObject.target_devices.push(...formatDevices);
         unifiObject.app_ids.push(...formatAppIds);
-        unifiObject.app_category_ids.push(...categoryIds);
+        // unifiObject.app_category_ids.push(...categoryIds); // categoryIds
         unifiObject.description = description;
+        unifiObject.action = blockAllow;
         return {
             ...unifiObject
         }
     }
-    const createDbAppObject = (unifiObject, devices, appIds, categoryIds, description) => {
+    const createDbAppObject = (unifiObject, devices, appIds, categoryIds, description, blockAllow) => {
         const formatDevices = devices.map((device) => {
             return { client_mac: device.macAddress, type: 'CLIENT' }
         });
@@ -204,15 +224,22 @@ export default function SeeAllApps()
         // console.log(formatDevices);
         unifiObject.target_devices.push(...formatDevices);
         unifiObject.app_ids.push(...formatAppIds);
+        unifiObject.appSelection.push(...appIds)
         unifiObject.app_category_ids.push(...categoryIds);
         unifiObject.description = description;
+        unifiObject.action = blockAllow;
+        unifiObject.devices.push(...devices)
         return {
             ...unifiObject
         }
     }
-    const handleManageApps = async () => {
-        const appObject = createAppObjectRule(appDeviceObject, deviceSelection, appSelection, catIds, description);
+    const handleManageApps = async () => { // submit apps
+        let appDeviceObjectCopy = JSON.parse(JSON.stringify(appDeviceObject));
+        let appDbDeviceObjectCopy = JSON.parse(JSON.stringify(appDbDeviceObject));
+        const appObject = createAppObjectRule(appDeviceObjectCopy, deviceSelection, appSelection, description, blockAllow);
+        const appDbObject = createDbAppObject(appDbDeviceObjectCopy, deviceSelection, appSelection, catNameId, description, blockAllow);
         console.log('appObject \t', appObject);
+        console.log('appDatabaseObject \t', appDbObject);
         setLoading(true);
 
         try {
@@ -222,17 +249,22 @@ export default function SeeAllApps()
                 headers: {
                     "Content-Type" : "application/json"
                 },
-                body: JSON.stringify({ appObject })
+                body: JSON.stringify({ appObject, appDbObject })
             });
             if (updateManagedApps.ok) {
                 console.log('POST Success');
                 setLoading(false);
                 handleModalClose();
+                resetState();
                 reRenderPage();
+            } else if (!updateManagedApps.ok) {
+                const errorMessage = await updateManagedApps.json();
+                console.log(errorMessage.error);
             }
         } catch (error) {
             setLoading(false);
-            console.error(error);
+            console.error('error \t', error);
+            console.error('error.response \t', error.response);
         }
     }
 
@@ -245,7 +277,8 @@ export default function SeeAllApps()
                     setSearchableCopy(mediaStreaming);
                     setCategoryName("Media Streaming");
                     setCatId(4);
-                    setCatIds(prev => [...prev, 4])
+                    setCatIds(prev => [...prev, 4]);
+                    setCatNameId(prev => [...prev, { app_cat_id: 4, app_cat_name: "Media Streaming" }])
                     break;
                 case 'Social Networks':
                     // console.log('Blocked devices in switch statement');
@@ -254,6 +287,7 @@ export default function SeeAllApps()
                     setCategoryName("Social Networks");
                     setCatId(24);
                     setCatIds(prev => [...prev, 24])
+                    setCatNameId(prev => [...prev, { app_cat_id: 24, app_cat_name: "Social Networks" }])
                     break;
                 case 'Online Games':
                     // console.log('Offline devices in switch statement');
@@ -262,6 +296,7 @@ export default function SeeAllApps()
                     setCategoryName("Online Games");
                     setCatId(8);
                     setCatIds(prev => [...prev, 8])
+                    setCatNameId(prev => [...prev, { app_cat_id: 8, app_cat_name: "Online Games" }])
                     break;
                 case 'Peer-to-Peer Networks':
                     // console.log('Online Devices in switch statement');
@@ -270,6 +305,7 @@ export default function SeeAllApps()
                     setCategoryName("Peer-to-Peer Networks");
                     setCatId(1);
                     setCatIds(prev => [...prev, 1])
+                    setCatNameId(prev => [...prev, { app_cat_id: 1, app_cat_name: "Peer-to-Peer Networks" }])
                     break;
                 case 'Email Messaging':
                     // console.log('Devices on List in switch statement');
@@ -278,6 +314,7 @@ export default function SeeAllApps()
                     setCategoryName("Email Messaging");
                     setCatId(5);
                     setCatIds(prev => [...prev, 5])
+                    setCatNameId(prev => [...prev, { app_cat_id: 5, app_cat_name: "Email Messaging" }])
                     break;
                 case 'Instant Messengers':
                     // console.log('Wired Devices in switch statement');
@@ -286,6 +323,7 @@ export default function SeeAllApps()
                     setCategoryName("Instant Messengers");
                     setCatId(0);
                     setCatIds(prev => [...prev, 0])
+                    setCatNameId(prev => [...prev, { app_cat_id: 0, app_cat_name: "Instant Messengers" }])
                     break;
                 case 'Tunneling and Proxy':
                     // console.log('Wireless Devices in switch statement');
@@ -294,6 +332,7 @@ export default function SeeAllApps()
                     setCategoryName("Tunneling and Proxy");
                     setCatId(11);
                     setCatIds(prev => [...prev, 11])
+                    setCatNameId(prev => [...prev, { app_cat_id: 11, app_cat_name: "Tunneling and Proxy" }])
                     break;
                 case 'File Sharing':
                     // console.log('Blocked devices in switch statement');
@@ -302,6 +341,7 @@ export default function SeeAllApps()
                     setCategoryName("File Sharing");
                     setCatId(3);
                     setCatIds(prev => [...prev, 3])
+                    setCatNameId(prev => [...prev, { app_cat_id: 3, app_cat_name: "File Sharing" }])
                     break;
                 case 'VoIP Services':
                     // console.log('Offline devices in switch statement');
@@ -310,6 +350,7 @@ export default function SeeAllApps()
                     setCategoryName("VoIP Services");
                     setCatId(6);
                     setCatIds(prev => [...prev, 6])
+                    setCatNameId(prev => [...prev, { app_cat_id: 6, app_cat_name: "VoIP Services" }])
                     break;
                 case 'Remote Access':
                     // console.log('Online Devices in switch statement');
@@ -318,6 +359,7 @@ export default function SeeAllApps()
                     setCategoryName("Remote Access");
                     setCatId(10);
                     setCatIds(prev => [...prev, 10])
+                    setCatNameId(prev => [...prev, { app_cat_id: 10, app_cat_name: "Remote Access" }])
                     break;
                 case 'Database Tools':
                     // console.log('Devices on List in switch statement');
@@ -326,6 +368,7 @@ export default function SeeAllApps()
                     setCategoryName("Database Tools");
                     setCatId(7);
                     setCatIds(prev => [...prev, 7])
+                    setCatNameId(prev => [...prev, { app_cat_id: 7, app_cat_name: "Database Tools" }])
                     break;
                 case 'Management Protocols':
                     // console.log('Wired Devices in switch statement');
@@ -334,6 +377,7 @@ export default function SeeAllApps()
                     setCategoryName("Management Protocols");
                     setCatId(9);
                     setCatIds(prev => [...prev, 9])
+                    setCatNameId(prev => [...prev, { app_cat_id: 9, app_cat_name: "Management Protocols" }])
                     break;
                 case 'Investment Platforms':
                     // console.log('Wireless Devices in switch statement');
@@ -342,6 +386,7 @@ export default function SeeAllApps()
                     setCategoryName("Investment Platforms");
                     setCatId(12);
                     setCatIds(prev => [...prev, 12])
+                    setCatNameId(prev => [...prev, { app_cat_id: 12, app_cat_name: "Investment Platforms" }])
                     break;
                 case 'Web Services':
                     // console.log('Online Devices in switch statement');
@@ -350,6 +395,7 @@ export default function SeeAllApps()
                     setCategoryName("Web Services");
                     setCatId(13);
                     setCatIds(prev => [...prev, 13])
+                    setCatNameId(prev => [...prev, { app_cat_id: 13, app_cat_name: "Web Services" }])
                     break;
                 case 'Security Updates':
                     // console.log('Devices on List in switch statement');
@@ -358,6 +404,7 @@ export default function SeeAllApps()
                     setCategoryName("Security Updates");
                     setCatId(14);
                     setCatIds(prev => [...prev, 14])
+                    setCatNameId(prev => [...prev, { app_cat_id: 14, app_cat_name: "Security Updates" }])
                     break;
                 case 'Web IM':
                     // console.log('Wired Devices in switch statement');
@@ -366,6 +413,7 @@ export default function SeeAllApps()
                     setCategoryName("Web IM");
                     setCatId(15);
                     setCatIds(prev => [...prev, 15])
+                    setCatNameId(prev => [...prev, { app_cat_id: 15, app_cat_name: "Web IM" }])
                     break;
                 case 'Business Tools':
                     // console.log('Wireless Devices in switch statement');
@@ -374,6 +422,7 @@ export default function SeeAllApps()
                     setCategoryName("Business Tools");
                     setCatId(17);
                     setCatIds(prev => [...prev, 17])
+                    setCatNameId(prev => [...prev, { app_cat_id: 17, app_cat_name: "Business Tools" }])
                     break;
                 case 'Network Protocols_18':
                     // console.log('Wireless Devices in switch statement');
@@ -382,6 +431,7 @@ export default function SeeAllApps()
                     setCategoryName("Network Protocols_18");
                     setCatId(18);
                     setCatIds(prev => [...prev, 18])
+                    setCatNameId(prev => [...prev, { app_cat_id: 18, app_cat_name: "Network Protocols_18" }])
                     break;
                 case 'Network Protocols_19':
                     // console.log('Online Devices in switch statement');
@@ -390,6 +440,7 @@ export default function SeeAllApps()
                     setCategoryName("Network Protocols_19");
                     setCatId(19);
                     setCatIds(prev => [...prev, 19])
+                    setCatNameId(prev => [...prev, { app_cat_id: 19, app_cat_name: "Network Protocols_19" }])
                     break;
                 case 'Network Protocols_20':
                     // console.log('Devices on List in switch statement');
@@ -398,6 +449,7 @@ export default function SeeAllApps()
                     setCategoryName("Network Protocols_20");
                     setCatId(20);
                     setCatIds(prev => [...prev, 20])
+                    setCatNameId(prev => [...prev, { app_cat_id: 20, app_cat_name: "Network Protocols_20" }])
                     break;
                 case 'Private Protocols':
                     // console.log('Wired Devices in switch statement');
@@ -406,6 +458,7 @@ export default function SeeAllApps()
                     setCategoryName("Private Protocols");
                     setCatId(23);
                     setCatIds(prev => [...prev, 23])
+                    setCatNameId(prev => [...prev, { app_cat_id: 23, app_cat_name: "Private Protocols" }])
                     break;
                 case 'Unknown_255':
                     // console.log('Wireless Devices in switch statement');
@@ -414,6 +467,7 @@ export default function SeeAllApps()
                     setCategoryName("Unknown_255");
                     setCatId(255);
                     setCatIds(prev => [...prev, 255])
+                    setCatNameId(prev => [...prev, { app_cat_id: 255, app_cat_name: "Unknown_255" }])
                     break;
                 default:
                     setFilteredArray([]);
@@ -477,7 +531,7 @@ export default function SeeAllApps()
         fetchCustomAPIRules();
     }, []);
     useEffect(() => { // re-render after post and reset devices list
-        resetState();
+
         const getDevices = async () => {
             try {
                 const fetchDevices = await fetch('/getcurrentdevices');
@@ -492,9 +546,6 @@ export default function SeeAllApps()
         }
         getDevices();
     }, [render])
-
-
-
 
 
     return (
@@ -534,42 +585,45 @@ export default function SeeAllApps()
                             )
                         })}
             </div>
-
-
             <dialog ref={manageDialogRef} className="modal">
                 <div className="modal-box">
-                    <h3 className="font-bold text-lg">Manage</h3>
+                    <h3 className="flex font-bold text-lg items-center justify-center mt-2">Manage</h3>
                     <div className="divider"></div>
-
-                    {/* <div className="flex flex-col mb-2">
-                        <span className="label font-bold">Apps in category:</span>
-                            <select className="select select-bordered">
-                                <option disabled selected>Choose apps</option>
-                                {filteredArray
-                                    .filter(app => !selection.some(selectedApp => selectedApp.id === app?.id))
-                                    .map(app => {
-                                        return (
-                                            <>
-                                                <option key={app.id}>{app?.name}</option>
-                                            </>
-                                        )
-                                })}
-                            </select>
-                    </div> */}
-                    <div className="m-1 flex flex-col items-center justify-center gap-2">
-                    {!appSelection.length && <span>Category:&nbsp;<span className="text-accent">{categoryName}</span></span>}
-                        <h1 className=" font-bold">Selected Apps:</h1>
-                        {appSelection.length ? appSelection?.map((app) => {
+                    <div className="m-1 flex flex-col gap-2">
+                        {!appSelection.length && <span>Selected Category:&nbsp;<span className="text-accent">{categoryName}</span></span>}
+                        <h1 className={`${appSelection.length ? 'font-bold' : 'hidden'}`}>Selected Apps:</h1>
+                        <div className={`${appSelection.length ? 'flex flex-row flex-wrap gap-2' : 'hidden'}`}>{appSelection.length ? appSelection?.map((app) => {
                             return (
                                 <>
                                     <div key={app.id} className="badge badge-primary">{app?.name}</div>
                                 </>
                             )
-                        }) : <span className="italic">none selected</span>}
-                    </div>
-                    <div className="flex flex-row mb-2 items-center justify-center my-2">
+                        }) : <span className="italic">none selected</span>}</div>
+                        </div>
+                    <div className="flex flex-col mb-2 my-2 gap-4">
+                        <h1 className="font-bold">Description:</h1>
                         <input className="input input-bordered" placeholder="Add Description" ref={descriptionRef} onChange={handleDescription} />
                     </div>
+                    <div className="flex items-center justify-center">
+                        <div className="join m-4">
+                                <input
+                                    onClick={handleAllow}
+                                    className={`btn join-item`}
+                                    ref={allowRef}
+                                    type="radio"
+                                    aria-label="Allow"
+                                    name="options"
+                                />
+                                <input
+                                    onClick={handleBlock}
+                                    className={`btn join-item`}
+                                    ref={blockRef}
+                                    type="radio"
+                                    aria-label="Block"
+                                    name="options"
+                                />
+                            </div>
+                        </div>
                     <div className="flex flex-col mb-2">
                         <h1 className=" font-bold">Devices to manage Apps:</h1>
                        {devices.map((device) => {
@@ -578,7 +632,13 @@ export default function SeeAllApps()
                                 <div className="form-control">
                                     <label className="label cursor-pointer">
                                         <span className="label-text">{device?.name}</span>
-                                        <input key={device?.id} data-deviceid={device?.id} onClick={handleSelectDevice} type="checkbox" className="checkbox checkbox-primary" />
+                                        <input
+                                            key={device?.id}
+                                            data-deviceid={device?.id}
+                                            onClick={handleSelectDevice}
+                                            type="checkbox"
+                                            className="checkbox checkbox-primary"
+                                        />
                                     </label>
                                 </div>
                             </>
@@ -592,6 +652,8 @@ export default function SeeAllApps()
                                     ${!appSelection.length ? 'btn' : 'hidden'}
                                     ${loading ? 'btn-disabled' : ''}
                                     ${!deviceSelection.length ? 'btn-disabled' : ''}
+                                    ${description === "" ? 'btn-disabled' : ''}
+                                    ${blockAllow === "" ? 'btn-disabled' : ''}
                                 `}
                                 onClick={handleManageCategory}>{loading ? <span className="loading loading-spinner w-6 h-6 text-accent"></span> : 'Manage Category'}</div>
                             <div
@@ -599,12 +661,12 @@ export default function SeeAllApps()
                                     ${appSelection.length ? 'btn' : 'hidden'}
                                     ${loading ? 'btn-disabled' : ''}
                                     ${!deviceSelection.length ? 'btn-disabled' : ''}
+                                    ${description === "" ? 'btn-disabled' : ''}
+                                    ${blockAllow === "" ? 'btn-disabled' : ''}
                                 `}
                                 onClick={handleManageApps}>{loading ? <span className="loading loading-spinner w-6 h-6 text-accent"></span> : 'Manage Apps'}</div>
                         </div>
-                    <form method="dialog">
-                        <button className="btn">Exit</button>
-                    </form>
+                        <div className="btn" onClick={handleModalClose}>Exit</div>
                     </div>
                 </div>
             </dialog>

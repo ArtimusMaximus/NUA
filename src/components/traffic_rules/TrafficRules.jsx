@@ -19,7 +19,7 @@ export default function TrafficRules()
                 const getCustomRules = await fetch('/getcustomapirules');
                 if (getCustomRules.ok) {
                     const customRulesJSON = await getCustomRules.json();
-                    console.log(customRulesJSON);
+                    console.log('customRulesJSON reRender \t', customRulesJSON);
                     // setCustomAPIRules(customRulesJSON);
                 }
             } catch (error) {
@@ -31,11 +31,11 @@ export default function TrafficRules()
     useEffect(() => { // refresh after re-render
         const fetchCustomAPIRules = async () => {
             try {
-                const getCustomRules = await fetch('/getcustomapirules');
+                const getCustomRules = await fetch('/getdbcustomapirules');
                 if (getCustomRules.ok) {
                     const customRulesJSON = await getCustomRules.json();
-                    console.log(customRulesJSON);
-                    // setCustomAPIRules(customRulesJSON);
+                    console.log('customRulesJSON \t', customRulesJSON);
+                    setCustomAPIRules(customRulesJSON);
                 }
             } catch (error) {
                 console.error(error);
@@ -63,6 +63,7 @@ export default function TrafficRules()
 
     const handleDeleteTrafficRule = async e => {
         const _id = e.target.dataset.trafficid;
+        const trafficRuleId = e.target.dataset.trafficruleid;
         try {
             const deleteTrafficRule = await fetch('/deletecustomapi', {
                 method: 'DELETE',
@@ -70,7 +71,7 @@ export default function TrafficRules()
                 headers: {
                     "Content-Type" : "application/json"
                 },
-                body: JSON.stringify({ _id })
+                body: JSON.stringify({ _id, trafficRuleId })
             });
             if (deleteTrafficRule.ok) {
                 console.log('Delete Successful.');
@@ -114,7 +115,7 @@ export default function TrafficRules()
                                                                 {data?.matchingAppIds.map((appId) => {
                                                                     return (
                                                                         <>
-                                                                            <p><span className="font-thin italic">Apps:</span> {appId?.app_id}</p>
+                                                                            <p><span className="font-thin italic">App:</span> {appId?.app_name}</p>
                                                                         </>
                                                                     )
                                                                 })}
@@ -130,6 +131,7 @@ export default function TrafficRules()
                                                             className="btn btn-error btn-block" aria-disabled
                                                             onClick={handleDeleteTrafficRule}
                                                             data-trafficid={data?.trafficRule.unifiId}
+                                                            data-trafficruleid={data?.trafficRule.id}
                                                         >Delete
                                                         </div>
                                                     </div>
