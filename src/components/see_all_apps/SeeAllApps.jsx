@@ -165,6 +165,7 @@ export default function SeeAllApps()
         unifiObject.devices.push(...deviceSelection);
         unifiObject.description = description;
         unifiObject.action = blockAllow;
+        unifiObject.devices.push(...devices);
         return {
             ...unifiObject
         }
@@ -228,7 +229,7 @@ export default function SeeAllApps()
         unifiObject.app_category_ids.push(...categoryIds);
         unifiObject.description = description;
         unifiObject.action = blockAllow;
-        unifiObject.devices.push(...devices)
+        unifiObject.devices.push(...devices);
         return {
             ...unifiObject
         }

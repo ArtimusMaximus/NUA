@@ -21,7 +21,7 @@ export const categoryNetworkObject = {
     target_devices: [ { network_id: '63c9eee5bf79960e3813bb10', type: 'NETWORK' } ]
 }
 
-// block category across device
+// block category across device(s)
 export const categoryDeviceObject = {
     action: 'BLOCK',
     app_category_ids: [],
@@ -115,6 +115,7 @@ export const appDbDeviceObject = {
   devices: [],
   appSelection: []
 }
+
 export const appNetworkObject = {
     action: 'BLOCK',
     app_category_ids: [],

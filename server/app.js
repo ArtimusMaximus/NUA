@@ -1120,8 +1120,8 @@ app.post('/addcategorytrafficrule', async (req, res) => {
             }
             return allData;
         }
-        const updateDevices = await setMultipleDevices();
-        console.log('updateDevices \t', updateDevices);
+        await setMultipleDevices();
+
 
         const setMultipleTargetDevices = async () => {
             let allData = [];
@@ -1229,7 +1229,7 @@ app.post('/addappstrafficrule', async (req, res) => {
             }
             return allData;
         }
-        const updateDevices = await setMultipleDevices();
+        await setMultipleDevices();
         const setMultipleTargetDevices = async () => {
             let allData = [];
             for (const td of target_devices) {
