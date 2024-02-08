@@ -179,6 +179,17 @@ const jobFunction = async (crontype, macAddress) => { // for crons
     }
 }
 
+// (async function() {
+//     // const path = '/v2/api/site/default/trafficrules';
+//     const path = '/api/s/default/stat/sitedpi';
+//     // const path = 'https://192.168.0.1/proxy/network/api/s/default/stat/sitedpi';
+//     const timer = t => new Promise(res => setTimeout(res, t));
+//     let result;
+//     timer(2000)
+//         .then(() => result = unifi?.customApiRequest(path, 'GET'))
+//         .then(() => console.log(result))
+// })()
+
 app.get('/getmacaddresses', async (req, res) => {
     try {
         const currentCredentials = await prisma.credentials.findUnique({
@@ -1335,6 +1346,54 @@ app.delete('/deletecustomapi', async (req, res) => { // deletes unifi rule, not 
         console.error(error);
     }
 });
+
+//~~~~~~temp get all available devices~~~~~~
+// app.post('/getallworking', async (req, res) => {
+//     const { arrayOfObjects } = req.body;
+//     const path = '/v2/api/site/default/trafficrules';
+//     // try {
+
+//     const getAllWorkingCategories = async (arrayObjects) => {
+//         let failedRequests = [];
+//         let successfulRequests = [];
+//         for (const arrayObject of arrayObjects) {
+//             try {
+//                 await unifi.customApiRequest(path, 'POST', arrayObject);
+//                 successfulRequests.push({ arrayObject })
+//             } catch (error) {
+//                 failedRequests.push({ arrayObject })
+
+//             }
+//         }
+//         return { successfulRequests, failedRequests }
+//     }
+//     function chunkArray(array, chunkSize) {
+//         const chunks = [];
+//         for (let i = 0; i < array.length; i+=chunkSize) {
+//             chunks.push(array.slice(i, i+chunkSize))
+//         }
+//         return chunks;
+//     }
+//     async function sendRequestsInChunks(arrayOfObjects, chunkSize) {
+//         const chunks = chunkArray(arrayOfObjects, chunkSize);
+//         let allFailedApps = [];
+//         let allSuccessfulApps = [];
+//         for (const chunk of chunks) {
+//             const { successfulApps, failedApps } = await getAllWorkingCategories(chunk);
+//             allFailedApps = allFailedApps.concat(failedApps);
+//             allSuccessfulApps = allSuccessfulApps.concat(successfulApps)
+//         }
+//         return { allSuccessfulApps, allFailedApps };
+//     }
+
+//     const chunkSize = 100;
+//     sendRequestsInChunks(arrayOfObjects, chunkSize)
+//         .then(({ allSuccessfulApps, allFailedApps }) => {
+//             console.log('successfulCategories \t', allSuccessfulApps.length);
+//             console.log('failedCategories \t', allFailedApps.length);
+//             res.json({ allSuccessfulApps: allSuccessfulApps, allFailedApps: allFailedApps  })
+//         }).catch((error) => console.error(error));
+// });
 
 
 //~~~~~~refresh redirect~~~~~~

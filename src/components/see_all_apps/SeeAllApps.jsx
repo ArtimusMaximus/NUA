@@ -24,7 +24,7 @@ import {
 	privateProtocols,
 	Unknown_255,
 } from "../../traffic_rule_apps/app_ids";
-import { categoryDeviceObject, dbCategoryDeviceObject, appDeviceObject, appDbDeviceObject } from "./app_objects";
+import { categoryDeviceObject, dbCategoryDeviceObject, appDeviceObject, appDbDeviceObject, allAppIds } from "./app_objects";
 import { IoMdRefresh } from "react-icons/io";
 
 
@@ -520,20 +520,7 @@ export default function SeeAllApps()
         }
         getDevices();
     }, []);
-    // useEffect(() => { // fetch custom api rules
-    //     const fetchCustomAPIRules = async () => {
-    //         try {
-    //             const getCustomRules = await fetch('/getcustomapirules'); // /getdbcustomapirules ??
-    //             if (getCustomRules.ok) {
-    //                 const customRulesJSON = await getCustomRules.json();
-    //                 console.log(customRulesJSON);
-    //             }
-    //         } catch (error) {
-    //             console.error(error);
-    //         }
-    //     }
-    //     fetchCustomAPIRules();
-    // }, []);
+
     useEffect(() => { // re-render after post and reset devices list
 
         const getDevices = async () => {
@@ -549,13 +536,77 @@ export default function SeeAllApps()
             }
         }
         getDevices();
-    }, [render])
+    }, [render]);
+
+    const handleTestCategories = async () => {
+        const allCatIds = [1, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 17, 18, 19, 20, 23, 24, 255];
+
+        console.log('allCategoryIds: \t', allCatIds);
+        // categoryDeviceObject.app_category_ids.push(...allCatIds);
+        const categoryDeviceObjectCopy = JSON.parse(JSON.stringify(categoryDeviceObject));
+        console.log('categoryDeviceObjectCopy \t', categoryDeviceObjectCopy);
+        const arrayOfObjects = allCatIds.map((app_category_ids) => {
+            const objectCopy = JSON.parse(JSON.stringify(categoryDeviceObjectCopy))
+            objectCopy.app_category_ids.push(app_category_ids)
+            return objectCopy;
+        })
+        console.log('arrayOfObjects \t', arrayOfObjects);
+        // console.log('categoryDeviceObjectCopy.app_category_ids \t', categoryDeviceObjectCopy.app_category_ids);
+
+        try {
+            const postCategories = await fetch('/getallworking', {
+                method: 'POST',
+                mode: 'cors',
+                headers: {
+                    "Content-Type" : "application/json"
+                },
+                body: JSON.stringify({ arrayOfObjects })
+            })
+            if (postCategories.ok) {
+                const { failedCategories, successfulCategories } = await postCategories.json();
+                console.log('failedCategories \t', failedCategories);
+                console.log('successfulCategories \t', successfulCategories);
+            }
+        } catch (error) {
+            console.error(error)
+        }
+    }
+    const handleTestApps = async () => {
+        const allCatIds = [1, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 17, 18, 19, 20, 23, 24, 255];
 
 
+        const arrayOfObjects = allAppIds.map((app_ids) => {
+            const objectCopy = JSON.parse(JSON.stringify(appDeviceObject))
+            objectCopy.app_ids.push(app_ids)
+            return objectCopy;
+        })
+        console.log('arrayOfObjects \t', arrayOfObjects);
+        // console.log('categoryDeviceObjectCopy.app_category_ids \t', categoryDeviceObjectCopy.app_category_ids);
+
+        try {
+            const postCategories = await fetch('/getallworking', {
+                method: 'POST',
+                mode: 'cors',
+                headers: {
+                    "Content-Type" : "application/json"
+                },
+                body: JSON.stringify({ arrayOfObjects })
+            })
+            if (postCategories.ok) {
+                const { allFailedApps, allSuccessfulApps } = await postCategories.json();
+                console.log('failedCategories \t', failedCategories);
+                console.log('successfulCategories \t', successfulCategories);
+            }
+        } catch (error) {
+            console.error(error)
+        }
+    }
     return (
         <>
             <div className={`grid ${filteredArray.length === 2 ? '2xl:grid-cols-2 lg:grid-cols-2' : filteredArray.length === 1 ? '2xl-grid-cols-1 lg:grid-cols-1 xl-grid-cols-1' : '2xl:grid-cols-3 lg:grid-cols-2'} grid-cols-1 auto-rows-auto w-full sm:w-3/4 mx-auto py-12 gap-6`}>
                     <div className="w-full row-span-full col-span-full row-start-3 flex items-center justify-center flex-wrap gap-4">
+                    <div className="btn" onClick={handleTestCategories}>Test Categories</div>
+                    <div className="btn" onClick={handleTestApps}>Test Apps</div>
                             <select className="select select-bordered" ref={selectCatRef} onChange={handleChange}>
                                 <option disabled selected value="default" className="font-bold hover:bg-accent">Select App Category</option>
                                 {keys.map((i) => {
