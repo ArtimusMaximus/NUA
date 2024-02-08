@@ -205,6 +205,7 @@ const allAppsList = [
 	},
 	{
 		cat: "Social Networks",
+		catId: 24,
 		apps: [
 			{ id: 1572865,  name: "Classmates" },
 			{ id: 1572866,  name: "Yik Yak" },
@@ -319,6 +320,7 @@ const allAppsList = [
 
 	{
 		cat: "Online Games",
+		catId: 8,
 		apps: [
 			{ id: 524289, name:  "QQ Game" },
 			{ id: 524290, name:  "Our Game" },
@@ -558,6 +560,7 @@ const allAppsList = [
 	},
 	{
 		cat: "Peer-to-Peer Networks",
+		catId: 1,
 		apps: [
 			{ id: 65538, name:  "BitTorrent Series" },
 			{ id: 65540, name:  "DirectConnect" },
@@ -713,6 +716,7 @@ const allAppsList = [
 	},
 	{
 		cat: "Email Messaging",
+		catId: 5,
 		apps: [
 			{ id: 327681, name:  "SMTP" },
 			{ id: 327682, name:  "POP3" },
@@ -800,6 +804,7 @@ const allAppsList = [
 	},
 	{
 		cat: "Instant Messengers",
+		catId: 0,
 		apps: [
 			{ id: 1, name: "MSN" },
 			{ id: 2, name: "Yahoo Messenger" },
@@ -899,6 +904,7 @@ const allAppsList = [
 	},
 	{
 		cat: "Tunneling and Proxy",
+		catId: 11,
 		apps: [
 			{ id: 720898, name:  "VNN" },
 			{ id: 720899, name:  "Spotflux" },
@@ -1004,6 +1010,7 @@ const allAppsList = [
 	},
 	{
 		cat: "File Sharing",
+		catId: 3,
 		apps: [
 			{ id: 196609, name:  "FTP Applications" },
 			{ id: 196610, name:  "GetRight" },
@@ -1135,6 +1142,7 @@ const allAppsList = [
 	},
 	{
 		cat: "VoIP Services",
+		catId: 6,
 		apps: [
 			{ id: 393217, name:  "Skype" },
 			{ id: 393218, name:  "H.323" },
@@ -1165,6 +1173,7 @@ const allAppsList = [
 	},
 	{
 		cat: "Remote Access",
+		catId: 10,
 		apps: [
 			{ id: 655361, name:  "pcAnywhere" },
 			{ id: 655362, name:  "VNC" },
@@ -1204,6 +1213,7 @@ const allAppsList = [
 	},
 	{
 		cat: "Database Tools",
+		catId: 7,
 		apps: [
 			{ id: 458753, name:  "MSSQL" },
 			{ id: 458754, name:  "MySQL" },
@@ -1219,6 +1229,7 @@ const allAppsList = [
 	},
 	{
 		cat: "Management Protocols",
+		catId: 9,
 		apps: [
 			{ id: 589828, name:  "IGMP" },
 			{ id: 589829, name:  "SNMP" },
@@ -1235,7 +1246,8 @@ const allAppsList = [
 	},
 	{
 		cat: "Investment Platforms",
-			apps: [
+		catId: 12,
+		apps: [
 				{ id: 786434, name:  "DZH" },
 				{ id: 786435, name:  "10JQKA" },
 				{ id: 786437, name:  "Qianlong" },
@@ -1258,6 +1270,7 @@ const allAppsList = [
 	},
 	{
 		cat: "Web Services",
+		catId: 13,
 		apps: [
 			{ id: 851969, name:  "WhiteHat Aviator" },
 			{ id: 851970, name:  "HTC Widget" },
@@ -1521,6 +1534,7 @@ const allAppsList = [
 	},
 	{
 		cat: "Security Updates",
+		catId: 14,
 		apps: [
 			{ id: 917505, name:  "TrendMicro Titanium-6-ICRC" },
 			{ id: 917506, name:  "TrendMicro Titanium-7-ICRC" },
@@ -1570,6 +1584,7 @@ const allAppsList = [
 	},
 	{
 		cat: "Web IM",
+		catId: 15,
 		apps: [
 			{ id: 983043, name:  "eBuddy.com" },
 			{ id: 983044, name:  "iLoveIM.com" },
@@ -1588,6 +1603,7 @@ const allAppsList = [
 	},
 	{
 		cat: "Business Tools",
+		catId: 17,
 		apps: [
 			{ id: 1114113, name:  "WatchGuard WSM Management" },
 			{ id: 1114114, name:  "WatchGuard Web Management UI" },
@@ -1690,6 +1706,7 @@ const allAppsList = [
 	},
 	{
 		cat: "Network Protocols_18",
+		catId: 18,
 		apps: [
 			{ id: 1179649, name:  "TCP Port Service Multiplexer" },
 			{ id: 1179650, name:  "Management Utility" },
@@ -1941,6 +1958,7 @@ const allAppsList = [
 	},
 	{
 		cat: "Network Protocols_19",
+		catId: 19,
 		apps: [
 			{ id: 1245185, name:  "PPTP" },
 			{ id: 1245186, name:  "BakBone NetVault" },
@@ -2193,6 +2211,7 @@ const allAppsList = [
 	},
 	{
 		cat: "Network Protocols_20",
+		catId: 20,
 		apps: [
 			{ id: 1310721,  name: "nqs" },
 			{ id: 1310722,  name: "Sender-Initiated Unsolicited File Transfer" },
@@ -2382,6 +2401,7 @@ const allAppsList = [
 	},
 	{
 		cat: "Private Protocols",
+		catId: 23,
 		apps: [
 			{ id: 1507329,  name: "QQ Private Protocol" },
 			{ id: 1507330,  name: "Thunder Private Protocol" },
@@ -2390,47 +2410,49 @@ const allAppsList = [
 	},
 	{
 		cat: "Unknown_255",
+		catId: 255,
 		apps: [
 			{ id: 16777215, name: "Unknown_Other" },
 		]
 	},
 ];
-
+const keys = allAppsList.map(cat => cat.cat);
 function filterCats(cat)
 {
 	if (cat !== undefined) {
-		let filtList = allAppsList.filter(i => i.cat === `${cat}`).pop()['apps'];
+		let filtList = allAppsList.filter(i => i.cat === `${cat}`)?.pop()['apps'];
 		// console.table(a);
 		return filtList;
 	}
 }
-const mediaStreaming = filterCats("Media Streaming")
-const socialNetworks = filterCats("Social Networks")
-const onlineGames = filterCats("Online Games")
-const peertopeerNetworks = filterCats("Peer-to-Peer Networks")
-const emailMessaging = filterCats("Email Messaging")
-const instantMessengers = filterCats("Instant Messengers")
-const tunnelingProxy = filterCats("Tunneling and Proxy")
-const fileSharing = filterCats("File Sharing")
-const voip = filterCats("VoIP Services")
-const remoteAccess = filterCats("Remote Access")
-const databaseTools = filterCats("Database Tools")
-const managementProtocols = filterCats("Management Protocols")
-const investmentPlatforms = filterCats("Investment Platforms")
-const webServices = filterCats("Web Services")
-const securityUpdates = filterCats("Security Updates")
-const webIM = filterCats("Web IM")
-const businessTools = filterCats("Business Tools")
-const networkP18 = filterCats("Network Protocols_18")
-const networkp19 = filterCats("Network Protocols_19")
-const networkp20 = filterCats("Network Protocols_20")
-const privateProtocols = filterCats("Private Protocols")
-const Unknown_255 = filterCats("Unknown_255")
+const mediaStreaming = filterCats("Media Streaming");
+const socialNetworks = filterCats("Social Networks");
+const onlineGames = filterCats("Online Games");
+const peertopeerNetworks = filterCats("Peer-to-Peer Networks");
+const emailMessaging = filterCats("Email Messaging");
+const instantMessengers = filterCats("Instant Messengers");
+const tunnelingProxy = filterCats("Tunneling and Proxy");
+const fileSharing = filterCats("File Sharing");
+const voip = filterCats("VoIP Services");
+const remoteAccess = filterCats("Remote Access");
+const databaseTools = filterCats("Database Tools");
+const managementProtocols = filterCats("Management Protocols");
+const investmentPlatforms = filterCats("Investment Platforms");
+const webServices = filterCats("Web Services");
+const securityUpdates = filterCats("Security Updates");
+const webIM = filterCats("Web IM");
+const businessTools = filterCats("Business Tools");
+const networkP18 = filterCats("Network Protocols_18");
+const networkp19 = filterCats("Network Protocols_19");
+const networkp20 = filterCats("Network Protocols_20");
+const privateProtocols = filterCats("Private Protocols");
+const Unknown_255 = filterCats("Unknown_255");
 
 
 
 
 export {
+	keys,
 	allAppsList,
 	mediaStreaming,
 	socialNetworks,

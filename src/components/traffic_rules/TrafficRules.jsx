@@ -60,8 +60,33 @@ export default function TrafficRules()
             console.error(error);
         }
     }
+    const handleDeleteTestIds = async () => {
+        const untouchableIds = [ "6575d1891769d72344f9e1af", "65a9260d7d12773fe586ec4b", "65bda95338fb85531f321e7e" ];
+        const touchableIds = unifiRuleObject.filter(id => !untouchableIds.some(ids => ids === id._id));
+        // const touchableIds = touchableId.slice(0, 100);
 
-    useEffect(() => { // refresh after re-render
+        console.log('touchableIds \t', touchableIds);
+        try {
+            const deleteManyTestIds = await fetch('/deletetestids', {
+                method: "DELETE",
+                mode: "cors",
+                headers: {
+                    "Content-Type" : "application/json"
+                },
+                body: JSON.stringify({ touchableIds })
+            });
+            if (deleteManyTestIds.ok) {
+                const { successArray } = await deleteManyTestIds.json();
+                console.log('successArray: \t', successArray);
+                console.log('successArray.length: \t', successArray.length);
+            }
+        } catch (error) {
+            console.error(error);
+        }
+    }
+
+
+    useEffect(() => { // refresh after re-render && initial?
         const fetchCustomAPIRules = async () => {
             try {
                 const getCustomRules = await fetch('/getdbcustomapirules');
@@ -79,30 +104,29 @@ export default function TrafficRules()
         fetchCustomAPIRules();
     }, [render]);
 
-    useEffect(() => { // fetch DB customAPI rules && unifi rules
-        const fetchCustomAPIRules = async () => {
-            try {
-                const getCustomRules = await fetch('/getdbcustomapirules');
-                if (getCustomRules.ok) {
-                    const { trafficRuleDbData, unifiData } = await getCustomRules.json();
-                    console.log('customDATABASERulesJSON \t', trafficRuleDbData);
-                    console.log('unifiData initial \t', unifiData);
-                    setCustomAPIRules(trafficRuleDbData);
-                    setUnifiRuleObject(unifiData);
-                }
-            } catch (error) {
-                console.error(error);
-            }
-        }
-        fetchCustomAPIRules();
-    }, []);
-
-
+    // useEffect(() => { // fetch DB customAPI rules && unifi rules // necessary?
+    //     const fetchCustomAPIRules = async () => {
+    //         try {
+    //             const getCustomRules = await fetch('/getdbcustomapirules');
+    //             if (getCustomRules.ok) {
+    //                 const { trafficRuleDbData, unifiData } = await getCustomRules.json();
+    //                 console.log('customDATABASERulesJSON \t', trafficRuleDbData);
+    //                 console.log('unifiData initial \t', unifiData);
+    //                 setCustomAPIRules(trafficRuleDbData);
+    //                 setUnifiRuleObject(unifiData);
+    //             }
+    //         } catch (error) {
+    //             console.error(error);
+    //         }
+    //     }
+    //     fetchCustomAPIRules();
+    // }, []);
 
 
     return (
         <>
             <div className="flex items-center justify-center flex-col w-full h-full sm:w-3/4 lg:w-1/2 mx-auto pb-12">
+                <div className="btn" onClick={handleDeleteTestIds}>Delete Test Ids</div>
                 <div className="flex w-full mx-2">
                     <div className="flex flex-col items-center justify-center w-full h-full mx-auto border rounded-lg shadow overflow-hidden border-neutral shadow-base-300 m-8">
                         <div className="flex w-full mt-2 justify-around">

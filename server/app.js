@@ -8,6 +8,7 @@ const { PrismaClient } = require('@prisma/client');
 const schedule = require('node-schedule');
 const cronValidate = require('node-cron');
 const customPORT = require('./globalSettings');
+const fs = require('fs');
 
 
 
@@ -42,6 +43,29 @@ function handleLoginError(error) {
         console.log(error?.response?.data?.message);
     }
     red('There was an error logging in with your credentials. Set them up in /sitesettings!', 'cyan');
+}
+// function writeJSONApps(successfulData) {
+//     // const data = JSON.stringify(successfulData);
+//     const data = successfulData;
+//     fs.appendFile('successfulIds.js', `${data}\n`, (error) => {
+//         if (error) {
+//             console.error(error);
+//         } else {
+//             console.log('The file has been saved!');
+//         }
+//     });
+// }
+function writeJSONApps(successfulData) {
+    // const data = JSON.stringify(successfulData);
+    successfulData.forEach((item) => {
+        const data = JSON.stringify(item) + '\n';
+        try {
+            fs.appendFileSync('successfulIds.js', data);
+        } catch (error) {
+            console.error('Error writing item: ', item, error)
+        }
+    })
+
 }
 
 // initial check for existing credentials in db
@@ -1348,52 +1372,94 @@ app.delete('/deletecustomapi', async (req, res) => { // deletes unifi rule, not 
 });
 
 //~~~~~~temp get all available devices~~~~~~
-// app.post('/getallworking', async (req, res) => {
-//     const { arrayOfObjects } = req.body;
-//     const path = '/v2/api/site/default/trafficrules';
-//     // try {
+app.post('/getallworking', async (req, res) => {
+    const { arrayOfObjects } = req.body;
+    const path = '/v2/api/site/default/trafficrules';
 
-//     const getAllWorkingCategories = async (arrayObjects) => {
-//         let failedRequests = [];
-//         let successfulRequests = [];
-//         for (const arrayObject of arrayObjects) {
-//             try {
-//                 await unifi.customApiRequest(path, 'POST', arrayObject);
-//                 successfulRequests.push({ arrayObject })
-//             } catch (error) {
-//                 failedRequests.push({ arrayObject })
+    const getAllWorkingCategories = async (arrayObjects) => {
+        let failedRequests = [];
+        let successfulRequests = [];
+        for (const arrayObject of arrayObjects) {
+            try {
+                await unifi.customApiRequest(path, 'POST', arrayObject);
+                successfulRequests.push({ arrayObject })
+            } catch (error) {
+                failedRequests.push({ arrayObject });
+            }
+        }
+        return { successfulRequests, failedRequests }
+    }
+    function chunkArray(array, chunkSize) {
+        const chunks = [];
+        for (let i = 0; i < array.length; i+=chunkSize) {
+            chunks.push(array.slice(i, i+chunkSize))
+        }
+        return chunks;
+    }
+    async function sendRequestsInChunks(arrayOfObjects, chunkSize) {
+        const chunks = chunkArray(arrayOfObjects, chunkSize);
+        let allFailedApps = [];
+        let allSuccessfulApps = [];
+        for (const chunk of chunks) {
+            const { successfulRequests, failedRequests } = await getAllWorkingCategories(chunk);
+            allFailedApps = allFailedApps.concat(failedRequests);
+            allSuccessfulApps = allSuccessfulApps.concat(successfulRequests)
+        }
+        return { allSuccessfulApps, allFailedApps };
+    }
+    const chunkSize = 5;
+    sendRequestsInChunks(arrayOfObjects, chunkSize)
+        .then(({ allSuccessfulApps, allFailedApps }) => {
+            console.log('successfulCategories \t', allSuccessfulApps.length);
+            console.log('failedCategories \t', allFailedApps.length);
+            res.json({ allSuccessfulApps: allSuccessfulApps, allFailedApps: allFailedApps })
+            console.log('allSuccessfulApps.length: \t', allSuccessfulApps.length);
+            // const mappedIds = allSuccessfulApps.flatMap(item => item.app_ids || []);
+            // allSuccessfulApps.forEach(item => console.log('item.app_ids: \t', item.app_ids)) // undefined
+            // writeJSONApps(mappedIds)
+            writeJSONApps(allSuccessfulApps);
+        })
+        .catch((error) => console.error(error));
+});
 
-//             }
-//         }
-//         return { successfulRequests, failedRequests }
-//     }
-//     function chunkArray(array, chunkSize) {
-//         const chunks = [];
-//         for (let i = 0; i < array.length; i+=chunkSize) {
-//             chunks.push(array.slice(i, i+chunkSize))
-//         }
-//         return chunks;
-//     }
-//     async function sendRequestsInChunks(arrayOfObjects, chunkSize) {
-//         const chunks = chunkArray(arrayOfObjects, chunkSize);
-//         let allFailedApps = [];
-//         let allSuccessfulApps = [];
-//         for (const chunk of chunks) {
-//             const { successfulApps, failedApps } = await getAllWorkingCategories(chunk);
-//             allFailedApps = allFailedApps.concat(failedApps);
-//             allSuccessfulApps = allSuccessfulApps.concat(successfulApps)
-//         }
-//         return { allSuccessfulApps, allFailedApps };
-//     }
+//~~~~~~~delete test ids~~~~~~~~~
+app.delete('/deletetestids', async (req, res) => {
+    const { touchableIds } = req.body;
+    console.log('touchableIds \t', touchableIds);
 
-//     const chunkSize = 100;
-//     sendRequestsInChunks(arrayOfObjects, chunkSize)
-//         .then(({ allSuccessfulApps, allFailedApps }) => {
-//             console.log('successfulCategories \t', allSuccessfulApps.length);
-//             console.log('failedCategories \t', allFailedApps.length);
-//             res.json({ allSuccessfulApps: allSuccessfulApps, allFailedApps: allFailedApps  })
-//         }).catch((error) => console.error(error));
-// });
+    async function deleteTestIds(touchableIds) {
+        for (const id of touchableIds) {
+            let path = `/v2/api/site/default/trafficrules/${id._id}`;
+            try {
+                await unifi.customApiRequest(path, 'DELETE', null)
+            } catch (error) {
+                console.error(error)
+            }
+        }
+    }
+    function chunkArray(array, chunkSize) {
+        const chunks = [];
+        for (let i = 0; i < array.length; i+=chunkSize) {
+            chunks.push(array.slice(i, i+chunkSize))
+        }
+        return chunks;
+    }
+    async function deleteRulesInChunks(touchableIds, chunkSize) {
+        const chunks = chunkArray(touchableIds, chunkSize);
+        const successArray = [];
+        for (const chunk of chunks) {
+            const delResult = await deleteTestIds(chunk);
+            successArray.push(delResult)
+        }
+        return successArray;
+    }
+    const chunkSize = 5;
+    deleteRulesInChunks(touchableIds, chunkSize)
+        .then((successArray) => {
+            console.log(successArray.length);
+            res.json({ successArray: successArray })
+        }).catch(error => console.error(error, 'Error deleting many...'))
+});
 
 
 //~~~~~~refresh redirect~~~~~~

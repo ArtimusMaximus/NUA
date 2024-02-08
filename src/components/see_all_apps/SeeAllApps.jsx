@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 import {
-    allAppsList,
-	mediaStreaming,
+ allAppsList,
+ keys,
+ mediaStreaming,
 	socialNetworks,
 	onlineGames,
 	peertopeerNetworks,
@@ -23,14 +24,41 @@ import {
 	networkp20,
 	privateProtocols,
 	Unknown_255,
-} from "../../traffic_rule_apps/app_ids";
+} from "../../traffic_rule_apps/workingAppsAndCats";
+// import {
+//         allAppsList,
+//         keys,
+//         mediaStreaming,
+//         socialNetworks,
+//         onlineGames,
+//         peertopeerNetworks,
+//         emailMessaging,
+//         instantMessengers,
+//         tunnelingProxy,
+//         fileSharing,
+//         voip,
+//         remoteAccess,
+//         databaseTools,
+//         managementProtocols,
+//         investmentPlatforms,
+//         webServices,
+//         securityUpdates,
+//         webIM,
+//         businessTools,
+//         networkP18,
+//         networkp19,
+//         networkp20,
+//         privateProtocols,
+//         Unknown_255,
+// } from "../../traffic_rule_apps/app_ids";
+
 import { categoryDeviceObject, dbCategoryDeviceObject, appDeviceObject, appDbDeviceObject, allAppIds } from "./app_objects";
 import { IoMdRefresh } from "react-icons/io";
 
 
 export default function SeeAllApps()
 {
-    const keys = allAppsList.map(cat => cat.cat);
+
     const [filteredArray, setFilteredArray] = useState([]);
     const [searchableCopy, setSearchableCopy] = useState([]);
     const [filter, setFilter] = useState("");
@@ -506,6 +534,7 @@ export default function SeeAllApps()
     ]);
 
     useEffect(() => { // get current devices
+        console.log(mediaStreaming);
         const getDevices = async () => {
             try {
                 const fetchDevices = await fetch('/getcurrentdevices');
@@ -572,12 +601,17 @@ export default function SeeAllApps()
         }
     }
     const handleTestApps = async () => {
-        const allCatIds = [1, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 17, 18, 19, 20, 23, 24, 255];
+        // const allCatIds = [1, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 17, 18, 19, 20, 23, 24, 255];
+        // const chunk1 = allAppIds.slice(196, 220)
+        // web services too large
+        const webServicesLength = webServices.length;
+        const webServicesInHalf = webServices.slice(0, webServicesLength/2);
+        const webServicesOtherHalf = webServices.slice(webServicesLength/2);
+        // console.log('webOtherHalf \t', webOtherHalf);
 
-
-        const arrayOfObjects = allAppIds.map((app_ids) => {
+        const arrayOfObjects = emailMessaging.map((obj) => {
             const objectCopy = JSON.parse(JSON.stringify(appDeviceObject))
-            objectCopy.app_ids.push(app_ids)
+            objectCopy.app_ids.push(obj.id)
             return objectCopy;
         })
         console.log('arrayOfObjects \t', arrayOfObjects);
@@ -594,8 +628,8 @@ export default function SeeAllApps()
             })
             if (postCategories.ok) {
                 const { allFailedApps, allSuccessfulApps } = await postCategories.json();
-                console.log('failedCategories \t', failedCategories);
-                console.log('successfulCategories \t', successfulCategories);
+                console.log('allFailedApps \t', allFailedApps);
+                console.log('allSuccessfulApps \t', allSuccessfulApps);
             }
         } catch (error) {
             console.error(error)
