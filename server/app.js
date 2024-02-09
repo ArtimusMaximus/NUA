@@ -1343,7 +1343,6 @@ app.delete('/deletecustomapi', async (req, res) => { // deletes unifi rule, not 
         if (checkFilter.length) {
             const result = await unifi.customApiRequest(path, 'DELETE', null)
             console.log('"DELETE" result: \t', result);
-
         }
         const deleteTrafficRuleAndAssociated = async (trafficRuleId) => {
             try {
@@ -1363,14 +1362,14 @@ app.delete('/deletecustomapi', async (req, res) => { // deletes unifi rule, not 
         }
         await deleteTrafficRuleAndAssociated(parseInt(trafficRuleId));
 
-
-
         res.status(200).json({ result: checkFilter });
     } catch (error) {
         console.error(error);
     }
 });
 
+
+// ~~~~~~~~~~TEMPORARY TESTING~~~~~~~~~~~~~~
 //~~~~~~temp get all available devices~~~~~~
 app.post('/getallworking', async (req, res) => {
     const { arrayOfObjects } = req.body;
@@ -1422,7 +1421,7 @@ app.post('/getallworking', async (req, res) => {
         .catch((error) => console.error(error));
 });
 
-//~~~~~~~delete test ids~~~~~~~~~
+//~~~~~~~temp delete test ids~~~~~~~~~
 app.delete('/deletetestids', async (req, res) => {
     const { touchableIds } = req.body;
     console.log('touchableIds \t', touchableIds);

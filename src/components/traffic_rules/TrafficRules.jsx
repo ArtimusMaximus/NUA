@@ -1,14 +1,27 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { categoryDeviceObject, appDeviceObject } from "../see_all_apps/app_objects";
+import { allAppsList } from "../../traffic_rule_apps/unifi_match_list";
+import { allAppNames, importToDbConverter, appNameFinder } from "../utility_functions/app_cat_utils";
+import { useGetAllDevices } from "../custom_hooks/useGetAllDevices";
+
 
 
 
 export default function TrafficRules()
 {
+    const { existingDeviceList, allClientDeviceList } = useGetAllDevices();
     const [customAPIRules, setCustomAPIRules] = useState([]);
     const [unifiRuleObject, setUnifiRuleObject] = useState([]);
     const [render, setRender] = useState(false);
+    const [importOption, setImportOption] = useState(false);
+
+    function checkForImportRules(dbData, unifiData) {
+        const importData = unifiData.filter(unifiData =>
+            dbData.some(dbIds => dbIds.trafficRule.unifiId !== unifiData._id));
+            console.log(importData)
+        return importData;
+    }
 
     const reRender = () => {
         setRender(prev => !prev);
@@ -84,7 +97,35 @@ export default function TrafficRules()
             console.error(error);
         }
     }
+    const handleImportOption = async () => {
+        // try {
+        //     const importExistingRules = await fetch('/importexistingunifirules', {
+        //         method: 'POST',
+        //         mode: 'cors',
+        //         headers: {
+        //             "Content-Type" : "application/json"
+        //         },
+        //         body: JSON.stringify(existingRules)
+        //     });
+        //     if (importExistingRules.ok) {
+        //         const res = importExistingRules.json();
+        //         console.log(res);
+        //     }
+        // } catch (error) {
+        //     console.error(error);
+        // }
 
+        const importExists = checkForImportRules(customAPIRules, unifiRuleObject);
+        if (importExists.length) {
+            console.log('importExists \t', importExists);
+        }
+
+        const { categoryClones, appClones } = importToDbConverter(importExists, allClientDeviceList, existingDeviceList);
+        if (categoryClones || appClones) {
+            console.log('categoryClones \t', categoryClones);
+            console.log('appClones \t', appClones);
+        }
+    }
 
     useEffect(() => { // refresh after re-render && initial?
         const fetchCustomAPIRules = async () => {
@@ -96,6 +137,11 @@ export default function TrafficRules()
                     setCustomAPIRules(trafficRuleDbData);
                     console.log('unifiData rerender: \t', unifiData);
                     setUnifiRuleObject(unifiData);
+
+                    const importExists = checkForImportRules(trafficRuleDbData, unifiData);
+                    if (importExists.length) {
+                        setImportOption(true);
+                    }
                 }
             } catch (error) {
                 console.error(error);
@@ -168,6 +214,9 @@ export default function TrafficRules()
                                                                 {/* <p><span className="font-thin italic">Apps:</span> {data?.name}</p> */}
                                                                 {/* <p><span className="font-thin italic">Devices:</span> {data?.macAddress}</p> */}
                                                             </div>
+                                                            <div className="flex flex-row">
+                                                                {}
+                                                            </div>
                                                         <div>
                                                             <Link to={`/`} className="w-fit hover:cursor-pointer" >
                                                                 <div className="btn btn-block btn-disabled bg-base-300 hover:bg-base-content hover:text-base-100 my-2 disabled">Schedule</div>
@@ -192,6 +241,8 @@ export default function TrafficRules()
                 </div>
                 <div className="flex flex-row gap-6 flex-wrap mx-auto">
                     <Link to="/seeallapps"><div className="btn">Manage New App</div></Link>
+                    {importOption ? <div className={`btn text-accent italic`} onClick={handleImportOption}>Import Existing Unifi Rules</div> : null}
+
                 </div>
             </div>
         </>

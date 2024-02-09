@@ -142,7 +142,7 @@ export const appNetworkObject = {
 // fetch network_id, type NETWORK
 // fetch mac_address, type CLIENT
 
-export const allAppIds = [
+export const allAppIds = [ // uniquiti list, not ours 02/08/2024
   262145,
   262146,
   262147,
