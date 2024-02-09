@@ -1,4 +1,5 @@
-const allAppsList = [
+
+const  allAppsList = [
     {
         "cat": "Media Streaming",
         "catId": 4,
@@ -7,6 +8,23 @@ const allAppsList = [
                 "id": 262145,
                 "name": "Windows Media Player"
             },
+            { id: 262222, name:  "CBS" },
+			{ id: 262300, name:  "HBO" },
+			{ id: 262392, name:  "TikTok" },
+			{ id: 262395, name:  "LiveMe" },
+			{ id: 262396, name:  "BIGO LIVE" },
+			{ id: 262398, name:  "Mirrativ" },
+			{ id: 262417, name:  "Disney+" },
+			{ id: 262418, name:  "Apple TV+" },
+			{ id: 262420, name:  "fuboTV" },
+			{ id: 262434, name:  "edX" },
+			{ id: 262435, name:  "bilibili" },
+			{ id: 262437, name:  "Quibi" },
+			{ id: 262441, name:  "Zynn" },
+			{ id: 262442, name:  "Warner/Turner" },
+			{ id: 262446, name:  "HBO Max" },
+			{ id: 262447, name:  "Youtube Kids" },
+			{ id: 262503, name:  "Douyin" },
             {
                 "id": 262146,
                 "name": "RealPlayer"
@@ -646,6 +664,38 @@ const allAppsList = [
             {
                 "id": 262348,
                 "name": "MLB.com"
+            },
+            {
+                "id": 262349,
+                "name": "Kaltura.com"
+            },
+            {
+                "id": 262350,
+                "name": "Plex.tv"
+            },
+            {
+                "id": 262351,
+                "name": "DouyuTV"
+            },
+            {
+                "id": 262358,
+                "name": "Kids.gov"
+            },
+            {
+                "id": 262367,
+                "name": "Periscope"
+            },
+            {
+                "id": 262373,
+                "name": "HBO NOW"
+            },
+            {
+                "id": 262374,
+                "name": "MiaoPai"
+            },
+            {
+                "id": 262389,
+                "name": "UniFi Video Camera"
             }
         ]
     },
@@ -955,6 +1005,21 @@ const allAppsList = [
                 "id": 524289,
                 "name": "QQ Game"
             },
+            { id: 524309, name:  "Nintendo Switch" },
+			{ id: 524342, name:  "Nintendo 3DS/Wii" },
+			{ id: 524378, name:  "Fortnite" },
+			{ id: 524564, name:  "NetEase" },
+			{ id: 524619, name:  "Blayze Games" },
+			{ id: 524635, name:  "Square Enix" },
+			{ id: 524650, name:  "d app and review" },
+			{ id: 524658, name:  "Gameloft" },
+			{ id: 524730, name:  "Black Desert" },
+			{ id: 524815, name:  "G5 Entertainment" },
+			{ id: 524834, name:  "Rocket League" },
+			{ id: 524972, name:  "Mario Kart Tour" },
+			{ id: 525089, name:  "Shotgun Farmers" },
+			{ id: 525099, name:  "Gang Beasts" },
+			{ id: 525150, name:  "PS4 Remote Play" },
             {
                 "id": 524290,
                 "name": "Our Game"
@@ -1693,6 +1758,9 @@ const allAppsList = [
                 "id": 65538,
                 "name": "BitTorrent Series"
             },
+            { id: 655411, name:  "Splashtop" },
+			{ id: 655414, name:  "Supremo" },
+			{ id: 655415, name:  "MyQuickCloud" },
             {
                 "id": 65540,
                 "name": "DirectConnect"
@@ -2238,7 +2306,273 @@ const allAppsList = [
     {
         "cat": "Email Messaging",
         "catId": 5,
-        "apps": []
+        "apps": [
+            {
+                "id": 327681,
+                "name": "SMTP"
+            },
+            { id: 327774, name:  "Outlook.com " },
+            {
+                "id": 327682,
+                "name": "POP3"
+            },
+            {
+                "id": 327683,
+                "name": "IMAP4"
+            },
+            {
+                "id": 327684,
+                "name": "NNTP"
+            },
+            {
+                "id": 327687,
+                "name": "au one net"
+            },
+            {
+                "id": 327688,
+                "name": "Virtru"
+            },
+            {
+                "id": 327690,
+                "name": "DTI MyMail"
+            },
+            {
+                "id": 327691,
+                "name": "Ymail"
+            },
+            {
+                "id": 327692,
+                "name": "IIJ MailViewer"
+            },
+            {
+                "id": 327693,
+                "name": "Telenet Mail"
+            },
+            {
+                "id": 327694,
+                "name": "Open Mail"
+            },
+            {
+                "id": 327695,
+                "name": "InfoSphere Webmail"
+            },
+            {
+                "id": 327696,
+                "name": "Goo Mail"
+            },
+            {
+                "id": 327697,
+                "name": "Nifty"
+            },
+            {
+                "id": 327698,
+                "name": "QQ Mail"
+            },
+            {
+                "id": 327700,
+                "name": "Zenno"
+            },
+            {
+                "id": 327701,
+                "name": "Itm-asp"
+            },
+            {
+                "id": 327702,
+                "name": "Biglobe"
+            },
+            {
+                "id": 327706,
+                "name": "TOK2"
+            },
+            {
+                "id": 327707,
+                "name": "Smoug"
+            },
+            {
+                "id": 327708,
+                "name": "1und1"
+            },
+            {
+                "id": 327709,
+                "name": "Plala"
+            },
+            {
+                "id": 327710,
+                "name": "WAKWAK"
+            },
+            {
+                "id": 327712,
+                "name": "AsahiNet"
+            },
+            {
+                "id": 327713,
+                "name": "Aikq"
+            },
+            {
+                "id": 327714,
+                "name": "Yandex.Mail"
+            },
+            {
+                "id": 327715,
+                "name": "Arcor"
+            },
+            {
+                "id": 327716,
+                "name": "Bluewin"
+            },
+            {
+                "id": 327717,
+                "name": "Directbox"
+            },
+            {
+                "id": 327718,
+                "name": "Freenet"
+            },
+            {
+                "id": 327720,
+                "name": "Smart Mail"
+            },
+            {
+                "id": 327722,
+                "name": "WEB.DE"
+            },
+            {
+                "id": 327723,
+                "name": "MS Exchange Server"
+            },
+            {
+                "id": 327742,
+                "name": "NETEASE Mail"
+            },
+            {
+                "id": 327743,
+                "name": "Gmx Mail"
+            },
+            {
+                "id": 327747,
+                "name": "Nate Mail"
+            },
+            {
+                "id": 327749,
+                "name": "Optimum"
+            },
+            {
+                "id": 327751,
+                "name": "Secureserver"
+            },
+            {
+                "id": 327753,
+                "name": "Sina Mail"
+            },
+            {
+                "id": 327755,
+                "name": "Rambler"
+            },
+            {
+                "id": 327760,
+                "name": "Daum Mail"
+            },
+            {
+                "id": 327761,
+                "name": "Mail.com"
+            },
+            {
+                "id": 327762,
+                "name": "OCN"
+            },
+            {
+                "id": 327763,
+                "name": "MailChimp"
+            },
+            {
+                "id": 327764,
+                "name": "Rediff Mail"
+            },
+            {
+                "id": 327770,
+                "name": "Korea Mail"
+            },
+            {
+                "id": 327773,
+                "name": "JumboMail"
+            },
+            {
+                "id": 327775,
+                "name": "Gmail"
+            },
+            {
+                "id": 327776,
+                "name": "AOL Mail"
+            },
+            {
+                "id": 327777,
+                "name": "hiBox"
+            },
+            {
+                "id": 327778,
+                "name": "COX"
+            },
+            {
+                "id": 327779,
+                "name": "Hushmail"
+            },
+            {
+                "id": 327780,
+                "name": "Mail.ru"
+            },
+            {
+                "id": 327781,
+                "name": "HiNet Mail"
+            },
+            {
+                "id": 327782,
+                "name": "Horde"
+            },
+            {
+                "id": 327783,
+                "name": "Fastmail"
+            },
+            {
+                "id": 327785,
+                "name": "Laposte"
+            },
+            {
+                "id": 327786,
+                "name": "Yahoo Mail"
+            },
+            {
+                "id": 327787,
+                "name": "Usermin Mail"
+            },
+            {
+                "id": 327789,
+                "name": "Orange"
+            },
+            {
+                "id": 327790,
+                "name": "012mail"
+            },
+            {
+                "id": 327791,
+                "name": "T-Online"
+            },
+            {
+                "id": 327792,
+                "name": "Jubii Mail"
+            },
+            {
+                "id": 327793,
+                "name": "Whalemail"
+            },
+            {
+                "id": 327794,
+                "name": "Lavabit"
+            },
+            {
+                "id": 327795,
+                "name": "Tiscali"
+            }
+        ]
     },
     {
         "cat": "Instant Messengers",
@@ -2248,6 +2582,8 @@ const allAppsList = [
                 "id": 3,
                 "name": "AIM/ICQ/iIM"
             },
+            { id: 40, name:  "Telegram" },
+			{ id: 70, name:  "Google Chat" },
             {
                 "id": 4,
                 "name": "QQ/TM"
@@ -2498,6 +2834,10 @@ const allAppsList = [
                 "id": 720898,
                 "name": "VNN"
             },
+            { id: 720913, name: "Psiphon 3" },
+            { id: 721040, name: "VPN Gate" },
+            { id: 721058, name: "HMA VPN" },
+            { id: 721060, name: "Speedify" },
             {
                 "id": 720900,
                 "name": "SoftEther/PacketiX"
@@ -2757,10 +3097,6 @@ const allAppsList = [
             {
                 "id": 721011,
                 "name": "Avast SecureLine"
-            },
-            {
-                "id": 721014,
-                "name": "Opera VPN"
             }
         ]
     },
@@ -2772,6 +3108,16 @@ const allAppsList = [
                 "id": 196609,
                 "name": "FTP Applications"
             },
+            { id: 196623, name:  "Google Drive" },
+            { id: 1572944, name:  "Tinder" },
+			{ id: 1572952, name:  "OK Cupid" },
+			{ id: 1572954, name:  "Coffee Meets Bagel" },
+			{ id: 1572960, name:  "Match.com" },
+			{ id: 1573001, name:  "Hike" },
+			{ id: 1573103, name:  "Zenly" },
+			{ id: 1573117, name:  "JustDating" },
+			{ id: 1573181, name:  "Syouwa sedai apuri onri-wan" },
+			{ id: 1573182, name:  "Sync for Reddit Pro" },
             {
                 "id": 196612,
                 "name": "AsianDVDClub"
@@ -3082,6 +3428,10 @@ const allAppsList = [
                 "id": 393217,
                 "name": "Skype"
             },
+            { id: 393249, name:  "Discord" },
+			{ id: 393253, name:  "Microsoft Teams" },
+			{ id: 393257, name:  "GoToMeeting " },
+			{ id: 393258, name:  "GoToWebinar" },
             {
                 "id": 393218,
                 "name": "H.323"
@@ -3282,6 +3632,7 @@ const allAppsList = [
                 "id": 458753,
                 "name": "MSSQL"
             },
+            { id: 458772, name:  "Tabular Data Stream" },
             {
                 "id": 458754,
                 "name": "MySQL"
@@ -3320,6 +3671,8 @@ const allAppsList = [
                 "id": 589828,
                 "name": "IGMP"
             },
+            { id: 589827, name:  "MQTT" },
+			{ id: 589863, name:  "LDAP" },
             {
                 "id": 589829,
                 "name": "SNMP"
@@ -3363,79 +3716,681 @@ const allAppsList = [
         ]
     },
     {
-        "cat": "Investment Platforms",
-        "catId": 12,
-        "apps": [
-            {
-                "id": 786434,
-                "name": "DZH"
-            },
-            {
-                "id": 786435,
-                "name": "10JQKA"
-            },
-            {
-                "id": 786437,
-                "name": "Qianlong"
-            },
-            {
-                "id": 786438,
-                "name": "Compass.cn"
-            },
-            {
-                "id": 786439,
-                "name": "Huaan"
-            },
-            {
-                "id": 786440,
-                "name": "StockStar "
-            },
-            {
-                "id": 786441,
-                "name": "TDX"
-            },
-            {
-                "id": 786443,
-                "name": "Hexun"
-            },
-            {
-                "id": 786444,
-                "name": "Hypwise"
-            },
-            {
-                "id": 786449,
-                "name": "Kiwoom"
-            },
-            {
-                "id": 786450,
-                "name": "Windin"
-            },
-            {
-                "id": 786451,
-                "name": "SamsungPoP"
-            },
-            {
-                "id": 786454,
-                "name": "JRJ"
-            },
-            {
-                "id": 786456,
-                "name": "Bloomberg"
-            },
-            {
-                "id": 786457,
-                "name": "Netdania"
-            },
-            {
-                "id": 786458,
-                "name": "TradeInterceptor"
-            }
-        ]
-    },
-    {
         "cat": "Web Services",
         "catId": 13,
-        "apps": []
+        "apps": [
+            { id: 851983, name: "Google" },
+            {
+                "id": 852029,
+                "name": "JOBKOREA"
+            },
+            {
+                "id": 852031,
+                "name": "Khan.co.kr"
+            },
+            {
+                "id": 852032,
+                "name": "Incruit"
+            },
+            {
+                "id": 852033,
+                "name": "YES24"
+            },
+            {
+                "id": 852034,
+                "name": "Amazon CloudFront"
+            },
+            {
+                "id": 852035,
+                "name": "Pcstore"
+            },
+            {
+                "id": 852037,
+                "name": "Microsoft.com"
+            },
+            {
+                "id": 852038,
+                "name": "Life.com.tw"
+            },
+            {
+                "id": 852039,
+                "name": "Libertytimes"
+            },
+            {
+                "id": 852040,
+                "name": "Lativ"
+            },
+            {
+                "id": 852041,
+                "name": "Inven"
+            },
+            {
+                "id": 852042,
+                "name": "cnYES"
+            },
+            {
+                "id": 852043,
+                "name": "Babyhome"
+            },
+            {
+                "id": 852044,
+                "name": "8comic.com"
+            },
+            {
+                "id": 852045,
+                "name": "Ck101.com"
+            },
+            {
+                "id": 852046,
+                "name": "Taiwanlottery"
+            },
+            {
+                "id": 852047,
+                "name": "Momoshop"
+            },
+            {
+                "id": 852048,
+                "name": "Eyny.com"
+            },
+            {
+                "id": 852049,
+                "name": "Yam.com"
+            },
+            {
+                "id": 852050,
+                "name": "PChome.com"
+            },
+            {
+                "id": 852051,
+                "name": "Gamme"
+            },
+            {
+                "id": 852052,
+                "name": "Apple.com"
+            },
+            {
+                "id": 852053,
+                "name": "Hinet.net"
+            },
+            {
+                "id": 852054,
+                "name": "Google Earth"
+            },
+            {
+                "id": 852055,
+                "name": "Saramin"
+            },
+            {
+                "id": 852056,
+                "name": "KoreaHerald"
+            },
+            {
+                "id": 852057,
+                "name": "Plus28.com"
+            },
+            {
+                "id": 852058,
+                "name": "ChunghwaPost "
+            },
+            {
+                "id": 852059,
+                "name": "Gomaji "
+            },
+            {
+                "id": 852060,
+                "name": "NewSen"
+            },
+            {
+                "id": 852061,
+                "name": "Etnews.com"
+            },
+            {
+                "id": 852062,
+                "name": "Seoul.co.kr"
+            },
+            {
+                "id": 852063,
+                "name": "YONHAPNEWS"
+            },
+            {
+                "id": 852064,
+                "name": "Etoday.co.kr"
+            },
+            {
+                "id": 852065,
+                "name": "Yesky.com"
+            },
+            {
+                "id": 852066,
+                "name": "1111 Job Bank"
+            },
+            {
+                "id": 852067,
+                "name": "Emart"
+            },
+            {
+                "id": 852068,
+                "name": "KBstar"
+            },
+            {
+                "id": 852069,
+                "name": "HERALDCORP"
+            },
+            {
+                "id": 852070,
+                "name": "ActiveX"
+            },
+            {
+                "id": 852071,
+                "name": "MSN.com"
+            },
+            {
+                "id": 852072,
+                "name": "Edaily"
+            },
+            {
+                "id": 852073,
+                "name": "Segye"
+            },
+            {
+                "id": 852074,
+                "name": "Bobaedream"
+            },
+            {
+                "id": 852075,
+                "name": "Nocutnews"
+            },
+            {
+                "id": 852076,
+                "name": "MONETA.co.kr"
+            },
+            {
+                "id": 852077,
+                "name": "Kukinews"
+            },
+            {
+                "id": 852078,
+                "name": "Java Applet"
+            },
+            {
+                "id": 852079,
+                "name": "Todayhumor"
+            },
+            {
+                "id": 852080,
+                "name": "Inews24"
+            },
+            {
+                "id": 852081,
+                "name": "KoreaTimes"
+            },
+            {
+                "id": 852082,
+                "name": "OhmyNews"
+            },
+            {
+                "id": 852083,
+                "name": "Aladin.co.kr"
+            },
+            {
+                "id": 852084,
+                "name": "SK Encar"
+            },
+            {
+                "id": 852085,
+                "name": "eTorrent"
+            },
+            {
+                "id": 852086,
+                "name": "TVREPORT"
+            },
+            {
+                "id": 852088,
+                "name": "Microsoft Live.com"
+            },
+            {
+                "id": 852093,
+                "name": "Rediff.com"
+            },
+            {
+                "id": 852094,
+                "name": "Akamai.net"
+            },
+            {
+                "id": 852101,
+                "name": "Wikidot"
+            },
+            {
+                "id": 852102,
+                "name": "Google Play"
+            },
+            {
+                "id": 852104,
+                "name": "Windows Store"
+            },
+            {
+                "id": 852105,
+                "name": "Webshots"
+            },
+            {
+                "id": 852106,
+                "name": "Kindle Cloud Reader"
+            },
+            {
+                "id": 852107,
+                "name": "Nice264"
+            },
+            {
+                "id": 852109,
+                "name": "Vyew"
+            },
+            {
+                "id": 852110,
+                "name": "TikiWiki"
+            },
+            {
+                "id": 852112,
+                "name": "Mercari"
+            },
+            {
+                "id": 852115,
+                "name": "Stumbleupon"
+            },
+            {
+                "id": 852116,
+                "name": "Yahoo Shopping"
+            },
+            {
+                "id": 852117,
+                "name": "Clothes Aoyama"
+            },
+            {
+                "id": 852118,
+                "name": "Rakuten Shopping"
+            },
+            {
+                "id": 852121,
+                "name": "CacaoWeb"
+            },
+            {
+                "id": 852122,
+                "name": "PBworks"
+            },
+            {
+                "id": 852123,
+                "name": "Fool"
+            },
+            {
+                "id": 852124,
+                "name": "Showbie"
+            },
+            {
+                "id": 852125,
+                "name": "MorningStar"
+            },
+            {
+                "id": 852126,
+                "name": "Screaming Frog SEO Spider"
+            },
+            {
+                "id": 852128,
+                "name": "AppStore"
+            },
+            {
+                "id": 852130,
+                "name": "Daum"
+            },
+            {
+                "id": 852131,
+                "name": "Google Docs"
+            },
+            {
+                "id": 852133,
+                "name": "Naver"
+            },
+            {
+                "id": 852135,
+                "name": "Jaspersoft"
+            },
+            {
+                "id": 852136,
+                "name": "Clarizen"
+            },
+            {
+                "id": 852140,
+                "name": "Hyundaihmall"
+            },
+            {
+                "id": 852141,
+                "name": "Groupon"
+            },
+            {
+                "id": 852142,
+                "name": "Gsshop"
+            },
+            {
+                "id": 852143,
+                "name": "Wemakeprice"
+            },
+            {
+                "id": 852144,
+                "name": "Lotte.com"
+            },
+            {
+                "id": 852145,
+                "name": "Coupang"
+            },
+            {
+                "id": 852147,
+                "name": "Google Alerts"
+            },
+            {
+                "id": 852150,
+                "name": "ZoomSpider crawler"
+            },
+            {
+                "id": 852151,
+                "name": "Win Web Crawler"
+            },
+            {
+                "id": 852152,
+                "name": "HTTrack crawler"
+            },
+            {
+                "id": 852153,
+                "name": "Abot crawler"
+            },
+            {
+                "id": 852154,
+                "name": "Googlebot crawler"
+            },
+            {
+                "id": 852155,
+                "name": "Microsoft bingbot crawler"
+            },
+            {
+                "id": 852156,
+                "name": "Yahoo Slurp crawler"
+            },
+            {
+                "id": 852158,
+                "name": "QUIC"
+            },
+            {
+                "id": 852159,
+                "name": "ifeng.com"
+            },
+            {
+                "id": 852160,
+                "name": "Conduit Mobile"
+            },
+            {
+                "id": 852161,
+                "name": "Rakuten Point"
+            },
+            {
+                "id": 852162,
+                "name": "Gamebase"
+            },
+            {
+                "id": 852163,
+                "name": "Kingstone"
+            },
+            {
+                "id": 852164,
+                "name": "Udn.com"
+            },
+            {
+                "id": 852165,
+                "name": "Fril"
+            },
+            {
+                "id": 852166,
+                "name": "Sportsseoul"
+            },
+            {
+                "id": 852168,
+                "name": "Yahoo Finance"
+            },
+            {
+                "id": 852170,
+                "name": "Creative Cloud"
+            },
+            {
+                "id": 852172,
+                "name": "PHPwiki"
+            },
+            {
+                "id": 852173,
+                "name": "Rakuten Edy"
+            },
+            {
+                "id": 852177,
+                "name": "Adobe.com"
+            },
+            {
+                "id": 852178,
+                "name": "Backpackit/Campfire"
+            },
+            {
+                "id": 852182,
+                "name": "DiDiTaxi"
+            },
+            {
+                "id": 852187,
+                "name": "fitbit"
+            },
+            {
+                "id": 852188,
+                "name": "LastPass"
+            },
+            {
+                "id": 852189,
+                "name": "National Geographic"
+            },
+            {
+                "id": 852190,
+                "name": "HTTP"
+            },
+            {
+                "id": 852191,
+                "name": "AOL Toolbar"
+            },
+            {
+                "id": 852193,
+                "name": "Uber"
+            },
+            {
+                "id": 852194,
+                "name": "Web-crawler"
+            },
+            {
+                "id": 852195,
+                "name": "RSS"
+            },
+            {
+                "id": 852196,
+                "name": "WeatherBug"
+            },
+            {
+                "id": 852197,
+                "name": "Yahoo Toolbar"
+            },
+            {
+                "id": 852198,
+                "name": "Alexa Toolbar"
+            },
+            {
+                "id": 852199,
+                "name": "Internet Archive"
+            },
+            {
+                "id": 852200,
+                "name": "Wikipedia"
+            },
+            {
+                "id": 852201,
+                "name": "Wiktionary"
+            },
+            {
+                "id": 852202,
+                "name": "Amazon"
+            },
+            {
+                "id": 852205,
+                "name": "Zoho"
+            },
+            {
+                "id": 852209,
+                "name": "BookU"
+            },
+            {
+                "id": 852210,
+                "name": "Zappos"
+            },
+            {
+                "id": 852211,
+                "name": "Expedia"
+            },
+            {
+                "id": 852212,
+                "name": "AdF.ly"
+            },
+            {
+                "id": 852213,
+                "name": "Baidu"
+            },
+            {
+                "id": 852214,
+                "name": "Yahoo"
+            },
+            {
+                "id": 852215,
+                "name": "Taobao"
+            },
+            {
+                "id": 852216,
+                "name": "163.com"
+            },
+            {
+                "id": 852217,
+                "name": "Sina.com"
+            },
+            {
+                "id": 852218,
+                "name": "Bing.com"
+            },
+            {
+                "id": 852219,
+                "name": "Ruten"
+            },
+            {
+                "id": 852220,
+                "name": "Shop.com"
+            },
+            {
+                "id": 852221,
+                "name": "Appledaily"
+            },
+            {
+                "id": 852222,
+                "name": "CWB"
+            },
+            {
+                "id": 852223,
+                "name": "CNA"
+            },
+            {
+                "id": 852224,
+                "name": "Harvey Norman"
+            },
+            {
+                "id": 852226,
+                "name": "JB Hi-Fi"
+            },
+            {
+                "id": 852227,
+                "name": "MyDeal.com.au"
+            },
+            {
+                "id": 852229,
+                "name": "CrazySales"
+            },
+            {
+                "id": 852230,
+                "name": "Giphy"
+            },
+            {
+                "id": 852231,
+                "name": "Riffsy"
+            },
+            {
+                "id": 852232,
+                "name": "Gumtree"
+            },
+            {
+                "id": 852233,
+                "name": "Priceline"
+            },
+            {
+                "id": 852234,
+                "name": "Carousell"
+            },
+            {
+                "id": 852235,
+                "name": "Wish"
+            },
+            {
+                "id": 852236,
+                "name": "Shein Shopping"
+            },
+            {
+                "id": 852237,
+                "name": "Romwe"
+            },
+            {
+                "id": 852238,
+                "name": "The Iconic"
+            },
+            {
+                "id": 852239,
+                "name": "Boohoo"
+            },
+            {
+                "id": 852240,
+                "name": "Aliexpress"
+            },
+            {
+                "id": 852241,
+                "name": "ASOS"
+            },
+            {
+                "id": 852242,
+                "name": "Catch of the Day"
+            },
+            {
+                "id": 852273,
+                "name": "Amazon AppStream"
+            },
+            { id: 852146, name:  "Google News" },
+			{ id: 852243, name:  "i-concier" },
+			{ id: 852245, name:  "my daiz" },
+			{ id: 852323, name:  "Target" },
+			{ id: 852325, name:  "Weather Underground" },
+			{ id: 852417, name:  "ATT" },
+			{ id: 852430, name:  "Fastly" },
+			{ id: 852489, name:  "Mixpanel" },
+			{ id: 852506, name:  "SOHU.com" },
+			{ id: 852509, name:  "Uber Eats" },
+			{ id: 852583, name:  "Stripe Club" },
+			{ id: 852607, name:  "Lime" },
+			{ id: 852608, name:  "Postmates" },
+			{ id: 852611, name:  "Gyfcat" },
+			{ id: 852616, name:  "Infoseek" },
+			{ id: 852617, name:  "Excite" },
+			{ id: 852619, name:  "LogMeIn" },
+			{ id: 852719, name:  "Telegram Web" },
+        ]
     },
     {
         "cat": "Security Updates",
@@ -3580,7 +4535,10 @@ const allAppsList = [
             {
                 "id": 917550,
                 "name": "TrendMicro Titanium-12-WTP"
-            }
+            },
+            { id: 917552, name:  "Windows Defender" },
+			{ id: 917554, name:  "TrendMicro Titanium-15-ICRC" },
+			{ id: 917555, name:  "TrendMicro Titanium-15-WTP" },
         ]
     },
     {
@@ -3609,6 +4567,7 @@ const allAppsList = [
                 "id": 1114113,
                 "name": "WatchGuard WSM Management"
             },
+            { id: 1114402, name:  "Google Meet" },
             {
                 "id": 1114114,
                 "name": "WatchGuard Web Management UI"
@@ -3798,12 +4757,1713 @@ const allAppsList = [
     {
         "cat": "Network Protocols_18",
         "catId": 18,
-        "apps": []
+        "apps": [
+            {
+                "id": 1179649,
+                "name": "TCP Port Service Multiplexer"
+            },
+            { id: 1310915, name:  "Google Static Content(SSL)" },
+			{ id: 1310917, name:  "DNS over TLS" },
+			{ id: 1310921, name:  "Netlogon Remote Protocol" },
+            {
+                "id": 1179650,
+                "name": "Management Utility"
+            },
+            {
+                "id": 1179651,
+                "name": "Compression Process"
+            },
+            {
+                "id": 1179652,
+                "name": "Zeroconf"
+            },
+            {
+                "id": 1179653,
+                "name": "Echo"
+            },
+            {
+                "id": 1179654,
+                "name": "Discard"
+            },
+            {
+                "id": 1179655,
+                "name": "Active Users"
+            },
+            {
+                "id": 1179656,
+                "name": "L2TP"
+            },
+            {
+                "id": 1179657,
+                "name": "puparp"
+            },
+            {
+                "id": 1179658,
+                "name": "vsinet"
+            },
+            {
+                "id": 1179659,
+                "name": "maitrd"
+            },
+            {
+                "id": 1179660,
+                "name": "Character Generator"
+            },
+            {
+                "id": 1179663,
+                "name": "applix"
+            },
+            {
+                "id": 1179664,
+                "name": "Net Assistant"
+            },
+            {
+                "id": 1179665,
+                "name": "any private mail system"
+            },
+            {
+                "id": 1179666,
+                "name": "BackOrifice"
+            },
+            {
+                "id": 1179667,
+                "name": "AltaVista Firewall97"
+            },
+            {
+                "id": 1179668,
+                "name": "NSW User System FE"
+            },
+            {
+                "id": 1179669,
+                "name": "MSG ICP"
+            },
+            {
+                "id": 1179670,
+                "name": "MSG Authentication"
+            },
+            {
+                "id": 1179671,
+                "name": "Display Support Protocol"
+            },
+            {
+                "id": 1179672,
+                "name": "any private printer server"
+            },
+            {
+                "id": 1179673,
+                "name": "Time"
+            },
+            {
+                "id": 1179674,
+                "name": "Route Access Protocol"
+            },
+            {
+                "id": 1179675,
+                "name": "Resource Location Protocol"
+            },
+            {
+                "id": 1179676,
+                "name": "graphics"
+            },
+            {
+                "id": 1179677,
+                "name": "Host Name Server"
+            },
+            {
+                "id": 1179678,
+                "name": "NIC Name"
+            },
+            {
+                "id": 1179679,
+                "name": "MPM FLAGS Protocol"
+            },
+            {
+                "id": 1179680,
+                "name": "Message Processing Module [recv]"
+            },
+            {
+                "id": 1179681,
+                "name": "MPM [default send]"
+            },
+            {
+                "id": 1179682,
+                "name": "NI FTP"
+            },
+            {
+                "id": 1179683,
+                "name": "Digital Audit Daemon"
+            },
+            {
+                "id": 1179684,
+                "name": "Login Host Protocol (TACACS)"
+            },
+            {
+                "id": 1179685,
+                "name": "Remote Mail Checking Protocol"
+            },
+            {
+                "id": 1179686,
+                "name": "IMP Logical Address Maintenance"
+            },
+            {
+                "id": 1179687,
+                "name": "XNS Time Protocol"
+            },
+            {
+                "id": 1179688,
+                "name": "Domain Name Server"
+            },
+            {
+                "id": 1179689,
+                "name": "XNS Clearinghouse"
+            },
+            {
+                "id": 1179690,
+                "name": "ISI Graphics Language"
+            },
+            {
+                "id": 1179691,
+                "name": "XNS Authentication"
+            },
+            {
+                "id": 1179692,
+                "name": "Mail Transfer Protocol (MTP)"
+            },
+            {
+                "id": 1179693,
+                "name": "XNS Mail"
+            },
+            {
+                "id": 1179694,
+                "name": "any private file service"
+            },
+            {
+                "id": 1179695,
+                "name": "NI MAIL"
+            },
+            {
+                "id": 1179696,
+                "name": "ACA Services"
+            },
+            {
+                "id": 1179697,
+                "name": "VIA Systems - FTP whois++"
+            },
+            {
+                "id": 1179698,
+                "name": "Communications Integrator (CI)"
+            },
+            {
+                "id": 1179699,
+                "name": "TACACS-Database Service"
+            },
+            {
+                "id": 1179700,
+                "name": "Oracle SQL-NET"
+            },
+            {
+                "id": 1179701,
+                "name": "Bootstrap Protocol Server"
+            },
+            {
+                "id": 1179702,
+                "name": "Bootstrap Protocol Client"
+            },
+            {
+                "id": 1179703,
+                "name": "profile"
+            },
+            {
+                "id": 1179704,
+                "name": "Gopher"
+            },
+            {
+                "id": 1179705,
+                "name": "Remote Job Service"
+            },
+            {
+                "id": 1179706,
+                "name": "any private dial out service"
+            },
+            {
+                "id": 1179707,
+                "name": "Distributed External Object Store"
+            },
+            {
+                "id": 1179708,
+                "name": "any private RJE service netrjs"
+            },
+            {
+                "id": 1179709,
+                "name": "Vet TCP"
+            },
+            {
+                "id": 1179710,
+                "name": "Finger"
+            },
+            {
+                "id": 1179711,
+                "name": "World Wide Web HTTP"
+            },
+            {
+                "id": 1179712,
+                "name": "Torpark"
+            },
+            {
+                "id": 1179713,
+                "name": "XFER Utility"
+            },
+            {
+                "id": 1179714,
+                "name": "MIT ML Device"
+            },
+            {
+                "id": 1179715,
+                "name": "Common Trace Facility"
+            },
+            {
+                "id": 1179716,
+                "name": "Micro Focus Cobol"
+            },
+            {
+                "id": 1179717,
+                "name": "any private terminal link ttylink"
+            },
+            {
+                "id": 1179719,
+                "name": "SU MIT Telnet Gateway"
+            },
+            {
+                "id": 1179720,
+                "name": "DNSIX Securit Attribute Token Map"
+            },
+            {
+                "id": 1179721,
+                "name": "MIT Dover Spooler"
+            },
+            {
+                "id": 1179722,
+                "name": "Network Printing Protocol"
+            },
+            {
+                "id": 1179723,
+                "name": "Device Control Protocol"
+            },
+            {
+                "id": 1179724,
+                "name": "Tivoli Object Dispatcher"
+            },
+            {
+                "id": 1179725,
+                "name": "BSD supdupd(8)"
+            },
+            {
+                "id": 1179726,
+                "name": "DIXIE Protocol Specification"
+            },
+            {
+                "id": 1179727,
+                "name": "Swift Remote Virtural File Protocol"
+            },
+            {
+                "id": 1179728,
+                "name": "linuxconf"
+            },
+            {
+                "id": 1179729,
+                "name": "Metagram Relay"
+            },
+            {
+                "id": 1179731,
+                "name": "NIC Host Name Server"
+            },
+            {
+                "id": 1179732,
+                "name": "ISO-TSAP Class 0"
+            },
+            {
+                "id": 1179733,
+                "name": "Genesis Point-to-Point Trans Net"
+            },
+            {
+                "id": 1179734,
+                "name": "ACR-NEMA Digital Imag. &amp; Comm. 300"
+            },
+            {
+                "id": 1179735,
+                "name": "Mailbox Name Nameserver"
+            },
+            {
+                "id": 1179736,
+                "name": "msantipiracy"
+            },
+            {
+                "id": 1179737,
+                "name": "Eudora compatible PW changer"
+            },
+            {
+                "id": 1179739,
+                "name": "SNA Gateway Access Server"
+            },
+            {
+                "id": 1179740,
+                "name": "PostOffice V.2"
+            },
+            {
+                "id": 1179742,
+                "name": "Portmapper RPC Bind"
+            },
+            {
+                "id": 1179743,
+                "name": "McIDAS Data Transmission Protocol"
+            },
+            {
+                "id": 1179744,
+                "name": "Ident Tap Authentication Service"
+            },
+            {
+                "id": 1179745,
+                "name": "Audio News Multicast"
+            },
+            {
+                "id": 1179746,
+                "name": "Simple File Transfer Protocol"
+            },
+            {
+                "id": 1179747,
+                "name": "ANSA REX Notify"
+            },
+            {
+                "id": 1179748,
+                "name": "UUCP Path Service"
+            },
+            {
+                "id": 1179749,
+                "name": "SQL Services"
+            },
+            {
+                "id": 1179751,
+                "name": "blackjack"
+            },
+            {
+                "id": 1179752,
+                "name": "Encore Expedited Remote Pro.Call"
+            },
+            {
+                "id": 1179753,
+                "name": "Smakynet"
+            },
+            {
+                "id": 1179754,
+                "name": "Network Time Protocol"
+            },
+            {
+                "id": 1179755,
+                "name": "ANSA REX Trader"
+            },
+            {
+                "id": 1179756,
+                "name": "Locus PC-Interface Net Map Ser"
+            },
+            {
+                "id": 1179757,
+                "name": "Unisys Unitary Login"
+            },
+            {
+                "id": 1179758,
+                "name": "Locus PC-Interface Conn Server"
+            },
+            {
+                "id": 1179759,
+                "name": "GSS X License Verification"
+            },
+            {
+                "id": 1179760,
+                "name": "Password Generator Protocol"
+            },
+            {
+                "id": 1179761,
+                "name": "Cisco FNATIVE"
+            },
+            {
+                "id": 1179762,
+                "name": "Cisco TNATIVE"
+            },
+            {
+                "id": 1179763,
+                "name": "Cisco SYSMAINT"
+            },
+            {
+                "id": 1179764,
+                "name": "Statistics Service"
+            },
+            {
+                "id": 1179765,
+                "name": "INGRES-NET Service"
+            },
+            {
+                "id": 1179766,
+                "name": "NCS local location broker"
+            },
+            {
+                "id": 1179767,
+                "name": "PROFILE Naming System"
+            },
+            {
+                "id": 1179768,
+                "name": "NetBIOS Name Service"
+            },
+            {
+                "id": 1179769,
+                "name": "NetBIOS Datagram Service"
+            },
+            {
+                "id": 1179770,
+                "name": "NetBIOS Session Service"
+            },
+            {
+                "id": 1179771,
+                "name": "EMFIS Data Service"
+            },
+            {
+                "id": 1179772,
+                "name": "EMFIS Control Service"
+            },
+            {
+                "id": 1179773,
+                "name": "Britton-Lee IDM"
+            },
+            {
+                "id": 1179774,
+                "name": "Internet Message Access Protocol"
+            },
+            {
+                "id": 1179775,
+                "name": "Universal Management Architecture"
+            },
+            {
+                "id": 1179776,
+                "name": "UAAC Protocol"
+            },
+            {
+                "id": 1179777,
+                "name": "iso-ip0"
+            },
+            {
+                "id": 1179778,
+                "name": "iso-ip"
+            },
+            {
+                "id": 1179779,
+                "name": "Jargon"
+            },
+            {
+                "id": 1179780,
+                "name": "AED 512 Emulation Service"
+            },
+            {
+                "id": 1179781,
+                "name": "SQL-net"
+            },
+            {
+                "id": 1179782,
+                "name": "HEMS"
+            },
+            {
+                "id": 1179783,
+                "name": "Background File Transfer Program (BFTP)"
+            },
+            {
+                "id": 1179784,
+                "name": "SGMP"
+            },
+            {
+                "id": 1179785,
+                "name": "NetSC-prod"
+            },
+            {
+                "id": 1179786,
+                "name": "NetSC-dev"
+            },
+            {
+                "id": 1179787,
+                "name": "SQL Service"
+            },
+            {
+                "id": 1179788,
+                "name": "KNET VM Command Message Protocol"
+            },
+            {
+                "id": 1179789,
+                "name": "PCMail Server"
+            },
+            {
+                "id": 1179790,
+                "name": "NSS-Routing"
+            },
+            {
+                "id": 1179791,
+                "name": "SGMP-traps"
+            },
+            {
+                "id": 1179793,
+                "name": "SNMPTRAP"
+            },
+            {
+                "id": 1179794,
+                "name": "CMIP TCP Manager"
+            },
+            {
+                "id": 1179795,
+                "name": "CMIP TCP Agent"
+            },
+            {
+                "id": 1179796,
+                "name": "Xerox"
+            },
+            {
+                "id": 1179797,
+                "name": "Sirius Systems"
+            },
+            {
+                "id": 1179798,
+                "name": "namp"
+            },
+            {
+                "id": 1179799,
+                "name": "rsvd"
+            },
+            {
+                "id": 1179800,
+                "name": "send"
+            },
+            {
+                "id": 1179801,
+                "name": "Network PostScript"
+            },
+            {
+                "id": 1179802,
+                "name": "Network Innovations Multiplex"
+            },
+            {
+                "id": 1179803,
+                "name": "Network Innovations CL 1"
+            },
+            {
+                "id": 1179804,
+                "name": "xyplex-mux"
+            },
+            {
+                "id": 1179805,
+                "name": "mailq"
+            },
+            {
+                "id": 1179806,
+                "name": "vmnet"
+            },
+            {
+                "id": 1179807,
+                "name": "genrad-mux"
+            },
+            {
+                "id": 1179808,
+                "name": "X Display Manager Control Protocol"
+            },
+            {
+                "id": 1179809,
+                "name": "NextStep Window Server"
+            },
+            {
+                "id": 1179810,
+                "name": "Border Gateway Protocol"
+            },
+            {
+                "id": 1179811,
+                "name": "Intergraph"
+            },
+            {
+                "id": 1179812,
+                "name": "unify"
+            },
+            {
+                "id": 1179813,
+                "name": "Unisys Audit SITP"
+            },
+            {
+                "id": 1179814,
+                "name": "ocbinder"
+            },
+            {
+                "id": 1179815,
+                "name": "ocserver"
+            },
+            {
+                "id": 1179816,
+                "name": "remote-kis"
+            },
+            {
+                "id": 1179817,
+                "name": "KIS Protocol"
+            },
+            {
+                "id": 1179818,
+                "name": "Application Communication Interface"
+            },
+            {
+                "id": 1179819,
+                "name": "Plus Fives MUMPS"
+            },
+            {
+                "id": 1179820,
+                "name": "Queued File Transport"
+            },
+            {
+                "id": 1179821,
+                "name": "Gateway Access Control Protocol"
+            },
+            {
+                "id": 1179822,
+                "name": "Prospero Directory Service"
+            },
+            {
+                "id": 1179823,
+                "name": "OSU Network Monitoring System"
+            },
+            {
+                "id": 1179824,
+                "name": "Spider Remote Monitoring Protocol"
+            },
+            {
+                "id": 1179825,
+                "name": "Internet Relay Chat"
+            },
+            {
+                "id": 1179826,
+                "name": "DNSIX Network Level Module Audit"
+            },
+            {
+                "id": 1179827,
+                "name": "DNSIX Session Mgt Module Audit Redir"
+            },
+            {
+                "id": 1179828,
+                "name": "Directory Location Service"
+            },
+            {
+                "id": 1179829,
+                "name": "Directory Location Service Monitor"
+            },
+            {
+                "id": 1179830,
+                "name": "SMUX"
+            },
+            {
+                "id": 1179831,
+                "name": "IBM System Resource Controller"
+            },
+            {
+                "id": 1179832,
+                "name": "AppleTalk Routing Maintenance"
+            },
+            {
+                "id": 1179833,
+                "name": "AppleTalk Name Binding"
+            },
+            {
+                "id": 1179834,
+                "name": "AppleTalk Unused"
+            },
+            {
+                "id": 1179835,
+                "name": "AppleTalk Echo"
+            },
+            {
+                "id": 1179836,
+                "name": "AppleTalk Zone Information"
+            },
+            {
+                "id": 1179838,
+                "name": "Trivial Authenticated Mail Protocol"
+            },
+            {
+                "id": 1179839,
+                "name": "ANSI Z39.50"
+            },
+            {
+                "id": 1179840,
+                "name": "Texas Instruments"
+            },
+            {
+                "id": 1179841,
+                "name": "ATEXSSTR"
+            },
+            {
+                "id": 1179842,
+                "name": "IPX"
+            },
+            {
+                "id": 1179843,
+                "name": "vmpwscs"
+            },
+            {
+                "id": 1179844,
+                "name": "Insignia Solutions"
+            },
+            {
+                "id": 1179845,
+                "name": "Computer Associates Intl License Server"
+            },
+            {
+                "id": 1179846,
+                "name": "dBASE Unix"
+            },
+            {
+                "id": 1179847,
+                "name": "Netix Message Posting Protocol"
+            },
+            {
+                "id": 1179848,
+                "name": "Unisys ARPs"
+            },
+            {
+                "id": 1179849,
+                "name": "Interactive Mail Access Protocol v3"
+            },
+            {
+                "id": 1179850,
+                "name": "Berkeley rlogind with SPX auth"
+            },
+            {
+                "id": 1179851,
+                "name": "Berkeley rshd with SPX auth"
+            },
+            {
+                "id": 1179852,
+                "name": "Certificate Distribution Center"
+            },
+            {
+                "id": 1179853,
+                "name": "masqdialer"
+            },
+            {
+                "id": 1179854,
+                "name": "direct"
+            },
+            {
+                "id": 1179855,
+                "name": "Survey Measurement"
+            },
+            {
+                "id": 1179856,
+                "name": "inbusiness"
+            },
+            {
+                "id": 1179857,
+                "name": "link"
+            },
+            {
+                "id": 1179858,
+                "name": "Display Systems Protocol"
+            },
+            {
+                "id": 1179859,
+                "name": "VAT"
+            },
+            {
+                "id": 1179860,
+                "name": "bhfhs"
+            },
+            {
+                "id": 1179862,
+                "name": "RAP (Route Access Protocol)"
+            },
+            {
+                "id": 1179863,
+                "name": "Checkpoint Firewall-1"
+            },
+            {
+                "id": 1179864,
+                "name": "Efficient Short Remote Operations"
+            },
+            {
+                "id": 1179865,
+                "name": "openport"
+            },
+            {
+                "id": 1179866,
+                "name": "Checkpoint Firewall-1 Management"
+            },
+            {
+                "id": 1179867,
+                "name": "arcisdms"
+            },
+            {
+                "id": 1179868,
+                "name": "hdap"
+            },
+            {
+                "id": 1179869,
+                "name": "Border Gateway Multicast Protocol (BGMP)"
+            },
+            {
+                "id": 1179870,
+                "name": "X-Bone CTL"
+            },
+            {
+                "id": 1179871,
+                "name": "SCSI on ST"
+            },
+            {
+                "id": 1179872,
+                "name": "Tobit David Service Layer"
+            },
+            {
+                "id": 1179873,
+                "name": "Tobit David Replica"
+            },
+            {
+                "id": 1179874,
+                "name": "http-mgmt"
+            },
+            {
+                "id": 1179875,
+                "name": "personal-link"
+            },
+            {
+                "id": 1179876,
+                "name": "Cable Port A X"
+            },
+            {
+                "id": 1179877,
+                "name": "rescap"
+            },
+            {
+                "id": 1179878,
+                "name": "corerjd"
+            },
+            {
+                "id": 1179879,
+                "name": "FXP-1"
+            },
+            {
+                "id": 1179880,
+                "name": "K-BLOCK"
+            },
+            {
+                "id": 1179881,
+                "name": "Novastor Backup"
+            },
+            {
+                "id": 1179882,
+                "name": "entrusttime"
+            },
+            {
+                "id": 1179883,
+                "name": "bhmds"
+            },
+            {
+                "id": 1179884,
+                "name": "AppleShare IP WebAdmin"
+            },
+            {
+                "id": 1179885,
+                "name": "VSLMP"
+            },
+            {
+                "id": 1179886,
+                "name": "magenta-logic"
+            },
+            {
+                "id": 1179887,
+                "name": "opalis-robot"
+            },
+            {
+                "id": 1179888,
+                "name": "DPSI"
+            },
+            {
+                "id": 1179889,
+                "name": "decAuth"
+            },
+            {
+                "id": 1179890,
+                "name": "zannet"
+            },
+            {
+                "id": 1179891,
+                "name": "PKIX TimeStamp"
+            },
+            {
+                "id": 1179892,
+                "name": "PTP Event"
+            },
+            {
+                "id": 1179893,
+                "name": "PTP General"
+            },
+            {
+                "id": 1179894,
+                "name": "Programmable Interconnect Point (PIP)"
+            },
+            {
+                "id": 1179895,
+                "name": "RTSPS"
+            },
+            {
+                "id": 1179896,
+                "name": "Texar Security Port"
+            },
+            {
+                "id": 1179897,
+                "name": "Prospero Data Access Protocol"
+            },
+            {
+                "id": 1179898,
+                "name": "Perf Analysis Workbench"
+            },
+            {
+                "id": 1179899,
+                "name": "Zebra server"
+            },
+            {
+                "id": 1179900,
+                "name": "Fatmen Server"
+            },
+            {
+                "id": 1179901,
+                "name": "Cabletron Management Protocol"
+            },
+            {
+                "id": 1179902,
+                "name": "mftp"
+            },
+            {
+                "id": 1179903,
+                "name": "MATIP Type A"
+            }
+        ]
     },
     {
         "cat": "Network Protocols_19",
         "catId": 19,
-        "apps": []
+        "apps": [
+            {
+                "id": 1245185,
+                "name": "PPTP"
+            },
+            {
+                "id": 1245186,
+                "name": "BakBone NetVault"
+            },
+            {
+                "id": 1245187,
+                "name": "DTAG or bhoedap4"
+            },
+            {
+                "id": 1245188,
+                "name": "ndsauth"
+            },
+            {
+                "id": 1245189,
+                "name": "bh611"
+            },
+            {
+                "id": 1245190,
+                "name": "datex-asn"
+            },
+            {
+                "id": 1245191,
+                "name": "Cloanto Net 1"
+            },
+            {
+                "id": 1245192,
+                "name": "bhevent"
+            },
+            {
+                "id": 1245193,
+                "name": "shrinkwrap"
+            },
+            {
+                "id": 1245194,
+                "name": "Windows RPC"
+            },
+            {
+                "id": 1245195,
+                "name": "Tenebris Network Trace Service"
+            },
+            {
+                "id": 1245196,
+                "name": "scoi2odialog"
+            },
+            {
+                "id": 1245197,
+                "name": "semantix"
+            },
+            {
+                "id": 1245198,
+                "name": "SRS Send"
+            },
+            {
+                "id": 1245200,
+                "name": "aurora-cmgr"
+            },
+            {
+                "id": 1245201,
+                "name": "DTK"
+            },
+            {
+                "id": 1245202,
+                "name": "odmr"
+            },
+            {
+                "id": 1245203,
+                "name": "mortgageware"
+            },
+            {
+                "id": 1245204,
+                "name": "qbikgdp"
+            },
+            {
+                "id": 1245205,
+                "name": "rpc2portmap"
+            },
+            {
+                "id": 1245206,
+                "name": "Coda authentication server (codaauth2)"
+            },
+            {
+                "id": 1245207,
+                "name": "ClearCase"
+            },
+            {
+                "id": 1245208,
+                "name": "ListProcessor"
+            },
+            {
+                "id": 1245209,
+                "name": "Legent Corporation"
+            },
+            {
+                "id": 1245210,
+                "name": "hassle"
+            },
+            {
+                "id": 1245211,
+                "name": "Amiga Envoy Network Inquiry Proto"
+            },
+            {
+                "id": 1245212,
+                "name": "NEC Corporation"
+            },
+            {
+                "id": 1245213,
+                "name": "TIA EIA IS-99 modem client"
+            },
+            {
+                "id": 1245214,
+                "name": "TIA EIA IS-99 modem server"
+            },
+            {
+                "id": 1245215,
+                "name": "HP Performance data collector"
+            },
+            {
+                "id": 1245216,
+                "name": "HP Performance data managed node"
+            },
+            {
+                "id": 1245217,
+                "name": "HP Performance data alarm manager"
+            },
+            {
+                "id": 1245218,
+                "name": "A Remote Network Server System"
+            },
+            {
+                "id": 1245219,
+                "name": "IBM Application"
+            },
+            {
+                "id": 1245220,
+                "name": "ASA Message Router Object Def."
+            },
+            {
+                "id": 1245221,
+                "name": "Appletalk Update-Based Routing Pro."
+            },
+            {
+                "id": 1245222,
+                "name": "Unidata LDM"
+            },
+            {
+                "id": 1245223,
+                "name": "Lightweight Directory Access Protocol"
+            },
+            {
+                "id": 1245224,
+                "name": "uis"
+            },
+            {
+                "id": 1245225,
+                "name": "SynOptics SNMP Relay Port"
+            },
+            {
+                "id": 1245226,
+                "name": "SynOptics Port Broker Port"
+            },
+            {
+                "id": 1245228,
+                "name": "Meta5"
+            },
+            {
+                "id": 1245229,
+                "name": "EMBL Nucleic Data Transfer"
+            },
+            {
+                "id": 1245230,
+                "name": "NETscout Control Protocol"
+            },
+            {
+                "id": 1245231,
+                "name": "Novell Netware over IP"
+            },
+            {
+                "id": 1245232,
+                "name": "Multi Protocol Trans. Net."
+            },
+            {
+                "id": 1245233,
+                "name": "kryptolan"
+            },
+            {
+                "id": 1245234,
+                "name": "ISO Transport Class 2 Non-Control over TCP"
+            },
+            {
+                "id": 1245235,
+                "name": "Workstation Solutions"
+            },
+            {
+                "id": 1245236,
+                "name": "Uninterruptible Power Supply"
+            },
+            {
+                "id": 1245237,
+                "name": "Genie Protocol"
+            },
+            {
+                "id": 1245238,
+                "name": "decap"
+            },
+            {
+                "id": 1245239,
+                "name": "nced"
+            },
+            {
+                "id": 1245240,
+                "name": "ncld"
+            },
+            {
+                "id": 1245241,
+                "name": "Interactive Mail Support Protocol"
+            },
+            {
+                "id": 1245242,
+                "name": "timbuktu"
+            },
+            {
+                "id": 1245243,
+                "name": "Prospero Resource Manager Sys. Man."
+            },
+            {
+                "id": 1245244,
+                "name": "Prospero Resource Manager Node Man."
+            },
+            {
+                "id": 1245245,
+                "name": "DECLadebug Remote Debug Protocol"
+            },
+            {
+                "id": 1245246,
+                "name": "Remote MT Protocol"
+            },
+            {
+                "id": 1245247,
+                "name": "Trap Convention Port"
+            },
+            {
+                "id": 1245317,
+                "name": "serialnumberd"
+            },
+            {
+                "id": 1245318,
+                "name": "dvs"
+            },
+            {
+                "id": 1245319,
+                "name": "bgs-nsi"
+            },
+            {
+                "id": 1245320,
+                "name": "ulpnet"
+            },
+            {
+                "id": 1245321,
+                "name": "Integra Software Management Environment"
+            },
+            {
+                "id": 1245322,
+                "name": "Air Soft Power Burst"
+            },
+            {
+                "id": 1245324,
+                "name": "sstats"
+            },
+            {
+                "id": 1245325,
+                "name": "saft Simple Asynchronous File Transfer"
+            },
+            {
+                "id": 1245326,
+                "name": "gss-http"
+            },
+            {
+                "id": 1245327,
+                "name": "nest-protocol"
+            },
+            {
+                "id": 1245328,
+                "name": "micom-pfs"
+            },
+            {
+                "id": 1245329,
+                "name": "go-login"
+            },
+            {
+                "id": 1245330,
+                "name": "Transport Independent Convergence for FNA"
+            },
+            {
+                "id": 1245331,
+                "name": "pov-ray"
+            },
+            {
+                "id": 1245332,
+                "name": "intecourier"
+            },
+            {
+                "id": 1245333,
+                "name": "pim-rp-disc"
+            },
+            {
+                "id": 1245334,
+                "name": "dantz"
+            },
+            {
+                "id": 1245335,
+                "name": "siam"
+            },
+            {
+                "id": 1245336,
+                "name": "ISO ILL Protocol"
+            },
+            {
+                "id": 1245337,
+                "name": "VPN Key Exchange"
+            },
+            {
+                "id": 1245338,
+                "name": "Simple Transportation Management Framework (STMF)"
+            },
+            {
+                "id": 1245339,
+                "name": "asa-appl-proto"
+            },
+            {
+                "id": 1245340,
+                "name": "intrinsa"
+            },
+            {
+                "id": 1245341,
+                "name": "Citadel"
+            },
+            {
+                "id": 1245342,
+                "name": "mailbox-lm"
+            },
+            {
+                "id": 1245343,
+                "name": "ohimsrv"
+            },
+            {
+                "id": 1245344,
+                "name": "crs"
+            },
+            {
+                "id": 1245345,
+                "name": "xvttp"
+            },
+            {
+                "id": 1245346,
+                "name": "snare"
+            },
+            {
+                "id": 1245347,
+                "name": "FirstClass Protocol"
+            },
+            {
+                "id": 1245348,
+                "name": "passgo"
+            },
+            {
+                "id": 1245349,
+                "name": "BSD rexecd(8)"
+            },
+            {
+                "id": 1245350,
+                "name": "BSD rlogind(8)"
+            },
+            {
+                "id": 1245351,
+                "name": "BSD rshd(8)"
+            },
+            {
+                "id": 1245352,
+                "name": "spooler"
+            },
+            {
+                "id": 1245353,
+                "name": "videotex"
+            },
+            {
+                "id": 1245354,
+                "name": "like tenex link but across"
+            },
+            {
+                "id": 1245355,
+                "name": "ntalk"
+            },
+            {
+                "id": 1245356,
+                "name": "unixtime"
+            },
+            {
+                "id": 1245357,
+                "name": "Routing Information Protocol (RIP)"
+            },
+            {
+                "id": 1245358,
+                "name": "ripng"
+            },
+            {
+                "id": 1245359,
+                "name": "ulp"
+            },
+            {
+                "id": 1245360,
+                "name": "ibm-db2"
+            },
+            {
+                "id": 1245361,
+                "name": "NetWare Core Protocol (NCP)"
+            },
+            {
+                "id": 1245362,
+                "name": "Timeserver"
+            },
+            {
+                "id": 1245363,
+                "name": "newdate"
+            },
+            {
+                "id": 1245364,
+                "name": "Stock IXChange"
+            },
+            {
+                "id": 1245365,
+                "name": "Customer IXChange"
+            },
+            {
+                "id": 1245366,
+                "name": "irc-serv"
+            },
+            {
+                "id": 1245370,
+                "name": "readnews"
+            },
+            {
+                "id": 1245371,
+                "name": "netwall for emergency broadcasts"
+            },
+            {
+                "id": 1245372,
+                "name": "MegaMedia Admin"
+            },
+            {
+                "id": 1245373,
+                "name": "iiop"
+            },
+            {
+                "id": 1245374,
+                "name": "opalis-rdv"
+            },
+            {
+                "id": 1245375,
+                "name": "Networked Media Streaming Protocol"
+            },
+            {
+                "id": 1245376,
+                "name": "gdomap"
+            },
+            {
+                "id": 1245377,
+                "name": "Apertus Technologies Load Determination"
+            },
+            {
+                "id": 1245378,
+                "name": "uucpd"
+            },
+            {
+                "id": 1245379,
+                "name": "uucp-rlogin"
+            },
+            {
+                "id": 1245380,
+                "name": "Commerce"
+            },
+            {
+                "id": 1245381,
+                "name": "klogin"
+            },
+            {
+                "id": 1245382,
+                "name": "krcmd"
+            },
+            {
+                "id": 1245383,
+                "name": "Kerberos encrypted remote shell"
+            },
+            {
+                "id": 1245384,
+                "name": "DHCPv6 Client"
+            },
+            {
+                "id": 1245385,
+                "name": "DHCPv6 Server"
+            },
+            {
+                "id": 1245386,
+                "name": "AFP over TCP"
+            },
+            {
+                "id": 1245387,
+                "name": "idfp"
+            },
+            {
+                "id": 1245388,
+                "name": "new-who"
+            },
+            {
+                "id": 1245389,
+                "name": "cybercash"
+            },
+            {
+                "id": 1245390,
+                "name": "deviceshare"
+            },
+            {
+                "id": 1245391,
+                "name": "pirp"
+            },
+            {
+                "id": 1245392,
+                "name": "Real Time Stream Control Protocol"
+            },
+            {
+                "id": 1245393,
+                "name": "dsf"
+            },
+            {
+                "id": 1245394,
+                "name": "Remote File System (RFS)"
+            },
+            {
+                "id": 1245395,
+                "name": "openvms-sysipc"
+            },
+            {
+                "id": 1245396,
+                "name": "sdnskmp"
+            },
+            {
+                "id": 1245397,
+                "name": "teedtap"
+            },
+            {
+                "id": 1245398,
+                "name": "rmonitord"
+            },
+            {
+                "id": 1245399,
+                "name": "monitor"
+            },
+            {
+                "id": 1245400,
+                "name": "chcmd"
+            },
+            {
+                "id": 1245402,
+                "name": "snews"
+            },
+            {
+                "id": 1245403,
+                "name": "plan 9 file service"
+            },
+            {
+                "id": 1245404,
+                "name": "whoami"
+            },
+            {
+                "id": 1245405,
+                "name": "streettalk"
+            },
+            {
+                "id": 1245406,
+                "name": "banyan-rpc"
+            },
+            {
+                "id": 1245407,
+                "name": "Microsoft shuttle"
+            },
+            {
+                "id": 1245408,
+                "name": "Microsoft rome"
+            },
+            {
+                "id": 1245409,
+                "name": "demon"
+            },
+            {
+                "id": 1245410,
+                "name": "udemon"
+            },
+            {
+                "id": 1245411,
+                "name": "sonar"
+            },
+            {
+                "id": 1245412,
+                "name": "banyan-vip"
+            },
+            {
+                "id": 1245413,
+                "name": "FTP Software Agent System"
+            },
+            {
+                "id": 1245414,
+                "name": "vemmi"
+            },
+            {
+                "id": 1245415,
+                "name": "ipcd"
+            },
+            {
+                "id": 1245416,
+                "name": "vnas"
+            },
+            {
+                "id": 1245417,
+                "name": "ipdd"
+            },
+            {
+                "id": 1245418,
+                "name": "decbsrv"
+            },
+            {
+                "id": 1245419,
+                "name": "sntp-heartbeat"
+            },
+            {
+                "id": 1245420,
+                "name": "Bundle Discovery Protocol"
+            },
+            {
+                "id": 1245421,
+                "name": "scc-security"
+            },
+            {
+                "id": 1245422,
+                "name": "Philips Video-Conferencing"
+            },
+            {
+                "id": 1245423,
+                "name": "keyserver"
+            },
+            {
+                "id": 1245424,
+                "name": "IMAP4+SSL"
+            },
+            {
+                "id": 1245425,
+                "name": "password-chg"
+            },
+            {
+                "id": 1245426,
+                "name": "submission"
+            },
+            {
+                "id": 1245427,
+                "name": "cal"
+            },
+            {
+                "id": 1245428,
+                "name": "eyelink"
+            },
+            {
+                "id": 1245429,
+                "name": "tns-cml"
+            },
+            {
+                "id": 1245430,
+                "name": "FileMaker Pro"
+            },
+            {
+                "id": 1245431,
+                "name": "eudora-set"
+            },
+            {
+                "id": 1245432,
+                "name": "HTTP RPC Ep Map"
+            },
+            {
+                "id": 1245433,
+                "name": "tpip"
+            },
+            {
+                "id": 1245434,
+                "name": "cab-protocol"
+            },
+            {
+                "id": 1245435,
+                "name": "smsd"
+            },
+            {
+                "id": 1245436,
+                "name": "PTC Name Service"
+            },
+            {
+                "id": 1245437,
+                "name": "SCO Web Server Manager 3"
+            },
+            {
+                "id": 1245438,
+                "name": "Aeolon Core Protocol"
+            },
+            {
+                "id": 1245439,
+                "name": "Sun IPC server"
+            }
+        ]
     },
     {
         "cat": "Network Protocols_20",
@@ -4216,20 +6876,337 @@ const allAppsList = [
             {
                 "id": 1310822,
                 "name": "IBM NetView DM 6000 receive tcp"
+            },
+            {
+                "id": 1310823,
+                "name": "netGW"
+            },
+            {
+                "id": 1310824,
+                "name": "Network based Rev. Cont. Sys."
+            },
+            {
+                "id": 1310825,
+                "name": "Flexible License Manager"
+            },
+            {
+                "id": 1310826,
+                "name": "Fujitsu Device Control"
+            },
+            {
+                "id": 1310827,
+                "name": "Russell Info Sci Calendar Manager"
+            },
+            {
+                "id": 1310828,
+                "name": "Kerberos 5 admin changepw"
+            },
+            {
+                "id": 1310830,
+                "name": "rfile"
+            },
+            {
+                "id": 1310832,
+                "name": "pump"
+            },
+            {
+                "id": 1310833,
+                "name": "qrh"
+            },
+            {
+                "id": 1310834,
+                "name": "rrh"
+            },
+            {
+                "id": 1310835,
+                "name": "kerberos v5 server propagation"
+            },
+            {
+                "id": 1310836,
+                "name": "nlogin"
+            },
+            {
+                "id": 1310837,
+                "name": "con"
+            },
+            {
+                "id": 1310839,
+                "name": "ns"
+            },
+            {
+                "id": 1310840,
+                "name": "kpwd Kerberos (v4) passwd"
+            },
+            {
+                "id": 1310841,
+                "name": "quotad"
+            },
+            {
+                "id": 1310842,
+                "name": "cycleserv"
+            },
+            {
+                "id": 1310843,
+                "name": "omserv"
+            },
+            {
+                "id": 1310844,
+                "name": "webster"
+            },
+            {
+                "id": 1310845,
+                "name": "phone"
+            },
+            {
+                "id": 1310846,
+                "name": "vid"
+            },
+            {
+                "id": 1310847,
+                "name": "cadlock"
+            },
+            {
+                "id": 1310848,
+                "name": "rtip"
+            },
+            {
+                "id": 1310849,
+                "name": "cycleserv2"
+            },
+            {
+                "id": 1310850,
+                "name": "submit"
+            },
+            {
+                "id": 1310851,
+                "name": "rpasswd"
+            },
+            {
+                "id": 1310852,
+                "name": "entomb"
+            },
+            {
+                "id": 1310853,
+                "name": "wpages"
+            },
+            {
+                "id": 1310854,
+                "name": "Hummingbird Exceed jconfig"
+            },
+            {
+                "id": 1310855,
+                "name": "wpgs"
+            },
+            {
+                "id": 1310856,
+                "name": "concert"
+            },
+            {
+                "id": 1310857,
+                "name": "QSC"
+            },
+            {
+                "id": 1310858,
+                "name": "controlit"
+            },
+            {
+                "id": 1310859,
+                "name": "mdbs_daemon"
+            },
+            {
+                "id": 1310860,
+                "name": "Device"
+            },
+            {
+                "id": 1310861,
+                "name": "FCP"
+            },
+            {
+                "id": 1310862,
+                "name": "itm-mcell-s"
+            },
+            {
+                "id": 1310863,
+                "name": "PKIX-3 CA RA"
+            },
+            {
+                "id": 1310864,
+                "name": "DHCP Failover 2"
+            },
+            {
+                "id": 1310865,
+                "name": "SUP server"
+            },
+            {
+                "id": 1310866,
+                "name": "rsync"
+            },
+            {
+                "id": 1310867,
+                "name": "ICL coNETion locate server"
+            },
+            {
+                "id": 1310868,
+                "name": "ICL coNETion server info"
+            },
+            {
+                "id": 1310869,
+                "name": "AccessBuilder"
+            },
+            {
+                "id": 1310870,
+                "name": "OMG Initial Refs"
+            },
+            {
+                "id": 1310871,
+                "name": "Samba SWAT Tool"
+            },
+            {
+                "id": 1310872,
+                "name": "IDEAFARM-CHAT"
+            },
+            {
+                "id": 1310873,
+                "name": "IDEAFARM-CATCH"
+            },
+            {
+                "id": 1310874,
+                "name": "xact-backup"
+            },
+            {
+                "id": 1310875,
+                "name": "SecureNet Pro sensor"
+            },
+            {
+                "id": 1310878,
+                "name": "Netnews Administration System"
+            },
+            {
+                "id": 1310879,
+                "name": "Telnet Protocol over TLS SSL"
+            },
+            {
+                "id": 1310880,
+                "name": "IMAP4 Protocol over TLS SSL"
+            },
+            {
+                "id": 1310881,
+                "name": "ICP Protocol over TLS SSL"
+            },
+            {
+                "id": 1310882,
+                "name": "POP3 Protocol over TLS SSL"
+            },
+            {
+                "id": 1310883,
+                "name": "bhoetty"
+            },
+            {
+                "id": 1310884,
+                "name": "Cray Unified Resource Manager"
+            },
+            {
+                "id": 1310890,
+                "name": "AOL Authentication via SSL"
+            },
+            {
+                "id": 1310891,
+                "name": "FIX"
+            },
+            {
+                "id": 1310892,
+                "name": "STUN"
+            },
+            {
+                "id": 1310893,
+                "name": "Dynamic Host Configuration Protocol (DHCP)"
+            },
+            {
+                "id": 1310894,
+                "name": "Megaco"
+            },
+            {
+                "id": 1310895,
+                "name": "Rstatd"
+            },
+            {
+                "id": 1310896,
+                "name": "RSVP"
+            },
+            {
+                "id": 1310897,
+                "name": "SOAP"
+            },
+            {
+                "id": 1310898,
+                "name": "Ess Apple Authentication via SSL"
+            },
+            {
+                "id": 1310899,
+                "name": "TFTP"
+            },
+            {
+                "id": 1310900,
+                "name": "Daytime"
+            },
+            {
+                "id": 1310903,
+                "name": "Microsoft WINS"
+            },
+            {
+                "id": 1310904,
+                "name": "Remote Procedure Call (RPC)"
+            },
+            {
+                "id": 1310905,
+                "name": "SSL/TLS"
+            },
+            {
+                "id": 1310906,
+                "name": "Google APIs(SSL)"
+            },
+            {
+                "id": 1310907,
+                "name": "Sina Authentication via SSL"
+            },
+            {
+                "id": 1310908,
+                "name": "Google App Engine(SSL)"
+            },
+            {
+                "id": 1310909,
+                "name": "Google User Content(SSL)"
+            },
+            {
+                "id": 1310910,
+                "name": "Blackberry Authentication via SSL"
+            },
+            {
+                "id": 1310912,
+                "name": "Adobe Authentication via SSL"
+            },
+            {
+                "id": 1310914,
+                "name": "Lets Encrypt"
             }
         ]
     },
     {
         "cat": "Private Protocols",
         "catId": 23,
-        "apps": []
-    },
-    {
-        "cat": "Unknown_255",
-        "catId": 255,
-        "apps": []
+        "apps": [
+            {
+                "id": 1507329,
+                "name": "QQ Private Protocol"
+            },
+            {
+                "id": 1507330,
+                "name": "Thunder Private Protocol"
+            }
+        ]
     }
 ];
+
 
 
 const keys = allAppsList

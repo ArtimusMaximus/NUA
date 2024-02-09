@@ -126,7 +126,7 @@ export default function TrafficRules()
     return (
         <>
             <div className="flex items-center justify-center flex-col w-full h-full sm:w-3/4 lg:w-1/2 mx-auto pb-12">
-                <div className="btn" onClick={handleDeleteTestIds}>Delete Test Ids</div>
+                <div className="btn btn-disabled" onClick={handleDeleteTestIds}>Delete Test Ids</div>
                 <div className="flex w-full mx-2">
                     <div className="flex flex-col items-center justify-center w-full h-full mx-auto border rounded-lg shadow overflow-hidden border-neutral shadow-base-300 m-8">
                         <div className="flex w-full mt-2 justify-around">

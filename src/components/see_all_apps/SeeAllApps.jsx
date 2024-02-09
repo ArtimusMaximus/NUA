@@ -1,8 +1,9 @@
 import { useEffect, useRef, useState } from "react";
+import { newArray } from "../../traffic_rule_apps/app_ids_ugly";
 import {
- allAppsList,
- keys,
- mediaStreaming,
+    allAppsList,
+    keys,
+    mediaStreaming,
 	socialNetworks,
 	onlineGames,
 	peertopeerNetworks,
@@ -24,33 +25,10 @@ import {
 	networkp20,
 	privateProtocols,
 	Unknown_255,
-} from "../../traffic_rule_apps/workingAppsAndCats";
-// import {
-//         allAppsList,
-//         keys,
-//         mediaStreaming,
-//         socialNetworks,
-//         onlineGames,
-//         peertopeerNetworks,
-//         emailMessaging,
-//         instantMessengers,
-//         tunnelingProxy,
-//         fileSharing,
-//         voip,
-//         remoteAccess,
-//         databaseTools,
-//         managementProtocols,
-//         investmentPlatforms,
-//         webServices,
-//         securityUpdates,
-//         webIM,
-//         businessTools,
-//         networkP18,
-//         networkp19,
-//         networkp20,
-//         privateProtocols,
-//         Unknown_255,
+} from "../../traffic_rule_apps/unifi_match_list";
+// } from "../../traffic_rule_apps/workingAppsAndCats";
 // } from "../../traffic_rule_apps/app_ids";
+
 
 import { categoryDeviceObject, dbCategoryDeviceObject, appDeviceObject, appDbDeviceObject, allAppIds } from "./app_objects";
 import { IoMdRefresh } from "react-icons/io";
@@ -534,7 +512,14 @@ export default function SeeAllApps()
     ]);
 
     useEffect(() => { // get current devices
-        console.log(mediaStreaming);
+        // console.log(mediaStreaming);
+        let arr = [];
+        allAppsList.forEach((cat) => {
+            arr.push(cat.apps.length)
+        })
+        const l = arr.reduce((a, b) => a+b, 0);
+        console.log('all arrays length: \t', l);
+        console.log('newArray \t', newArray);
         const getDevices = async () => {
             try {
                 const fetchDevices = await fetch('/getcurrentdevices');
@@ -614,7 +599,7 @@ export default function SeeAllApps()
             objectCopy.app_ids.push(obj.id)
             return objectCopy;
         })
-        console.log('arrayOfObjects \t', arrayOfObjects);
+        // console.log('arrayOfObjects \t', arrayOfObjects);
         // console.log('categoryDeviceObjectCopy.app_category_ids \t', categoryDeviceObjectCopy.app_category_ids);
 
         try {
@@ -639,8 +624,8 @@ export default function SeeAllApps()
         <>
             <div className={`grid ${filteredArray.length === 2 ? '2xl:grid-cols-2 lg:grid-cols-2' : filteredArray.length === 1 ? '2xl-grid-cols-1 lg:grid-cols-1 xl-grid-cols-1' : '2xl:grid-cols-3 lg:grid-cols-2'} grid-cols-1 auto-rows-auto w-full sm:w-3/4 mx-auto py-12 gap-6`}>
                     <div className="w-full row-span-full col-span-full row-start-3 flex items-center justify-center flex-wrap gap-4">
-                    <div className="btn" onClick={handleTestCategories}>Test Categories</div>
-                    <div className="btn" onClick={handleTestApps}>Test Apps</div>
+                    <div className="btn btn-disabled" onClick={handleTestCategories}>Test Categories</div>
+                    <div className="btn btn-disabled" onClick={handleTestApps}>Test Apps</div>
                             <select className="select select-bordered" ref={selectCatRef} onChange={handleChange}>
                                 <option disabled selected value="default" className="font-bold hover:bg-accent">Select App Category</option>
                                 {keys.map((i) => {

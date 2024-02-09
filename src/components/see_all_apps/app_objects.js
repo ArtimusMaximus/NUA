@@ -88,8 +88,8 @@ export const appDeviceObject = {
     regions: [],
     schedule: { mode: 'ALWAYS', repeat_on_days: [], time_all_day: false },
     // target_devices: [ { network_id: '63c9eee5bf79960e3813bb10', type: 'NETWORK' } ]
-    target_devices: [ { client_mac: 'd8:31:34:5f:01:12', type: 'CLIENT'} ]
-    // target_devices: [],
+    // target_devices: [ { client_mac: 'd8:31:34:5f:01:12', type: 'CLIENT'} ]
+    target_devices: [],
 }
 export const appDbDeviceObject = {
   action: 'BLOCK',
