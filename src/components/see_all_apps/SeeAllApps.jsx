@@ -552,80 +552,80 @@ export default function SeeAllApps()
         getDevices();
     }, [render]);
 
-    const handleTestCategories = async () => {
-        const allCatIds = [1, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 17, 18, 19, 20, 23, 24, 255];
+    // const handleTestCategories = async () => {
+    //     const allCatIds = [1, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 17, 18, 19, 20, 23, 24, 255];
 
-        console.log('allCategoryIds: \t', allCatIds);
-        // categoryDeviceObject.app_category_ids.push(...allCatIds);
-        const categoryDeviceObjectCopy = JSON.parse(JSON.stringify(categoryDeviceObject));
-        console.log('categoryDeviceObjectCopy \t', categoryDeviceObjectCopy);
-        const arrayOfObjects = allCatIds.map((app_category_ids) => {
-            const objectCopy = JSON.parse(JSON.stringify(categoryDeviceObjectCopy))
-            objectCopy.app_category_ids.push(app_category_ids)
-            return objectCopy;
-        })
-        console.log('arrayOfObjects \t', arrayOfObjects);
-        // console.log('categoryDeviceObjectCopy.app_category_ids \t', categoryDeviceObjectCopy.app_category_ids);
+    //     console.log('allCategoryIds: \t', allCatIds);
+    //     // categoryDeviceObject.app_category_ids.push(...allCatIds);
+    //     const categoryDeviceObjectCopy = JSON.parse(JSON.stringify(categoryDeviceObject));
+    //     console.log('categoryDeviceObjectCopy \t', categoryDeviceObjectCopy);
+    //     const arrayOfObjects = allCatIds.map((app_category_ids) => {
+    //         const objectCopy = JSON.parse(JSON.stringify(categoryDeviceObjectCopy))
+    //         objectCopy.app_category_ids.push(app_category_ids)
+    //         return objectCopy;
+    //     })
+    //     console.log('arrayOfObjects \t', arrayOfObjects);
+    //     // console.log('categoryDeviceObjectCopy.app_category_ids \t', categoryDeviceObjectCopy.app_category_ids);
 
-        try {
-            const postCategories = await fetch('/getallworking', {
-                method: 'POST',
-                mode: 'cors',
-                headers: {
-                    "Content-Type" : "application/json"
-                },
-                body: JSON.stringify({ arrayOfObjects })
-            })
-            if (postCategories.ok) {
-                const { failedCategories, successfulCategories } = await postCategories.json();
-                console.log('failedCategories \t', failedCategories);
-                console.log('successfulCategories \t', successfulCategories);
-            }
-        } catch (error) {
-            console.error(error)
-        }
-    }
-    const handleTestApps = async () => {
-        // const allCatIds = [1, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 17, 18, 19, 20, 23, 24, 255];
-        // const chunk1 = allAppIds.slice(196, 220)
-        // web services too large
-        const webServicesLength = webServices.length;
-        const webServicesInHalf = webServices.slice(0, webServicesLength/2);
-        const webServicesOtherHalf = webServices.slice(webServicesLength/2);
-        // console.log('webOtherHalf \t', webOtherHalf);
+    //     try {
+    //         const postCategories = await fetch('/getallworking', {
+    //             method: 'POST',
+    //             mode: 'cors',
+    //             headers: {
+    //                 "Content-Type" : "application/json"
+    //             },
+    //             body: JSON.stringify({ arrayOfObjects })
+    //         })
+    //         if (postCategories.ok) {
+    //             const { failedCategories, successfulCategories } = await postCategories.json();
+    //             console.log('failedCategories \t', failedCategories);
+    //             console.log('successfulCategories \t', successfulCategories);
+    //         }
+    //     } catch (error) {
+    //         console.error(error)
+    //     }
+    // }
+    // const handleTestApps = async () => {
+    //     // const allCatIds = [1, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 17, 18, 19, 20, 23, 24, 255];
+    //     // const chunk1 = allAppIds.slice(196, 220)
+    //     // web services too large
+    //     const webServicesLength = webServices.length;
+    //     const webServicesInHalf = webServices.slice(0, webServicesLength/2);
+    //     const webServicesOtherHalf = webServices.slice(webServicesLength/2);
+    //     // console.log('webOtherHalf \t', webOtherHalf);
 
-        const arrayOfObjects = emailMessaging.map((obj) => {
-            const objectCopy = JSON.parse(JSON.stringify(appDeviceObject))
-            objectCopy.app_ids.push(obj.id)
-            return objectCopy;
-        })
-        // console.log('arrayOfObjects \t', arrayOfObjects);
-        // console.log('categoryDeviceObjectCopy.app_category_ids \t', categoryDeviceObjectCopy.app_category_ids);
+    //     const arrayOfObjects = emailMessaging.map((obj) => {
+    //         const objectCopy = JSON.parse(JSON.stringify(appDeviceObject))
+    //         objectCopy.app_ids.push(obj.id)
+    //         return objectCopy;
+    //     })
+    //     // console.log('arrayOfObjects \t', arrayOfObjects);
+    //     // console.log('categoryDeviceObjectCopy.app_category_ids \t', categoryDeviceObjectCopy.app_category_ids);
 
-        try {
-            const postCategories = await fetch('/getallworking', {
-                method: 'POST',
-                mode: 'cors',
-                headers: {
-                    "Content-Type" : "application/json"
-                },
-                body: JSON.stringify({ arrayOfObjects })
-            })
-            if (postCategories.ok) {
-                const { allFailedApps, allSuccessfulApps } = await postCategories.json();
-                console.log('allFailedApps \t', allFailedApps);
-                console.log('allSuccessfulApps \t', allSuccessfulApps);
-            }
-        } catch (error) {
-            console.error(error)
-        }
-    }
+    //     try {
+    //         const postCategories = await fetch('/getallworking', {
+    //             method: 'POST',
+    //             mode: 'cors',
+    //             headers: {
+    //                 "Content-Type" : "application/json"
+    //             },
+    //             body: JSON.stringify({ arrayOfObjects })
+    //         })
+    //         if (postCategories.ok) {
+    //             const { allFailedApps, allSuccessfulApps } = await postCategories.json();
+    //             console.log('allFailedApps \t', allFailedApps);
+    //             console.log('allSuccessfulApps \t', allSuccessfulApps);
+    //         }
+    //     } catch (error) {
+    //         console.error(error)
+    //     }
+    // }
     return (
         <>
             <div className={`grid ${filteredArray.length === 2 ? '2xl:grid-cols-2 lg:grid-cols-2' : filteredArray.length === 1 ? '2xl-grid-cols-1 lg:grid-cols-1 xl-grid-cols-1' : '2xl:grid-cols-3 lg:grid-cols-2'} grid-cols-1 auto-rows-auto w-full sm:w-3/4 mx-auto py-12 gap-6`}>
                     <div className="w-full row-span-full col-span-full row-start-3 flex items-center justify-center flex-wrap gap-4">
-                    <div className="btn btn-disabled" onClick={handleTestCategories}>Test Categories</div>
-                    <div className="btn btn-disabled" onClick={handleTestApps}>Test Apps</div>
+                    {/* <div className="btn btn-disabled" onClick={handleTestCategories}>Test Categories</div>
+                    <div className="btn btn-disabled" onClick={handleTestApps}>Test Apps</div> */}
                             <select className="select select-bordered" ref={selectCatRef} onChange={handleChange}>
                                 <option disabled selected value="default" className="font-bold hover:bg-accent">Select App Category</option>
                                 {keys.map((i) => {
@@ -700,7 +700,7 @@ export default function SeeAllApps()
                             </div>
                         </div>
                     <div className="flex flex-col mb-2">
-                        <h1 className=" font-bold">Devices to manage Apps:</h1>
+                        <h1 className=" font-bold">Devices:</h1>
                        {devices.map((device) => {
                         return (
                             <>
