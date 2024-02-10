@@ -100,7 +100,7 @@ export const appDbDeviceObject = {
     enabled: false,
     upload_limit_kbps: 1024
   },
-  description: 'Email Messaging Services',
+  description: '',
   domains: [],
   enabled: true,
   ip_addresses: [],

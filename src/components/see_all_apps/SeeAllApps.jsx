@@ -637,7 +637,7 @@ export default function SeeAllApps()
                                 })}
                             </select>
                             <input className="input input-bordered" placeholder="Search..." onChange={handleSearchByText} />
-                        <button className="btn" onClick={handleModalOpen}>{appSelection.length ? 'Manage Apps in ' : 'Manage Category '} <span className="text-accent">{filter}</span></button>
+                        <button className="btn" onClick={handleModalOpen}>{appSelection.length ? 'Manage Selected Apps' : `Manage ${filter} Category`}</button>
                         <div className="btn btn-circle" onClick={handleResetManually}><IoMdRefresh className="pointer-events-none w-7 h-7" /></div>
                     </div>
                     {filteredArray?.map((app) => {
@@ -662,10 +662,10 @@ export default function SeeAllApps()
             </div>
             <dialog ref={manageDialogRef} className="modal">
                 <div className="modal-box">
-                    <h3 className="flex font-bold text-lg items-center justify-center mt-2">Manage</h3>
+                    <h3 className="flex font-bold text-lg items-center justify-center mt-2">Create Traffic Rule</h3>
                     <div className="divider"></div>
-                    <div className="m-1 flex flex-col gap-2">
-                        {!appSelection.length && <span>Selected Category:&nbsp;<span className="text-accent">{categoryName}</span></span>}
+                    <div className="my-2 flex flex-col gap-2">
+                        {!appSelection.length && <h1 className="font-bold">Selected Category:&nbsp;<span className="text-accent">{categoryName}</span></h1>}
                         <h1 className={`${appSelection.length ? 'font-bold' : 'hidden'}`}>Selected Apps:</h1>
                         <div className={`${appSelection.length ? 'flex flex-row flex-wrap gap-2' : 'hidden'}`}>{appSelection.length ? appSelection?.map((app) => {
                             return (
@@ -675,11 +675,11 @@ export default function SeeAllApps()
                             )
                         }) : <span className="italic">none selected</span>}</div>
                         </div>
-                    <div className="flex flex-col mb-2 my-2 gap-4">
+                    <div className="flex flex-col my-2 gap-4">
                         <h1 className="font-bold">Description:</h1>
                         <input className="input input-bordered" placeholder="Add Description" ref={descriptionRef} onChange={handleDescription} />
                     </div>
-                    <div className="flex items-center justify-center">
+                    <div className="my-2 flex items-center justify-center">
                         <div className="join m-4">
                                 <input
                                     onClick={handleAllow}
@@ -720,8 +720,9 @@ export default function SeeAllApps()
                         )
                        })}
                     </div>
-                    <div className="modal-action">
-                        <div className="mr-auto">
+                    <div className="flex justify-between">
+                        <div className="btn" onClick={handleModalClose}>Exit</div>
+                        <div>
                             <div
                                 className={`
                                     ${!appSelection.length ? 'btn' : 'hidden'}
@@ -730,7 +731,7 @@ export default function SeeAllApps()
                                     ${description === "" ? 'btn-disabled' : ''}
                                     ${blockAllow === "" ? 'btn-disabled' : ''}
                                 `}
-                                onClick={handleManageCategory}>{loading ? <span className="loading loading-spinner w-6 h-6 text-accent"></span> : 'Manage Category'}</div>
+                                onClick={handleManageCategory}>{loading ? <span className="loading loading-spinner w-6 h-6 text-accent"></span> : 'Create Rule'}</div>
                             <div
                                 className={`
                                     ${appSelection.length ? 'btn' : 'hidden'}
@@ -739,9 +740,8 @@ export default function SeeAllApps()
                                     ${description === "" ? 'btn-disabled' : ''}
                                     ${blockAllow === "" ? 'btn-disabled' : ''}
                                 `}
-                                onClick={handleManageApps}>{loading ? <span className="loading loading-spinner w-6 h-6 text-accent"></span> : 'Manage Apps'}</div>
+                                onClick={handleManageApps}>{loading ? <span className="loading loading-spinner w-6 h-6 text-accent"></span> : 'Create Rule'}</div>
                         </div>
-                        <div className="btn" onClick={handleModalClose}>Exit</div>
                     </div>
                 </div>
             </dialog>

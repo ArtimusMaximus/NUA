@@ -77,13 +77,13 @@ export default function Navbar({ themeValue, callBackChanged })
                   {/* Sidebar content here */}
                   <Link to="/"><li className="font-bold text-lg"><a>Home</a></li></Link>
                   <Link to="/sitesettings"><li className="font-bold text-lg"><a>Site Settings</a></li></Link>
-                  <Link to="/blockeddevices"><li className="font-bold text-lg"><a>See All Blocked</a></li></Link>
+                  {/* <Link to="/blockeddevices"><li className="font-bold text-lg"><a>See All Blocked</a></li></Link> */}
                   <Link to="/alldevices"><li className="font-bold text-lg"><a>See All Devices</a></li></Link>
                   <Link to="/trafficrules"><li className="font-bold text-lg"><a>Traffic Rules</a></li></Link>
                   <Link to="/seeallapps"><li className="font-bold text-lg"><a>See All Apps</a></li></Link>
                 </ul>
                 <div className={`${open ? "absolute left-5 bottom-5" : "hidden"}`}>
-                  <div className="badge badge-outline">Version <span className="text-primary">1.0.0</span></div>
+                  <div className="badge badge-outline">Version&nbsp;<span className="text-primary">1.0.0</span></div>
                 </div>
               </div>
             </div>
