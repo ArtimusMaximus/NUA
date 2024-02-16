@@ -8,18 +8,35 @@ import {
 function flattenAll (arr) {
     return arr.flat(Infinity)
 }
-
 export const allAppNames = () => {
     const allAppsNamesIds = allAppsList.map((obj) => {
         return obj.apps.map((nameId) => {
-            return { name: nameId.name, id: nameId.id }
+            return { name: nameId.name, id: nameId.id };
         });
     });
     return allAppsNamesIds.flat()
 }
-
+export const allCatNames = () => {
+    const allCatNames = allAppsList.map((obj) => {
+        return { name: obj.cat, id: obj.catId };
+    });
+    return allCatNames;
+}
 export const createMatchingAppNames = (allAppNames, deviceAppsList) => {
-    const matches = allAppNames.filter(app => deviceAppsList.some(appId => appId === app.id));
+    const matches = allAppNames.filter(app =>
+        deviceAppsList.some(appId =>
+            appId === app.id
+        )
+    );
+    // console.log(matches);
+    return matches;
+}
+export const createMatchingCatNames = (allCatNames, deviceCatList) => {
+    const matches = allCatNames.filter(cat =>
+        deviceCatList.some(catId =>
+            catId === cat.catId
+        )
+    );
     // console.log(matches);
     return matches;
 }
@@ -32,7 +49,6 @@ export function appNameFinder(unifiObjectArray, masterList = allAppsList) {
     const nameAndId = matched.map(item => ({ id: item.id, name: item.name }));
     return nameAndId;
 }
-
 export function getDeviceFromMac(allDeviceList, existingDeviceList, macArray, dbObject) { // uses allClientDevices(), not just applied ones
     const checkForNetworkIds = macArray.target_devices.filter(td => Object.keys(td).includes("network_id"));
     const checkForClientMac = macArray.target_devices.filter(td => Object.keys(td).includes("client_mac"));
@@ -64,7 +80,6 @@ export function getDeviceFromMac(allDeviceList, existingDeviceList, macArray, db
         return dbObject;
     }
 }
-
 export function importToDbConverter(importedRules, allDeviceList, existingDeviceList) {
     const categoryClones = [];
     const appClones = [];
@@ -78,12 +93,14 @@ export function importToDbConverter(importedRules, allDeviceList, existingDevice
             const importDBAppObject = { ...appDbDeviceObjectClone, ...importedRules[i] };
             console.log('importDBAppObject \t', importDBAppObject);
 
-            const matches = createMatchingAppNames(allAppNames(), importDBAppObject.app_ids);
-            if (matches.length) {
-                importDBAppObject.appSelection.push(...matches)
+            const appMatches = createMatchingAppNames(allAppNames(), importDBAppObject.app_ids);
+            const catMatches = createMatchingCatNames(allAppNames(), importDBAppObject.app_category_ids)
+
+            if (appMatches.length) {
+                importDBAppObject.appSelection.push(...appMatches)
             }
 
-            const deviceList = getDeviceFromMac(allDeviceList, existingDeviceList, importDBAppObject, importDBAppObject)
+            const deviceList = getDeviceFromMac(allDeviceList, existingDeviceList, importDBAppObject, importDBAppObject);
             if (deviceList.length) {
                 const c = flattenAll(deviceList)
                 importDBAppObject.devices.push(...c)
@@ -92,9 +109,9 @@ export function importToDbConverter(importedRules, allDeviceList, existingDevice
             }
             appClones.push(importDBAppObject)
         } else if (importedRules[i].matching_target === "APP_CATEGORY") {
-            const importDBCatObject = { ...dbCategoryDeviceObjectClone, ...importedRules[i]  }
-            console.log('importDBCatObject \t', importDBCatObject);
-            const deviceList = getDeviceFromMac(allDeviceList, existingDeviceList, importDBCatObject, importDBCatObject)
+            const importDBCatObject = { ...dbCategoryDeviceObjectClone, ...importedRules[i]  };
+
+            const deviceList = getDeviceFromMac(allDeviceList, existingDeviceList, importDBCatObject, importDBCatObject);
 
             if (deviceList.length) {
                 const c = flattenAll(deviceList)
@@ -104,17 +121,17 @@ export function importToDbConverter(importedRules, allDeviceList, existingDevice
             }
             categoryClones.push(importDBCatObject)
         } else if (importedRules[i].matching_target === "INTERNET") {
-            const importDBInternetCatObject = { ...internetDbDeviceObjectClone, ...importedRules[i] }
-            console.log('importDBInternetCatObject \t', importDBInternetCatObject);
-            const deviceList = getDeviceFromMac(allDeviceList, existingDeviceList, importDBInternetCatObject, importDBInternetCatObject)
+            const importDBInternetCatObject = { ...internetDbDeviceObjectClone, ...importedRules[i] };
+
+            const deviceList = getDeviceFromMac(allDeviceList, existingDeviceList, importDBInternetCatObject, importDBInternetCatObject);
 
             if (deviceList.length) {
-                const c = flattenAll(deviceList)
+                const c = flattenAll(deviceList);
                 importDBInternetCatObject.devices.push(...c);
             } else {
                 importDBInternetCatObject.devices = [];
             }
-            categoryClones.push(importDBInternetCatObject)
+            categoryClones.push(importDBInternetCatObject);
         }
     }
     return { categoryClones, appClones }

@@ -85,7 +85,7 @@ model TrafficRuleDevices {
   id                    Int          @id @default(autoincrement())
   createdAt             DateTime     @default(now())
   deviceName            String
-  deviceId              Int
+  deviceId              Int?
   macAddress            String
   trafficRules          TrafficRules @relation(fields: [trafficRulesId], references: [id])
   trafficRulesId        Int
