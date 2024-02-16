@@ -1517,41 +1517,48 @@ app.post('/getallworking', async (req, res) => {
 
 //~~~~~~~temp delete test ids~~~~~~~~~
 app.delete('/deletetestids', async (req, res) => {
-    const { touchableIds } = req.body;
+    const { touchableIds, asda } = req.body;
     console.log('touchableIds \t', touchableIds);
 
-    async function deleteTestIds(touchableIds) {
-        for (const id of touchableIds) {
-            let path = `/v2/api/site/default/trafficrules/${id._id}`;
+    let path = `/v2/api/site/default/trafficrules/${asda[0]}`;
             try {
                 await unifi.customApiRequest(path, 'DELETE', null)
             } catch (error) {
                 console.error(error)
             }
-        }
+
+    async function deleteTestIds(touchableIds) {
+        // for (const id of touchableIds) {
+            // let path = `/v2/api/site/default/trafficrules/${asda[0]}`;
+            // try {
+            //     await unifi.customApiRequest(path, 'DELETE', null)
+            // } catch (error) {
+            //     console.error(error)
+            // }
+        // }
     }
-    function chunkArray(array, chunkSize) {
-        const chunks = [];
-        for (let i = 0; i < array.length; i+=chunkSize) {
-            chunks.push(array.slice(i, i+chunkSize))
-        }
-        return chunks;
-    }
-    async function deleteRulesInChunks(touchableIds, chunkSize) {
-        const chunks = chunkArray(touchableIds, chunkSize);
-        const successArray = [];
-        for (const chunk of chunks) {
-            const delResult = await deleteTestIds(chunk);
-            successArray.push(delResult)
-        }
-        return successArray;
-    }
-    const chunkSize = 5;
-    deleteRulesInChunks(touchableIds, chunkSize)
-        .then((successArray) => {
-            console.log(successArray.length);
-            res.json({ successArray: successArray })
-        }).catch(error => console.error(error, 'Error deleting many...'))
+    // function chunkArray(array, chunkSize) {
+    //     const chunks = [];
+    //     for (let i = 0; i < array.length; i+=chunkSize) {
+    //         chunks.push(array.slice(i, i+chunkSize))
+    //     }
+    //     return chunks;
+    // }
+    // async function deleteRulesInChunks(touchableIds, chunkSize) {
+    //     const chunks = chunkArray(touchableIds, chunkSize);
+    //     const successArray = [];
+    //     for (const chunk of chunks) {
+    //         const delResult = await deleteTestIds(chunk);
+    //         successArray.push(delResult)
+    //     }
+    //     return successArray;
+    // }
+    // const chunkSize = 5;
+    // deleteRulesInChunks(touchableIds, chunkSize)
+    //     .then((successArray) => {
+    //         console.log(successArray.length);
+    //         res.json({ successArray: successArray })
+    //     }).catch(error => console.error(error, 'Error deleting many...'))
 });
 
 

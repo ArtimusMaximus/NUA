@@ -102,30 +102,31 @@ export default function TrafficRules()
             console.error(error);
         }
     }
-    // const handleDeleteTestIds = async () => {
-    //     const untouchableIds = [ "6575d1891769d72344f9e1af", "65a9260d7d12773fe586ec4b", "65bda95338fb85531f321e7e" ];
-    //     const touchableIds = unifiRuleObject.filter(id => !untouchableIds.some(ids => ids === id._id));
-    //     // const touchableIds = touchableId.slice(0, 100);
+    const handleDeleteTestIds = async () => {
+        const untouchableIds = [ "6575d1891769d72344f9e1af", "65a9260d7d12773fe586ec4b", "65bda95338fb85531f321e7e" ];
+        const touchableIds = unifiRuleObject.filter(id => !untouchableIds.some(ids => ids === id._id));
+        // const touchableIds = touchableId.slice(0, 100);
+        const asda = ["65c59f2538fb85531f3569d6"];
 
-    //     console.log('touchableIds \t', touchableIds);
-    //     try {
-    //         const deleteManyTestIds = await fetch('/deletetestids', {
-    //             method: "DELETE",
-    //             mode: "cors",
-    //             headers: {
-    //                 "Content-Type" : "application/json"
-    //             },
-    //             body: JSON.stringify({ touchableIds })
-    //         });
-    //         if (deleteManyTestIds.ok) {
-    //             const { successArray } = await deleteManyTestIds.json();
-    //             console.log('successArray: \t', successArray);
-    //             console.log('successArray.length: \t', successArray.length);
-    //         }
-    //     } catch (error) {
-    //         console.error(error);
-    //     }
-    // }
+        console.log('touchableIds \t', touchableIds);
+        try {
+            const deleteManyTestIds = await fetch('/deletetestids', {
+                method: "DELETE",
+                mode: "cors",
+                headers: {
+                    "Content-Type" : "application/json"
+                },
+                body: JSON.stringify({ asda })
+            });
+            if (deleteManyTestIds.ok) {
+                const { successArray } = await deleteManyTestIds.json();
+                console.log('successArray: \t', successArray);
+                console.log('successArray.length: \t', successArray.length);
+            }
+        } catch (error) {
+            console.error(error);
+        }
+    }
     const handleImportOption = async () => {
         const importExists = checkForImportRules(customAPIRules, unifiRuleObject);
         if (importExists.length) {
@@ -202,7 +203,7 @@ export default function TrafficRules()
     return (
         <>
             <div className="flex items-center justify-center flex-col w-full h-full sm:w-3/4 lg:w-1/2 mx-auto pb-12">
-                {/* <div className="btn btn-disabled" onClick={handleDeleteTestIds}>Delete Test Ids</div> */}
+                <div className="btn" onClick={handleDeleteTestIds}>Delete Test Ids</div>
                 <div className="flex w-full mx-2">
                     <div className="flex flex-col items-center justify-center w-full h-full mx-auto border rounded-lg shadow overflow-hidden border-neutral shadow-base-300 m-8">
                         <div className="flex w-full mt-2 justify-around">
