@@ -148,49 +148,49 @@ export default function Devices({ data, toggleReRender, handleRenderToggle })
         }
         updateEdits();
     }
-    const handleDragStart = e => {
-        const deviceOrderId = e.currentTarget.getAttribute('data-devid');
-        e.dataTransfer.setData('text/plain', deviceOrderId);
-        console.log('deviceOrderId \t', deviceOrderId);
-    }
-    const handleDragOver = e => {
-        e.preventDefault();
-    }
-    const handleDrop = async e => {
-        e.preventDefault();
-        const draggedDeviceId = e.dataTransfer.getData("text/plain");
-        const targetDeviceId = e.currentTarget.getAttribute("data-devid");
-        const newData = [...data?.macData];
-        let draggedDeviceIndex = newData.findIndex(device => device?.id === parseInt(draggedDeviceId));
-        let targetDeviceIndex = newData.findIndex(device => device?.id === parseInt(targetDeviceId));
+    // const handleDragStart = e => {
+    //     const deviceOrderId = e.currentTarget.getAttribute('data-devid');
+    //     e.dataTransfer.setData('text/plain', deviceOrderId);
+    //     console.log('deviceOrderId \t', deviceOrderId);
+    // }
+    // const handleDragOver = e => {
+    //     e.preventDefault();
+    // }
+    // const handleDrop = async e => {
+    //     e.preventDefault();
+    //     const draggedDeviceId = e.dataTransfer.getData("text/plain");
+    //     const targetDeviceId = e.currentTarget.getAttribute("data-devid");
+    //     const newData = [...data?.macData];
+    //     let draggedDeviceIndex = newData.findIndex(device => device?.id === parseInt(draggedDeviceId));
+    //     let targetDeviceIndex = newData.findIndex(device => device?.id === parseInt(targetDeviceId));
 
-        if (draggedDeviceIndex !== -1 && targetDeviceIndex !== -1) {
-            const temp = newData[draggedDeviceIndex].order
-            newData[draggedDeviceIndex].order = newData[targetDeviceIndex].order
-            newData[targetDeviceIndex].order = temp
+    //     if (draggedDeviceIndex !== -1 && targetDeviceIndex !== -1) {
+    //         const temp = newData[draggedDeviceIndex].order
+    //         newData[draggedDeviceIndex].order = newData[targetDeviceIndex].order
+    //         newData[targetDeviceIndex].order = temp
 
-            // const temp2 = newData[draggedDeviceIndex]
-            // newData[draggedDeviceIndex] = newData[targetDeviceIndex]
-            // newData[targetDeviceIndex] = temp2
+    //         // const temp2 = newData[draggedDeviceIndex]
+    //         // newData[draggedDeviceIndex] = newData[targetDeviceIndex]
+    //         // newData[targetDeviceIndex] = temp2
 
-        }
-        newData.sort((a,b) => parseInt(a.order) - parseInt(b.order))
-        try {
-            const updateOrder = await fetch('/updatedeviceorder', {
-                method: 'PUT',
-                mode: 'cors',
-                headers: {
-                    'Content-Type' : 'application/json'
-                },
-                body: JSON.stringify({ newData })
-            });
-            if (updateOrder.ok) {
-                handleRenderToggle();
-            }
-        } catch (error) {
-            console.error(error);
-        }
-    }
+    //     }
+    //     newData.sort((a,b) => parseInt(a.order) - parseInt(b.order))
+    //     try {
+    //         const updateOrder = await fetch('/updatedeviceorder', {
+    //             method: 'PUT',
+    //             mode: 'cors',
+    //             headers: {
+    //                 'Content-Type' : 'application/json'
+    //             },
+    //             body: JSON.stringify({ newData })
+    //         });
+    //         if (updateOrder.ok) {
+    //             handleRenderToggle();
+    //         }
+    //     } catch (error) {
+    //         console.error(error);
+    //     }
+    // }
 
     return (
         <>
@@ -217,7 +217,7 @@ export default function Devices({ data, toggleReRender, handleRenderToggle })
                                                                 className={`${device?.active ? 'text-green-500' : 'text-red-500'} animate-pulse w-8 h-8 z-40`}
                                                                 />
                                                             {device?.name}
-                                                            <div
+                                                            {/* <div
                                                                 draggable={true}
                                                                 data-orderid={`${index+1}`}
                                                                 data-devid={device?.id}
@@ -226,7 +226,7 @@ export default function Devices({ data, toggleReRender, handleRenderToggle })
                                                                 onDrop={handleDrop}
                                                                 className="rotate-90 z-50 hover:cursor-grab">
                                                                 |||
-                                                            </div>
+                                                            </div> */}
                                                         </div>
 
                                                     </div>

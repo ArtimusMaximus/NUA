@@ -15,17 +15,26 @@ export default function TrafficRules()
     const [unifiRuleObject, setUnifiRuleObject] = useState([]);
     const [importRuleChoices, setImportRuleChoices] = useState([]);
     const [importRuleSelection, setImportRuleSelection] = useState([]);
+    const [importDeviceSelection, setImportDeviceSelection] = useState([]);
     const [checked, setChecked] = useState(false);
+    const [checked2, setChecked2] = useState(false);
     const [render, setRender] = useState(false);
     const [importOption, setImportOption] = useState(false);
+    const [anyImportSelectionMade, setAnyImportSelectionMade] = useState(null);
     const importDialogRef = useRef();
 
-
     function checkForImportRules(dbData, unifiData) {
-        const importData = unifiData.filter(unifiData =>
+        const filterOutInternetMatchingTarget = unifiData.filter((rule) => rule.matching_target !== "INTERNET")
+        const importData = filterOutInternetMatchingTarget.filter(unifiData =>
             dbData.some(dbIds => dbIds.trafficRule.unifiId !== unifiData._id));
-            console.log(importData)
+            // console.log('checkForImportRules \t', importData);
         return importData;
+    }
+    function checkDeviceType(arr) {
+        const filteredDevices = arr.filter(device => {
+            return !(device?.target_devices?.every(innerDevice => innerDevice?.type === "NETWORK"));
+        });
+        return filteredDevices;
     }
     const handleImportModalOpen = () => {
         importDialogRef.current.showModal();
@@ -34,11 +43,12 @@ export default function TrafficRules()
         importDialogRef.current.close();
     }
     const handleSelectedImport = (e, id) => {
+
+        setChecked(prevState => ({
+            ...prevState,
+            [id]: !prevState[id]
+        }));
         const choicesFilter = importRuleChoices.filter((choice) => choice._id === id);
-            setChecked(prevState => ({
-                ...prevState,
-                [id]: !prevState[id]
-            }));
             if (e.target.checked) {
                 const noDuplicates = [...new Set(choicesFilter)]
                 setImportRuleSelection(prev => ([
@@ -52,12 +62,31 @@ export default function TrafficRules()
             }
             console.log('importRuleSelection \t', importRuleSelection);
     }
+    // const handleSelectedDeviceImport = (e, id) => {
+    //     const choicesFilter = importRuleChoices.filter((choice) => choice._id === id);
+    //         setChecked2(prevState => ({
+    //             ...prevState,
+    //             [id]: !prevState[id]
+    //         }));
+    //         if (e.target.checked) {
+    //             const noDuplicates = [...new Set(choicesFilter)]
+    //             setImportDeviceSelection(prev => ([
+    //                 ...prev,
+    //                 ...noDuplicates
+    //             ]))
+    //         } else if (!e.target.checked) {
+    //             const filteredOut = importRuleSelection.filter(id => id._id !== e.target.dataset.unifiid)
+    //             const noDuplicates = [...new Set(filteredOut)];
+    //             setImportDeviceSelection([...noDuplicates]);
+    //         }
+    //         console.log('ImportDeviceSelection \t', importDeviceSelection);
+    // }
     const reRender = () => {
         setRender(prev => !prev);
     }
     const handleToggle = async e => {
         const checked = e.target.checked;
-        console.log('checked \t', checked);
+        // console.log('checked \t', checked);
         const _id = e.target.dataset.unifiruleid;
         const findUnifiObj = unifiRuleObject.filter(rule => rule._id === _id).pop();
         const unifiObjCopy = JSON.parse(JSON.stringify(findUnifiObj));
@@ -108,7 +137,7 @@ export default function TrafficRules()
         // const touchableIds = touchableId.slice(0, 100);
         const asda = ["65c59f2538fb85531f3569d6"];
 
-        console.log('touchableIds \t', touchableIds);
+        // console.log('touchableIds \t', touchableIds);
         try {
             const deleteManyTestIds = await fetch('/deletetestids', {
                 method: "DELETE",
@@ -120,8 +149,8 @@ export default function TrafficRules()
             });
             if (deleteManyTestIds.ok) {
                 const { successArray } = await deleteManyTestIds.json();
-                console.log('successArray: \t', successArray);
-                console.log('successArray.length: \t', successArray.length);
+                // console.log('successArray: \t', successArray);
+                // console.log('successArray.length: \t', successArray.length);
             }
         } catch (error) {
             console.error(error);
@@ -146,15 +175,16 @@ export default function TrafficRules()
                 },
                 body: JSON.stringify({ categoryClones, appClones })
             });
+
             if (importExistingRules.ok) {
-                const res = importExistingRules.json();
-                console.log(res);
+                // const res = importExistingRules.json();
+                // console.log('importExistingRules.ok: \t', res);
+                handleImportModalClose();
+                reRender();
             }
         } catch (error) {
             console.error(error);
         }
-
-
     }
 
     useEffect(() => { // refresh after re-render && initial?
@@ -164,14 +194,26 @@ export default function TrafficRules()
                 if (getCustomRules.ok) {
                     const { trafficRuleDbData, unifiData } = await getCustomRules.json();
                     console.log('trafficRuleDbData rerender: \t', trafficRuleDbData);
-                    setCustomAPIRules(trafficRuleDbData);
-                    console.log('unifiData rerender: \t', unifiData);
-                    setUnifiRuleObject(unifiData);
 
-                    const importExists = checkForImportRules(trafficRuleDbData, unifiData);
-                    if (importExists.length) {
+
+                    setCustomAPIRules(trafficRuleDbData);
+                    setUnifiRuleObject(unifiData);
+                    console.log('unifiData rerender: \t', unifiData);
+
+                    const filteredOutNetworkDevices = checkDeviceType(unifiData);
+                    console.log('checkDeviceType: \t', checkDeviceType(unifiData));
+
+                    const importExists = checkForImportRules(trafficRuleDbData, filteredOutNetworkDevices);
+                    console.log('importExists \t', importExists);
+
+                    console.log('customAPIRules \t', customAPIRules); // empty
+                    const filterOutRulesAlreadyInList = importExists.filter(rule => !trafficRuleDbData.some(obj => obj.trafficRule.unifiId === rule._id));
+
+                    console.log('filterOutRulesAlreadyInList \t', filterOutRulesAlreadyInList);
+                    if (filterOutRulesAlreadyInList.length) {
                         setImportOption(true);
-                        setImportRuleChoices([...importExists])
+
+                        setImportRuleChoices([...filterOutRulesAlreadyInList])
                     }
                 }
             } catch (error) {
@@ -203,7 +245,7 @@ export default function TrafficRules()
     return (
         <>
             <div className="flex items-center justify-center flex-col w-full h-full sm:w-3/4 lg:w-1/2 mx-auto pb-12">
-                <div className="btn" onClick={handleDeleteTestIds}>Delete Test Ids</div>
+                {/* <div className="btn" onClick={handleDeleteTestIds}>Delete Test Ids</div> */}
                 <div className="flex w-full mx-2">
                     <div className="flex flex-col items-center justify-center w-full h-full mx-auto border rounded-lg shadow overflow-hidden border-neutral shadow-base-300 m-8">
                         <div className="flex w-full mt-2 justify-around">
@@ -272,42 +314,24 @@ export default function TrafficRules()
                 </div>
                 <div className="flex flex-row gap-6 flex-wrap mx-auto">
                     <Link to="/seeallapps"><div className="btn">Create New Rule</div></Link>
-                    {importOption ? <div className={`btn text-accent italic`} onClick={handleImportModalOpen}>Import Existing Unifi Rules</div> : null}
+                    {importOption ? <div className={`btn text-accent italic`} onClick={handleImportModalOpen}>Import UniFi Rules</div> : <div className={`btn text-accent italic btn-disabled`}>Import Existing Unifi Rules</div>}
                 </div>
             </div>
 
             <dialog ref={importDialogRef} className="modal">
                 <div className="modal-box">
-                    <h3 className="font-bold text-lg">Choose Which Existing Rules to Import...</h3>
-                    <div className="flex flex-col gap-2">
+                    <h3 className="font-bold text-lg">Select UniFi Rules To Import</h3>
+                    <div className="flex flex-col gap-4 my-4">
                             {importRuleChoices.map((data) => {
                                 return (
                                     <>
-                                        <div className="card w-fit bg-base-100 shadow-xl">
-                                        <div className="card-body">
-                                            <h2 className="card-title">{data.description}</h2>
-                                            <p>{data.matching_target}</p>
-                                            {data.target_devices.map((td, i) => {
-                                                const key = Object.keys(td)
-                                                const value = Object.values(td)
-                                                const kv = [{ k: key, v: value}]
-                                                return  (
-                                                    <>
-                                                    <div className="flex flex-col">
-                                                        {kv.map((keys) => {
-                                                            return (
-                                                                <>
-                                                                    <div>{keys.k}</div>
-                                                                    <div>{keys.v}</div>
-                                                                </>
-                                                            )
-                                                        })}
-                                                    </div>
+                                        <div className="card w-full bg-base-200 shadow-xl">
+                                        <div className="card-body p-6">
+                                            <h2 className="card-title">Description: {data.description}</h2>
+                                            <p>Matching Target: {data.matching_target}</p>
 
-                                                    </>
-                                                )
-                                            })}
-                                            <div className="card-actions justify-end">
+                                            <div className="card-actions justify-end items-center flex">
+                                                <div className="label">Select</div>
                                                 <input
                                                     type="checkbox"
                                                     className="checkbox checkbox-accent"
@@ -316,6 +340,16 @@ export default function TrafficRules()
                                                     checked={checked[data?._id] || false}
                                                 />
                                             </div>
+                                            {/* <div className="card-actions justify-end items-center flex">
+                                                <div className="label">Add to Device List</div>
+                                                <input
+                                                    type="checkbox"
+                                                    className="checkbox checkbox-accent"
+                                                    onClick={e => handleSelectedDeviceImport(e, data._id)}
+                                                    data-unifiid={data._id}
+                                                    checked={checked2[data?._id] || false}
+                                                />
+                                            </div> */}
                                         </div>
                                         </div>
 
@@ -323,9 +357,9 @@ export default function TrafficRules()
                                 )
                             })}
                     </div>
-                    <div className="modal-action">
-                        <div className="btn" onClick={handleImportOption}>Submit Import Options</div>
-                        <div className="btn" onClick={handleImportModalClose}>Close</div>
+                    <div className="flex justify-between">
+                        <div className="btn" onClick={handleImportModalClose}>Cancel</div>
+                        <div className={`${importRuleSelection.length ? 'btn' : 'btn-disabled'}`} onClick={handleImportOption}>Import</div>
                     </div>
                 </div>
             </dialog>

@@ -1370,96 +1370,96 @@ app.delete('/deletecustomapi', async (req, res) => { // deletes unifi rule, not 
 app.post('/importexistingunifirules', async (req, res) => {
     const { categoryClones, appClones } = req.body;
 
-    if (categoryClones.length) {
-        console.log('categoryClones \t', categoryClones);
-    }
-    if (appClones.length) {
-        console.log('appClones \t', appClones);
+    try {
+        if (categoryClones.length) {
+            console.log('categoryClones \t', categoryClones);
+        }
+        if (appClones.length) {
+            console.log('appClones \t', appClones);
 
-        for (const appClone of appClones) {
-            const trafficRuleEntry = await prisma.trafficRules.create({
-                data: {
-                    unifiId: appClone._id,
-                    description: appClone.description,
-                    enabled: appClone.enabled,
-                    blockAllow: appClone.action
+            for (const appClone of appClones) {
+                const trafficRuleEntry = await prisma.trafficRules.create({
+                    data: {
+                        unifiId: appClone._id,
+                        description: appClone.description,
+                        enabled: appClone.enabled,
+                        blockAllow: appClone.action
+                    }
+                });
+                if (appClone.app_category_ids.length) {
+                    for (const appCatNameId of appClone.app_category_ids) {
+                        const appCatIdsEntry = await prisma.appCatIds.create({ // need app_cat_name if exists // changed to appCatIds from appIds 02/15
+                            data: {
+                                app_cat_id: appCatNameId.app_cat_id,
+                                app_cat_name: appCatNameId.app_cat_name,
+                                trafficRules: {
+                                    connect: { id: trafficRuleEntry.id }
+                                }
+                            }
+                        });
+                    }
                 }
-            });
-
-            if (appClone.app_category_ids.length) {
-                for (const appCatNameId of appClone.app_category_ids) {
-                    const appCatIdsEntry = await prisma.appCatIds.create({ // need app_cat_name if exists // changed to appCatIds from appIds 02/15
+                for (const appCloneNameIds of appClone.appSelection) {
+                    const appIdsEntry = await prisma.appIds.create({
                         data: {
-                            app_cat_id: appCatNameId.app_cat_id,
-                            app_cat_name: appCatNameId.app_cat_name,
+                            app_id: appCloneNameIds.id,
+                            app_name: appCloneNameIds.name,
                             trafficRules: {
                                 connect: { id: trafficRuleEntry.id }
                             }
                         }
                     });
                 }
-            }
+                for (const appCloneTargetDevice of appClone.target_devices) {
 
-            for (const appCloneNameIds of appClone.appSelection) {
-                const appIdsEntry = await prisma.appIds.create({
-                    data: {
-                        app_id: appCloneNameIds.id,
-                        app_name: appCloneNameIds.name,
-                        trafficRules: {
-                            connect: { id: trafficRuleEntry.id }
+                    const targetDeviceEntry = await prisma.targetDevice.create({
+                        data: {
+                            client_mac: appCloneTargetDevice.client_mac ? appCloneTargetDevice.client_mac : "Not a client device",
+                            type: appCloneTargetDevice.type,
+                            trafficRules: {
+                                connect: { id: trafficRuleEntry.id }
+                            }
                         }
-                    }
-                });
+                    });
+                }
+                // for (const appCloneTargetDevice of appClone.devices) {
+                //     const trafficRuleDevicesEntry = await prisma.trafficRuleDevices.create({
+                //         data: {
+                //             deviceName: appCloneTargetDevice.deviceName ? appCloneTargetDevice.deviceName : "No Name Provided",
+                //             // deviceId:
+                //             macAddress: appCloneTargetDevice.macAddress,
+                //             trafficRules: {
+                //                 connect: { id: trafficRuleEntry.id }
+                //             }
+                //         }
+                //     });
+                //     // look into how to properly update the deviceId and which devices to add....
+                //     const deviceEntryForUnifiRule = await prisma.device.create({
+                //         data: {
+                //             name: appCloneTargetDevice.oui ? appCloneTargetDevice.oui : appCloneTargetDevice.hostname ? appCloneTargetDevice.hostname : `"none"` ,
+                //             macAddress: appCloneTargetDevice.macAddress,
+                //             active: appClone.enabled
+                //         }
+                //     });
+
+                //     const updateTrafficRuleDevicesEntry = await prisma.trafficRuleDevices.update({
+                //         where: {
+                //             id: trafficRuleDevicesEntry.id,
+                //         },
+                //         data: {
+                //             deviceId: deviceEntryForUnifiRule.id,
+                //         }
+                //     });
+                // }
             }
-
-
-            for (const appCloneTargetDevice of appClone.target_devices) {
-
-                const targetDeviceEntry = await prisma.targetDevice.create({
-                    data: {
-                        client_mac: appCloneTargetDevice.client_mac ? appCloneTargetDevice.client_mac : "not a client device",
-                        type: appCloneTargetDevice.type,
-                        trafficRules: {
-                            connect: { id: trafficRuleEntry.id }
-                        }
-                    }
-                });
-            }
-
-            for (const appCloneTargetDevice of appClone.devices) {
-                const trafficRuleDevicesEntry = await prisma.trafficRuleDevices.create({
-                    data: {
-                        deviceName: appCloneTargetDevice.deviceName,
-                        // deviceId:
-                        macAddress: appCloneTargetDevice.macAddress,
-                        trafficRules: {
-                            connect: { id: trafficRuleEntry.id }
-                        }
-                    }
-                });
-
-                // look into how to properly update the deviceId and which devices to add....
-                const deviceEntryForUnifiRule = await prisma.device.create({
-                    data: {
-                        name: appCloneTargetDevice.oui ? appCloneTargetDevice.oui : appCloneTargetDevice.hostname ? appCloneTargetDevice.hostname : `"none"` ,
-                        macAddress: appCloneTargetDevice.macAddress,
-                        active: appClone.enabled
-                    }
-                });
-
-                const updateTrafficRuleDevicesEntry = await prisma.trafficRuleDevices.update({
-                    where: {
-                        id: trafficRuleDevicesEntry.id,
-                    },
-                    data: {
-                        deviceId: deviceEntryForUnifiRule.id,
-                    }
-                });
-            }
-
-
         }
+        res.sendStatus(200);
+    } catch (error) {
+        console.error(error);
+        res.sendStatus(502)
     }
+
+
 });
 
 

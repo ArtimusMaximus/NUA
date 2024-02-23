@@ -721,7 +721,7 @@ export default function SeeAllApps()
                        })}
                     </div>
                     <div className="flex justify-between">
-                        <div className="btn" onClick={handleModalClose}>Exit</div>
+                        <div className="btn" onClick={handleModalClose}>Cancel</div>
                         <div>
                             <div
                                 className={`
