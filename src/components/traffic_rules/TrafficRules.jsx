@@ -21,6 +21,7 @@ export default function TrafficRules()
     const [render, setRender] = useState(false);
     const [importOption, setImportOption] = useState(false);
     const [loadingImportSubmission, setLoadingImportSubmission] = useState(false);
+    const [loadingUnmanageApp, setLoadingUnmanageApp] = useState(false);
     const importDialogRef = useRef();
 
     function checkForImportRules(dbData, unifiData) {
@@ -60,6 +61,32 @@ export default function TrafficRules()
                 setImportRuleSelection([...noDuplicates])
             }
             console.log('importRuleSelection \t', importRuleSelection);
+    }
+    const handleUnmanageApp = e => {
+
+        console.log(e.target.dataset.trafficruleid);
+        const dbId = e.target.dataset.trafficruleid;
+
+        const unmanageApp = async () => {
+            try {
+                const submitUnmanageApp = await fetch('/unmanageapp', {
+                    method: 'DELETE',
+                    mode: 'cors',
+                    headers: {
+                        'Content-Type' : 'application/json'
+                    },
+                    body: JSON.stringify({ dbId })
+                });
+                if (submitUnmanageApp.ok) {
+                    console.log(`DB ID: ${dbId} unmanaged successfully!`)
+                    reRender();
+                }
+            } catch (error) {
+                console.error(error);
+            }
+        }
+        unmanageApp();
+
     }
     // const handleSelectedDeviceImport = (e, id) => {
     //     const choicesFilter = importRuleChoices.filter((choice) => choice._id === id);
@@ -197,7 +224,6 @@ export default function TrafficRules()
                     const { trafficRuleDbData, unifiData } = await getCustomRules.json();
                     console.log('trafficRuleDbData rerender: \t', trafficRuleDbData);
 
-
                     setCustomAPIRules(trafficRuleDbData);
                     setUnifiRuleObject(unifiData);
                     console.log('unifiData rerender: \t', unifiData);
@@ -214,7 +240,6 @@ export default function TrafficRules()
                     console.log('filterOutRulesAlreadyInList \t', filterOutRulesAlreadyInList);
                     if (filterOutRulesAlreadyInList.length) {
                         setImportOption(true);
-
                         setImportRuleChoices([...filterOutRulesAlreadyInList])
                     }
                 }
@@ -293,16 +318,25 @@ export default function TrafficRules()
                                                                 {}
                                                             </div>
                                                         <div>
-                                                            <Link to={`/`} className="w-fit hover:cursor-pointer" >
+                                                            {/* <Link to={`/`} className="w-fit hover:cursor-pointer"> */}
                                                                 <div className="btn btn-block btn-disabled bg-base-300 hover:bg-base-content hover:text-base-100 my-2 disabled">Schedule</div>
-                                                            </Link>
+                                                            {/* </Link> */}
                                                         </div>
-                                                        <div
-                                                            className="btn btn-error btn-block" aria-disabled
-                                                            onClick={handleDeleteTrafficRule}
-                                                            data-trafficid={data?.trafficRule.unifiId}
-                                                            data-trafficruleid={data?.trafficRule.id}
-                                                        >Delete
+                                                        <div className="flex flex-row gap-2">
+                                                            <div
+                                                                className="btn btn-error w-1/2" aria-disabled
+                                                                onClick={handleDeleteTrafficRule}
+                                                                data-trafficid={data?.trafficRule.unifiId}
+                                                                data-trafficruleid={data?.trafficRule.id}
+                                                            >Delete
+                                                            </div>
+                                                            <div
+                                                                className={`${loadingUnmanageApp ? 'btn btn-disabled' : 'btn btn-info'} w-1/2`} aria-disabled
+                                                                onClick={handleUnmanageApp}
+                                                                // data-trafficid={data?.trafficRule.unifiId}
+                                                                data-trafficruleid={data?.trafficRule.id}
+                                                            >{loadingUnmanageApp ? <span className="spinner loading-spinner"></span> : 'Unmanage App'}
+                                                            </div>
                                                         </div>
                                                     </div>
                                                 </div>

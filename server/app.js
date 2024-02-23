@@ -298,7 +298,7 @@ app.get('/getmacaddresses', async (req, res) => {
 app.get('/pingmacaddresses', async (req, res) => {
     try {
         const checkForInitial = await prisma.credentials.findUnique({ where: { id: 1 } });
-        const sendFakeEventObj = { refresh: true }
+        const sendFakeEventObj = { refresh: true };
 
         if (checkForInitial.initialSetup === false) {
             const refreshRate = checkForInitial.refreshRate;
@@ -307,18 +307,18 @@ app.get('/pingmacaddresses', async (req, res) => {
             res.setHeader('Connection', 'keep-alive');
 
             const sendUpdate = () => {
-                res.write(`data: ${JSON.stringify({ sendFakeEventObj })}\n\n`)
+                res.write(`data: ${JSON.stringify({ sendFakeEventObj })}\n\n`);
             };
             sendUpdate();
             const intervalId = setInterval(sendUpdate, refreshRate);
 
             req.on('close', () => {
-                clearInterval(intervalId)
+                clearInterval(intervalId);
             });
         }
     } catch (error) {
         console.error(error);
-        res.sendStatus(500).json({ error: "Internal Server Error."})
+        res.sendStatus(500).json({ error: "Internal Server Error." });
     }
 });
 
@@ -1367,6 +1367,7 @@ app.delete('/deletecustomapi', async (req, res) => { // deletes unifi rule, not 
         console.error(error);
     }
 });
+
 app.post('/importexistingunifirules', async (req, res) => {
     const { categoryClones, appClones } = req.body;
 
@@ -1460,6 +1461,33 @@ app.post('/importexistingunifirules', async (req, res) => {
     }
 
 
+});
+
+app.delete('/unmanageapp', async (req, res) => {
+    const { dbId } = req.body;
+    console.log('dbId \t', dbId);
+    try {
+        const unmanageTrafficRule = async (trafficRuleId) => {
+            try {
+                await prisma.$transaction(async (trafficRule) => {
+                    await trafficRule.appCatIds.deleteMany({ where: { trafficRulesId: trafficRuleId }});
+                    await trafficRule.appIds.deleteMany({ where: { trafficRulesId: trafficRuleId }});
+                    await trafficRule.targetDevice.deleteMany({ where: { trafficRulesId: trafficRuleId }});
+                    await trafficRule.trafficRuleDevices.deleteMany({ where: { trafficRulesId: trafficRuleId }});
+                    await trafficRule.trafficRules.delete({ where: { id: trafficRuleId }});
+                });
+                console.log(`Unmanaged traffic rule: ${dbId}, successfully!`);
+            } catch (error) {
+                console.error(error);
+            } finally {
+                await prisma.$disconnect();
+            }
+        }
+        await unmanageTrafficRule(parseInt(dbId));
+    } catch (error) {
+        console.error(error);
+    }
+    res.sendStatus(200);
 });
 
 

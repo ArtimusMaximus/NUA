@@ -158,7 +158,7 @@ export default function SiteSettings()
     const handlelocked = () => {
         if (locked) {
             setlocked(false);
-            setClicked(true)
+            setClicked(true);
             setDataExists(true);
             hostnameRef.current.disabled = false;
             usernameRef.current.disabled = false;
@@ -166,7 +166,6 @@ export default function SiteSettings()
             portRef.current.disabled = false;
             sslverifyRef.current.disabled = false;
             timerRef.current.disabled = false;
-
         }
     }
     const handleTest = async () => {
