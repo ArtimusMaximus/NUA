@@ -375,7 +375,7 @@ export default function SiteSettings()
                 </div>
                 {reveal && <Confirmation message={testMessage} alertType={alertType} duration={5000} reveal={reveal} />}
 
-                    <div className="flex flex-col items-center justify-center w-full h-full mx-auto border rounded-lg shadow overflow-hidden border-neutral shadow-base-300 mt-4">
+                    {/* <div className="flex flex-col items-center justify-center w-full h-full mx-auto border rounded-lg shadow overflow-hidden border-neutral shadow-base-300 mt-4">
                         <div className="flex w-full mt-2 justify-around">
                             <div className="text-2xl font-bold">General</div>
                         </div>
@@ -393,7 +393,7 @@ export default function SiteSettings()
                                 <div className="btn" onClick={handleUpdateGeneralSettings}>Submit</div>
                             </div>
                         </div>
-                    </div>
+                    </div> */}
             </div>
         </>
     )

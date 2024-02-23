@@ -20,7 +20,7 @@ export default function TrafficRules()
     const [checked2, setChecked2] = useState(false);
     const [render, setRender] = useState(false);
     const [importOption, setImportOption] = useState(false);
-    const [anyImportSelectionMade, setAnyImportSelectionMade] = useState(null);
+    const [loadingImportSubmission, setLoadingImportSubmission] = useState(false);
     const importDialogRef = useRef();
 
     function checkForImportRules(dbData, unifiData) {
@@ -43,7 +43,6 @@ export default function TrafficRules()
         importDialogRef.current.close();
     }
     const handleSelectedImport = (e, id) => {
-
         setChecked(prevState => ({
             ...prevState,
             [id]: !prevState[id]
@@ -56,7 +55,7 @@ export default function TrafficRules()
                     ...noDuplicates
                 ]))
             } else if (!e.target.checked) {
-                const filteredOut = importRuleSelection.filter(id => id._id !== e.target.dataset.id)
+                const filteredOut = importRuleSelection.filter(id => id._id !== e.target.dataset.id);
                 const noDuplicates = [...new Set(filteredOut)];
                 setImportRuleSelection([...noDuplicates])
             }
@@ -157,6 +156,7 @@ export default function TrafficRules()
         }
     }
     const handleImportOption = async () => {
+        setLoadingImportSubmission(true);
         const importExists = checkForImportRules(customAPIRules, unifiRuleObject);
         if (importExists.length) {
             console.log('importExists \t', importExists);
@@ -177,12 +177,14 @@ export default function TrafficRules()
             });
 
             if (importExistingRules.ok) {
+                setLoadingImportSubmission(false);
                 // const res = importExistingRules.json();
                 // console.log('importExistingRules.ok: \t', res);
                 handleImportModalClose();
                 reRender();
             }
         } catch (error) {
+            setLoadingImportSubmission(false);
             console.error(error);
         }
     }
@@ -317,7 +319,6 @@ export default function TrafficRules()
                     {importOption ? <div className={`btn text-accent italic`} onClick={handleImportModalOpen}>Import UniFi Rules</div> : <div className={`btn text-accent italic btn-disabled`}>Import Existing Unifi Rules</div>}
                 </div>
             </div>
-
             <dialog ref={importDialogRef} className="modal">
                 <div className="modal-box">
                     <h3 className="font-bold text-lg">Select UniFi Rules To Import</h3>
@@ -359,7 +360,13 @@ export default function TrafficRules()
                     </div>
                     <div className="flex justify-between">
                         <div className="btn" onClick={handleImportModalClose}>Cancel</div>
-                        <div className={`${importRuleSelection.length ? 'btn' : 'btn-disabled'}`} onClick={handleImportOption}>Import</div>
+                        <div
+                            className={`btn
+                                ${importRuleSelection.length ? '' : 'btn-disabled'}
+                                ${loadingImportSubmission ? 'btn-disabled' : ''}`}
+                            onClick={handleImportOption}>
+                            {loadingImportSubmission ? <span className={'loading loading-spinner'}></span> : 'Import'}
+                        </div>
                     </div>
                 </div>
             </dialog>
