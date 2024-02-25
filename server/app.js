@@ -180,7 +180,7 @@ async function unblockSingle(reqBodyMac) {
 }
 function extractMacs(body) {
     // console.log(body);
-    return body.macData.map(mac => mac.macAddress)
+    return body.macData.map(mac => mac.macAddress);
 }
 function validateCron(crontype) { // return true/false
     let validation = cronValidate.validate(crontype);
@@ -441,7 +441,7 @@ app.put('/updatemacaddressstatus', async (req, res) => { // toggler
     ///////////////////////////////////// confirm user is blocked below////////////////
         const filterBlockedUsers = blockedUsers.filter((device) => {
             return device.mac === macAddress
-        })
+        });
         console.log('Filtered only blocked users from db: ', filterBlockedUsers);
         // console.log(blockedUsers);
     ///////////////////////////////////// bash block device command here///////////////

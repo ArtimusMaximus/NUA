@@ -50,7 +50,7 @@ export default function TrafficRules()
         }));
         const choicesFilter = importRuleChoices.filter((choice) => choice._id === id);
             if (e.target.checked) {
-                const noDuplicates = [...new Set(choicesFilter)]
+                const noDuplicates = [...new Set(choicesFilter)];
                 setImportRuleSelection(prev => ([
                     ...prev,
                     ...noDuplicates
@@ -207,6 +207,7 @@ export default function TrafficRules()
                 setLoadingImportSubmission(false);
                 // const res = importExistingRules.json();
                 // console.log('importExistingRules.ok: \t', res);
+                // setImportDeviceSelection([]);
                 handleImportModalClose();
                 reRender();
             }
@@ -240,7 +241,7 @@ export default function TrafficRules()
                     console.log('filterOutRulesAlreadyInList \t', filterOutRulesAlreadyInList);
                     if (filterOutRulesAlreadyInList.length) {
                         setImportOption(true);
-                        setImportRuleChoices([...filterOutRulesAlreadyInList])
+                        setImportRuleChoices([...filterOutRulesAlreadyInList]);
                     }
                 }
             } catch (error) {
@@ -302,8 +303,8 @@ export default function TrafficRules()
                                                         </div>
                                                     </div>
                                                     <div className="collapse-content">
-                                                                <h1 className="font-bold italic">Managing Apps:</h1>
-                                                            <div className="flex gap-4 flex-wrap items-center justify-center mt-2">
+                                                            <div className="flex gap-4 flex-wrap items-center my-2">
+                                                            <h1 className="font-bold italic">Managing Apps:</h1>
                                                                 {data?.matchingAppIds.map((appId) => {
                                                                     return (
                                                                         <>
@@ -314,8 +315,15 @@ export default function TrafficRules()
                                                                 {/* <p><span className="font-thin italic">Apps:</span> {data?.name}</p> */}
                                                                 {/* <p><span className="font-thin italic">Devices:</span> {data?.macAddress}</p> */}
                                                             </div>
-                                                            <div className="flex flex-row">
-                                                                {}
+                                                            <div className="flex gap-4 flex-wrap items-center my-2">
+                                                                <h1 className="font-bold italic">Devices: </h1>
+                                                                {data.matchingTargetDevices.map((device) => {
+                                                                    return (
+                                                                        <>
+                                                                            <span className="badge badge-accent">{device.client_mac}</span>
+                                                                        </>
+                                                                    )
+                                                                })}
                                                             </div>
                                                         <div>
                                                             {/* <Link to={`/`} className="w-fit hover:cursor-pointer"> */}
@@ -364,7 +372,6 @@ export default function TrafficRules()
                                         <div className="card-body p-6">
                                             <h2 className="card-title">Description: {data.description}</h2>
                                             <p>Matching Target: {data.matching_target}</p>
-
                                             <div className="card-actions justify-end items-center flex">
                                                 <div className="label">Select</div>
                                                 <input
@@ -387,7 +394,6 @@ export default function TrafficRules()
                                             </div> */}
                                         </div>
                                         </div>
-
                                     </>
                                 )
                             })}
@@ -396,8 +402,8 @@ export default function TrafficRules()
                         <div className="btn" onClick={handleImportModalClose}>Cancel</div>
                         <div
                             className={`btn
-                                ${importRuleSelection.length ? '' : 'btn-disabled'}
-                                ${loadingImportSubmission ? 'btn-disabled' : ''}`}
+                            ${importRuleSelection.length ? '' : 'btn-disabled'}
+                            ${loadingImportSubmission ? 'btn-disabled' : ''}`}
                             onClick={handleImportOption}>
                             {loadingImportSubmission ? <span className={'loading loading-spinner'}></span> : 'Import'}
                         </div>

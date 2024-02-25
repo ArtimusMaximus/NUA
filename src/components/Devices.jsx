@@ -11,13 +11,27 @@ export default function Devices({ data, toggleReRender, handleRenderToggle })
     const [loading, setLoading] = useState(false);
     const editRef = useRef();
     const [updatedDeviceData, setUpdatedDeviceData] = useState(null);
+    const [toggleIsLoading, setToggleIsLoading] = useState(false);
+    const toggleLoadingDialogRef = useRef();
 
     // const handleSchedule = device => {
     //     navigate(`/admin/${device}`)
     // }
 
+    function handleToggleIsLoading() {
+        if (toggleIsLoading) {
+            toggleLoadingDialogRef.current.showModal();
+        } else if (!toggleIsLoading) {
+            toggleLoadingDialogRef.current.close();
+        }
+    }
+    const delay = t => new Promise(res => setTimeout(res, t));
+
     const handleToggle = async e => { // toggle device blocked or unblocked
-        setLoading(true)
+        setLoading(true);
+        setToggleIsLoading(true);
+        toggleLoadingDialogRef.current.showModal();
+
         try {
             // const itemId = e.target.dataset.name;
             const dataToUpdate = data?.macData?.filter((data) => data?.id === parseInt(e.target.dataset.name));
@@ -40,13 +54,24 @@ export default function Devices({ data, toggleReRender, handleRenderToggle })
                     const updatedData = await updateToggle.json();
                     console.log('Updated data: ', updatedData);
                     setLoading(false);
-                    handleRenderToggle()
+                    handleRenderToggle();
+
+                    delay(2000).then(() => {
+                        setToggleIsLoading(false);
+                        toggleLoadingDialogRef.current.close();
+                    });
+
                     // console.log(dataToUpdate[0]);
                 }
 
-        } catch (error) {
-            console.log(error);
-            setLoading(false);
+            } catch (error) {
+                console.log(error);
+                setLoading(false);
+
+                delay(2000).then(() => {
+                    setToggleIsLoading(false);
+                    toggleLoadingDialogRef.current.close();
+                });
         }
     }
     const handleUnBlockAll = async () => {
@@ -123,7 +148,7 @@ export default function Devices({ data, toggleReRender, handleRenderToggle })
         // console.log(updatedDeviceData);
     }
     const handleSaveEdits = () => {
-        setLoading(true)
+        setLoading(true);
         const updateEdits = async () => {
             try {
                 const updates = await fetch('/updatedevicedata', {
@@ -204,7 +229,7 @@ export default function Devices({ data, toggleReRender, handleRenderToggle })
                         <div className="divider mt-2 mb-2"></div>
                         <ul className="flex flex-col w-full">
                             {
-                                data?.macData?.sort((a, b) => parseInt(a?.order) - parseInt(b?.order)).map((device, index) => {
+                                data?.macData?.map((device) => {
                                     return (
                                         <>
                                             <li key={device?.id} className="m-1" >
@@ -307,6 +332,12 @@ export default function Devices({ data, toggleReRender, handleRenderToggle })
                             </div>
                         </label>
                     </div>
+                </div>
+            </dialog>
+
+            <dialog ref={toggleLoadingDialogRef} className="modal">
+                <div className="flex items-center justify-center w-full h-full">
+                    <span className="loading loading-spinner w-1/2 h-1/2"></span>
                 </div>
             </dialog>
         </>
