@@ -251,7 +251,7 @@ export default function TrafficRules()
         fetchCustomAPIRules();
     }, [render]);
 
-    // useEffect(() => { // fetch DB customAPI rules && unifi rules // necessary?
+    // useEffect(() => { // fetch DB customAPI rules && unifi rules // necessary 02/27/2024 - not necessary?
     //     const fetchCustomAPIRules = async () => {
     //         try {
     //             const getCustomRules = await fetch('/getdbcustomapirules');

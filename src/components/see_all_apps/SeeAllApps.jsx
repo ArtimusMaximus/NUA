@@ -57,6 +57,8 @@ export default function SeeAllApps()
     const descriptionRef = useRef();
     const blockRef = useRef();
     const allowRef = useRef();
+    const errorDialogRef = useRef();
+    const [submissionError, setSubmissionError] = useState({});
 
     const reRenderPage = () => {
         setRender(prev => !prev);
@@ -194,12 +196,30 @@ export default function SeeAllApps()
                 },
                 body: JSON.stringify({ categoryObject, dbCatObject })
             });
-            if (updateManagedCat.ok) {
+            const result = await updateManagedCat.json();
+            // if (updateManagedCat.ok) {
+            //     console.log('POST Success');
+            //     setLoading(false);
+            //     handleModalClose();
+            //     resetState();
+            //     reRenderPage();
+            // }
+            if (!result.error) {
+                console.log('result.result \t', result.result);
                 console.log('POST Success');
                 setLoading(false);
                 handleModalClose();
                 resetState();
                 reRenderPage();
+            } else if (result.error) {
+                setLoading(false);
+                setSubmissionError({
+                    code: result.error.code,
+                    details: result.error.details.id,
+                    errorCode: result.error.errorCode,
+                    message: result.error.message
+                });
+                errorDialogRef.current.showModal();
             }
         } catch (error) {
             setLoading(false);
@@ -261,20 +281,45 @@ export default function SeeAllApps()
                 },
                 body: JSON.stringify({ appObject, appDbObject })
             });
-            if (updateManagedApps.ok) {
+            const result = await updateManagedApps.json();
+            if (result.ok) {
                 console.log('POST Success');
+                console.log('result.result \t', result.result);
                 setLoading(false);
                 handleModalClose();
                 resetState();
                 reRenderPage();
-            } else if (!updateManagedApps.ok) {
-                const errorMessage = await updateManagedApps.json();
-                console.log(errorMessage.error);
+            }
+            if (result.error) {
+                handleModalClose();
+                setLoading(false);
+                setSubmissionError({
+                    code: result.error.code,
+                    details: result.error.details.id,
+                    errorCode: result.error.errorCode,
+                    message: result.error.message
+                });
+                errorDialogRef.current.showModal();
             }
         } catch (error) {
             setLoading(false);
-            console.error('error \t', error);
-            console.error('error.response \t', error.response);
+            console.error(error);
+            // if (updateManagedApps.ok) {
+            //     console.log('POST Success');
+            //     setLoading(false);
+            //     handleModalClose();
+            //     resetState();
+            //     reRenderPage();
+            // } else if (!updateManagedApps.ok) {
+            //     const errorMessage = await updateManagedApps.json();
+            //     console.log(errorMessage.error);
+            // }
+        // } catch (error) {
+        //     setLoading(false);
+        //     console.error('error \t', error);
+        //     console.error('error.response \t', error.response);
+        // }
+
         }
     }
 
@@ -536,7 +581,6 @@ export default function SeeAllApps()
     }, []);
 
     useEffect(() => { // re-render after post and reset devices list
-
         const getDevices = async () => {
             try {
                 const fetchDevices = await fetch('/getcurrentdevices');
@@ -620,6 +664,44 @@ export default function SeeAllApps()
     //         console.error(error)
     //     }
     // }
+    const handleErrorTest = async () => {
+        let appDeviceObjectCopy = JSON.parse(JSON.stringify(appDeviceObject));
+        const testId = 12345;
+        // appDeviceObjectCopy.app_ids.push(testId);
+        appDeviceObjectCopy.target_devices.push({ client_mac: 'd8:31:34:5f:01:12', type: 'CLIENT' });
+        appDeviceObjectCopy.app_ids.push(testId);
+        appDeviceObjectCopy.matching_target = 'APP';
+        // appDeviceObjectCopy.app_category_ids.push(testId);
+        // appDeviceObjectCopy.matching_target = 'APP_CATEGORY';
+
+        try {
+            const submitTest = await fetch('/submitapptest', {
+                method: 'POST',
+                mode: 'cors',
+                headers: {
+                    "Content-Type" : "application/json"
+                },
+                body: JSON.stringify({ appDeviceObjectCopy })
+            });
+            const result = await submitTest.json();
+            if (result.error) {
+                // console.log(result.error.code);
+                // console.log(result.error.details.id);
+                // console.log(result.error.errorCode);
+                // console.log(result.error.message);
+                errorDialogRef.current.showModal();
+
+                setSubmissionError({
+                    code: result.error.code,
+                    details: result.error.details.id,
+                    errorCode: result.error.errorCode,
+                    message: result.error.message
+                });
+            }
+        } catch (error) {
+            console.error('test response error \t', error);
+        }
+    }
     return (
         <>
             <div className={`grid ${filteredArray.length === 2 ? '2xl:grid-cols-2 lg:grid-cols-2' : filteredArray.length === 1 ? '2xl-grid-cols-1 lg:grid-cols-1 xl-grid-cols-1' : '2xl:grid-cols-3 lg:grid-cols-2'} grid-cols-1 auto-rows-auto w-full sm:w-3/4 mx-auto py-12 gap-6`}>
@@ -660,6 +742,7 @@ export default function SeeAllApps()
                             )
                         })}
             </div>
+            <div className="btn btn-error" onClick={handleErrorTest}>Test Btn</div>
             <dialog ref={manageDialogRef} className="modal">
                 <div className="modal-box">
                     <h3 className="flex font-bold text-lg items-center justify-center mt-2">Create Traffic Rule</h3>
@@ -745,6 +828,23 @@ export default function SeeAllApps()
                     </div>
                 </div>
             </dialog>
+            {/* Error Modal */}
+            <dialog ref={errorDialogRef} className="modal">
+                <div className="modal-box">
+                    <h3 className="font-bold text-lg text-error text-center">Unifi Error:</h3>
+                    <p className="py-4">Response Code: {submissionError.code}</p>
+                    <p className="py-4">Invalid App Id: {submissionError.details}</p>
+                    <p className="py-4">HTTP Error Code: {submissionError.errorCode}</p>
+                    <p className="py-4">Error Message: {submissionError.message}</p>
+                    <div className="modal-action">
+                    <form method="dialog">
+                        <button className="btn">Close</button>
+                    </form>
+                    </div>
+                </div>
+            </dialog>
+
+
         </>
     );
 }
