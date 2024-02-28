@@ -173,49 +173,7 @@ export default function Devices({ data, toggleReRender, handleRenderToggle })
         }
         updateEdits();
     }
-    // const handleDragStart = e => {
-    //     const deviceOrderId = e.currentTarget.getAttribute('data-devid');
-    //     e.dataTransfer.setData('text/plain', deviceOrderId);
-    //     console.log('deviceOrderId \t', deviceOrderId);
-    // }
-    // const handleDragOver = e => {
-    //     e.preventDefault();
-    // }
-    // const handleDrop = async e => {
-    //     e.preventDefault();
-    //     const draggedDeviceId = e.dataTransfer.getData("text/plain");
-    //     const targetDeviceId = e.currentTarget.getAttribute("data-devid");
-    //     const newData = [...data?.macData];
-    //     let draggedDeviceIndex = newData.findIndex(device => device?.id === parseInt(draggedDeviceId));
-    //     let targetDeviceIndex = newData.findIndex(device => device?.id === parseInt(targetDeviceId));
 
-    //     if (draggedDeviceIndex !== -1 && targetDeviceIndex !== -1) {
-    //         const temp = newData[draggedDeviceIndex].order
-    //         newData[draggedDeviceIndex].order = newData[targetDeviceIndex].order
-    //         newData[targetDeviceIndex].order = temp
-
-    //         // const temp2 = newData[draggedDeviceIndex]
-    //         // newData[draggedDeviceIndex] = newData[targetDeviceIndex]
-    //         // newData[targetDeviceIndex] = temp2
-
-    //     }
-    //     newData.sort((a,b) => parseInt(a.order) - parseInt(b.order))
-    //     try {
-    //         const updateOrder = await fetch('/updatedeviceorder', {
-    //             method: 'PUT',
-    //             mode: 'cors',
-    //             headers: {
-    //                 'Content-Type' : 'application/json'
-    //             },
-    //             body: JSON.stringify({ newData })
-    //         });
-    //         if (updateOrder.ok) {
-    //             handleRenderToggle();
-    //         }
-    //     } catch (error) {
-    //         console.error(error);
-    //     }
-    // }
 
     return (
         <>
@@ -232,15 +190,22 @@ export default function Devices({ data, toggleReRender, handleRenderToggle })
                                 data?.macData?.map((device) => {
                                     return (
                                         <>
-                                            <li key={device?.id} className="m-1" >
+                                            <li key={device?.id} className="m-1">
                                                 <div className="collapse bg-base-200">
                                                 <input type="checkbox" />
                                                     <div className="collapse-title text-xl font-medium">
-                                                        <div onClick={e => handleToggle(e)} className="w-full flex flex-row items-center justify-between hover:cursor-pointer z-40">
-                                                            <IoEllipseOutline
-                                                                data-name={`${device?.id}`}
+                                                        <div className="w-full flex flex-row items-center justify-between hover:cursor-pointer z-40">
+                                                            {/* <IoEllipseOutline
+                                                                data-name={device?.id}
                                                                 className={`${device?.active ? 'text-green-500' : 'text-red-500'} animate-pulse w-8 h-8 z-40`}
-                                                                />
+                                                            /> */}
+                                                            <input
+                                                                type="checkbox"
+                                                                className="toggle toggle-success z-40"
+                                                                onClick={handleToggle}
+                                                                checked={device?.active}
+                                                                data-name={device?.id}
+                                                            />
                                                             {device?.name}
                                                             {/* <div
                                                                 draggable={true}
