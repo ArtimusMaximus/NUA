@@ -17,6 +17,7 @@ export default function AdminConsole()
     const [serverRestart, setServerRestart] = useState(true);
     const [refreshTimer, setRefreshTimer] = useState(null);
     const [refresh, setRefresh] = useState(false);
+    const [loadingMacData, setLoadingMacData] = useState(false);
     const macRef = useRef();
     const deviceNameRef = useRef();
     const initialized = useRef(false);
@@ -91,6 +92,7 @@ export default function AdminConsole()
     // }
 
     useEffect(() => { // /getmacaddresses initial fetch
+        setLoadingMacData(true);
         const handleGetMacAddresses = async () => {
             try {
                 const response = await fetch('/getmacaddresses', {
@@ -101,12 +103,14 @@ export default function AdminConsole()
                     const data = await response.json();
                     // console.log(data);
                     setMacData(data ? data : {});
+                    setLoadingMacData(false)
                 } else if (!response.ok) {
                     await dialogRef.current.showModal();
                     // await handleTimer();
                 }
             } catch (error) {
                 if (error) {
+                    setLoadingMacData(false);
                     console.error('consoleerror in /getmacaddresses', error);
                 }
             }
@@ -179,8 +183,13 @@ export default function AdminConsole()
     return (
         <>
             <div className="grid mx-auto grid-flow-row gap-6 w-full">
-            <Devices data={macData && macData} toggleReRender={toggleReRender} handleRenderToggle={handleRenderToggle} />
-                    <div className="flex flex-row items-center justify-center p-6 w-[350px] mx-auto">
+                <Devices
+                    data={macData && macData}
+                    toggleReRender={toggleReRender}
+                    handleRenderToggle={handleRenderToggle}
+                    loadingMacData={loadingMacData}
+                />
+                <div className="flex flex-row items-center justify-center p-6 w-[350px] mx-auto">
                 </div>
             </div>
 

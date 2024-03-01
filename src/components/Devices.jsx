@@ -1,11 +1,11 @@
 import { useRef, useState } from "react";
-import { IoEllipseOutline } from "react-icons/io5";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { HiMiniPencilSquare } from "react-icons/hi2";
+import DeviceSkeleton from "./skeletons/DevicesSkeleton";
 
 
 
-export default function Devices({ data, toggleReRender, handleRenderToggle })
+export default function Devices({ data, toggleReRender, handleRenderToggle, loadingMacData })
 {
     const navigate = useNavigate();
     const [loading, setLoading] = useState(false);
@@ -13,6 +13,7 @@ export default function Devices({ data, toggleReRender, handleRenderToggle })
     const [updatedDeviceData, setUpdatedDeviceData] = useState(null);
     const [toggleIsLoading, setToggleIsLoading] = useState(false);
     const toggleLoadingDialogRef = useRef();
+
 
     // const handleSchedule = device => {
     //     navigate(`/admin/${device}`)
@@ -187,7 +188,7 @@ export default function Devices({ data, toggleReRender, handleRenderToggle })
                         <div className="divider mt-2 mb-2"></div>
                         <ul className="flex flex-col w-full">
                             {
-                                data?.macData?.map((device) => {
+                                !loadingMacData ? data?.macData?.map((device) => {
                                     return (
                                         <>
                                             <li key={device?.id} className="m-1">
@@ -252,7 +253,7 @@ export default function Devices({ data, toggleReRender, handleRenderToggle })
                                             </li>
                                         </>
                                     );
-                                })
+                                }) : <DeviceSkeleton devices={data?.macData && data?.macData} loadingMacData={loadingMacData} />
                             }
                         </ul>
                     </div>

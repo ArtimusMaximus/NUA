@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import DeviceCardSkeleton from "../device_card_skeleton/DeviceCardSkeleton";
+import DeviceCardSkeleton from "../skeletons/DeviceCardSkeleton";
 import AllDevicesCard from "./AllDevicesCard";
 import useFetchAllDevices from "./useFetchAllDevices";
 import { IoMdRefresh } from "react-icons/io";
@@ -13,7 +13,7 @@ const selectRef = useRef();
 const currentSelectedRef = useRef();
 const textSearchRef = useRef();
 const [filteredArray, setFilteredArray] = useState(clientDevices);
-const [searchableCopy, setSearchableCopy] = useState([])
+const [searchableCopy, setSearchableCopy] = useState([]);
 const [filter, setFilter] = useState('all');
 
 

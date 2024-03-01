@@ -1,6 +1,6 @@
 import useFetchBlockedDevices from "./useFetchBlockedDevices";
 import BlockedDeviceCard from "./BlockedDeviceCard";
-import DeviceCardSkeleton from "../device_card_skeleton/DeviceCardSkeleton";
+import DeviceCardSkeleton from "../skeletons/DeviceCardSkeleton";
 
 
 
