@@ -289,8 +289,7 @@ export default function SeeAllApps()
                 handleModalClose();
                 resetState();
                 reRenderPage();
-            }
-            if (result.error) {
+            } else if (!result.ok) {
                 handleModalClose();
                 setLoading(false);
                 setSubmissionError({

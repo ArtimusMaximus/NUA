@@ -1078,12 +1078,12 @@ app.get('/getdbcustomapirules', async (req, res) => { // get dbtrafficrules && u
         const path = '/v2/api/site/default/trafficrules';
         const result = await unifi.customApiRequest(path, 'GET');
 
-        const fetchTrafficRules = await prisma.trafficRules.findMany();
-        const fetchAppCatIds = await prisma.appCatIds.findMany();
-        const fetchAppIds = await prisma.appIds.findMany();
-        const fetchTargetDevices = await prisma.targetDevice.findMany();
+        const fetchTrafficRules = await prisma?.trafficRules?.findMany();
+        const fetchAppCatIds = await prisma?.appCatIds?.findMany();
+        const fetchAppIds = await prisma?.appIds?.findMany();
+        const fetchTargetDevices = await prisma?.targetDevice?.findMany();
 
-        const joinedData = fetchTrafficRules.map((trafficRule) => {
+        const joinedData = fetchTrafficRules?.map((trafficRule) => {
             const matchingFetchAppCatIds = fetchAppCatIds.find(appCatId => appCatId.trafficRulesId === trafficRule.id);
             const matchingAppIds = fetchAppIds.filter(appId => appId.trafficRulesId === trafficRule.id);
             const matchingTargetDevices = fetchTargetDevices.filter(targetDevice => targetDevice.trafficRulesId === trafficRule.id);
@@ -1095,7 +1095,11 @@ app.get('/getdbcustomapirules', async (req, res) => { // get dbtrafficrules && u
                 matchingTargetDevices
             }
         });
-        res.json({ trafficRuleDbData: joinedData, unifiData: result });
+        if (joinedData.length) {
+            res.status(200).json({ trafficRuleDbData: joinedData, unifiData: result });
+        } else if (result.length && !joinedData.length) {
+            res.status(206).json({ unifiData: result });
+        }
     } catch (error) {
         console.error(error);
     }
@@ -1285,7 +1289,7 @@ app.post('/addappstrafficrule', async (req, res) => {
             res.json({ result: result });
         }
     } catch (error) {
-        res.json({ error: error.response.data });
+        res.status(error.response.status).json({ error: error.response.data });
         console.error(error);
     }
 });
@@ -1471,7 +1475,6 @@ app.post('/importexistingunifirules', async (req, res) => {
 
 app.delete('/unmanageapp', async (req, res) => {
     const { dbId } = req.body;
-    console.log('dbId \t', dbId);
     try {
         const unmanageTrafficRule = async (trafficRuleId) => {
             try {
@@ -1483,6 +1486,7 @@ app.delete('/unmanageapp', async (req, res) => {
                     await trafficRule.trafficRules.delete({ where: { id: trafficRuleId }});
                 });
                 console.log(`Unmanaged traffic rule: ${dbId}, successfully!`);
+                res.sendStatus(200);
             } catch (error) {
                 console.error(error);
             } finally {
@@ -1490,10 +1494,10 @@ app.delete('/unmanageapp', async (req, res) => {
             }
         }
         await unmanageTrafficRule(parseInt(dbId));
+
     } catch (error) {
         console.error(error);
     }
-    res.sendStatus(200);
 });
 
 
