@@ -225,47 +225,25 @@ export default function TrafficRules()
             try {
                 if (getCustomRules.status === 206) {
                     setCustomAPIRules([]);
-                    // console.log('getCustomRules.status === 204 \t', getCustomRules.status === 206);
                     const { unifiData } = await getCustomRules.json();
-                    // console.log('unifiData in 206 \t', unifiData);
 
                     setUnifiRuleObject(unifiData);
                     const filteredOutNetworkDevices = checkDeviceType(unifiData);
                     const importExists = checkForImportRules(null, filteredOutNetworkDevices);
-                    // const filterOutRulesAlreadyInList = importExists.filter(rule => !trafficRuleDbData.some(obj => obj.trafficRule.unifiId === rule._id));
-                    // if (filterOutRulesAlreadyInList.length) {
-                    // }
+
                     if (importExists.length) {
                         setImportOption(true);
                         setImportRuleChoices([...importExists]);
                     }
                 } else if (getCustomRules.status === 200) {
-
                     const { trafficRuleDbData, unifiData } = await getCustomRules.json();
-                    console.log('trafficRuleDbData rerender: \t', trafficRuleDbData);
-                    console.log('trafficRuleDbData.length \t', trafficRuleDbData.length);
-
                     if (trafficRuleDbData.length) {
-                        // console.log('trafficRuleDbData \t', trafficRuleDbData);
                         setCustomAPIRules(trafficRuleDbData);
                     }
-                    // else {
-                    //     setCustomAPIRules([]);
-                    // }
-
                     setUnifiRuleObject(unifiData);
-                    // console.log('unifiData rerender: \t', unifiData);
-
                     const filteredOutNetworkDevices = checkDeviceType(unifiData);
-                    // console.log('checkDeviceType: \t', checkDeviceType(unifiData));
-
                     const importExists = checkForImportRules(trafficRuleDbData, filteredOutNetworkDevices);
-                    // console.log('importExists \t', importExists);
-
-                    // console.log('customAPIRules \t', customAPIRules); // empty
                     const filterOutRulesAlreadyInList = importExists.filter(rule => !trafficRuleDbData.some(obj => obj.trafficRule.unifiId === rule._id));
-
-                    // console.log('filterOutRulesAlreadyInList \t', filterOutRulesAlreadyInList);
                     if (filterOutRulesAlreadyInList.length) {
                         setImportOption(true);
                         setImportRuleChoices([...filterOutRulesAlreadyInList]);
