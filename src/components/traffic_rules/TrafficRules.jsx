@@ -209,9 +209,6 @@ export default function TrafficRules()
 
             if (importExistingRules.ok) {
                 setLoadingImportSubmission(false);
-                // const res = importExistingRules.json();
-                // console.log('importExistingRules.ok: \t', res);
-                // setImportDeviceSelection([]);
                 handleImportModalClose();
                 setChecked(false);
                 reRender();
