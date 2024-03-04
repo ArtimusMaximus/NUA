@@ -165,7 +165,8 @@ export default function AdminConsole()
                         // console.log('Cron Job Check Data: ', cronJobCheckData);
                     }
                 } catch (error) {
-                    if (error) throw error;
+                    // if (error) throw error; // prev 03/4/2024
+                    console.error('Error Fetching "/checkjobreinitiation" \t', error);
                 }
             }
             getCronData();
