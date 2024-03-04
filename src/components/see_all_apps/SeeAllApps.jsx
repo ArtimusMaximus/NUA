@@ -57,7 +57,9 @@ export default function SeeAllApps()
     const descriptionRef = useRef();
     const blockRef = useRef();
     const allowRef = useRef();
+    const unifiErrorDialogRef = useRef();
     const errorDialogRef = useRef();
+    const [unifiSubmissionError, setUnifiSubmissionError] = useState({});
     const [submissionError, setSubmissionError] = useState({});
 
     const reRenderPage = () => {
@@ -213,7 +215,7 @@ export default function SeeAllApps()
                 reRenderPage();
             } else if (result.error) {
                 setLoading(false);
-                setSubmissionError({
+                setUnifiSubmissionError({
                     code: result.error.code,
                     details: result.error.details.id,
                     errorCode: result.error.errorCode,
@@ -273,6 +275,7 @@ export default function SeeAllApps()
         setLoading(true);
 
         try {
+            // throw new Error('Test Error');
             const updateManagedApps = await fetch('/addappstrafficrule', {
                 method: 'POST',
                 mode: 'cors',
@@ -282,43 +285,50 @@ export default function SeeAllApps()
                 body: JSON.stringify({ appObject, appDbObject })
             });
             const result = await updateManagedApps.json();
-            if (result.ok) {
+
+            if (result.success) {
                 console.log('POST Success');
                 console.log('result.result \t', result.result);
                 setLoading(false);
                 handleModalClose();
                 resetState();
                 reRenderPage();
-            } else if (!result.ok) {
+            } else if (result.error) {
+                const { error } = result;
                 handleModalClose();
                 setLoading(false);
-                setSubmissionError({
-                    code: result.error.code,
-                    details: result.error.details.id,
-                    errorCode: result.error.errorCode,
-                    message: result.error.message
-                });
-                errorDialogRef.current.showModal();
+                console.log(`result: \t${result} \n`);
+                console.log(`result result.result: \t${result.result} \n`);
+                // console.log(`result.error: \t${result?.error} \n`);
+
+
             }
         } catch (error) {
             setLoading(false);
-            console.error(error);
-            // if (updateManagedApps.ok) {
-            //     console.log('POST Success');
-            //     setLoading(false);
-            //     handleModalClose();
-            //     resetState();
-            //     reRenderPage();
-            // } else if (!updateManagedApps.ok) {
-            //     const errorMessage = await updateManagedApps.json();
-            //     console.log(errorMessage.error);
-            // }
-        // } catch (error) {
-        //     setLoading(false);
-        //     console.error('error \t', error);
-        //     console.error('error.response \t', error.response);
-        // }
+            handleModalClose();
+            console.log('error \t', error);
 
+
+            if (result.error) {
+                setUnifiSubmissionError({
+                    code: error?.code,
+                    details: error?.details.id,
+                    errorCode: error?.errorCode,
+                    message: error?.message
+                });
+                unifiErrorDialogRef.current.showModal();
+            }
+            else {
+                setSubmissionError({
+                    name: error?.name,
+                    message: error?.message,
+                    status: error?.status,
+                    statusText: error?.statusText
+                });
+                errorDialogRef.current.showModal();
+            }
+
+            console.error(error);
         }
     }
 
@@ -674,6 +684,7 @@ export default function SeeAllApps()
         // appDeviceObjectCopy.matching_target = 'APP_CATEGORY';
 
         try {
+
             const submitTest = await fetch('/submitapptest', {
                 method: 'POST',
                 mode: 'cors',
@@ -683,22 +694,30 @@ export default function SeeAllApps()
                 body: JSON.stringify({ appDeviceObjectCopy })
             });
             const result = await submitTest.json();
+            // throw new Error('Test Error');
             if (result.error) {
                 // console.log(result.error.code);
                 // console.log(result.error.details.id);
                 // console.log(result.error.errorCode);
                 // console.log(result.error.message);
-                errorDialogRef.current.showModal();
-
-                setSubmissionError({
+                setUnifiSubmissionError({
                     code: result.error.code,
                     details: result.error.details.id,
                     errorCode: result.error.errorCode,
                     message: result.error.message
                 });
+                unifiErrorDialogRef.current.showModal();
+
             }
         } catch (error) {
             console.error('test response error \t', error);
+                setSubmissionError({
+                    name: error?.name,
+                    message: error?.message,
+                    status: error?.status,
+                    statusText: error?.statusText
+                });
+                errorDialogRef.current.showModal();
         }
     }
     return (
@@ -827,14 +846,14 @@ export default function SeeAllApps()
                     </div>
                 </div>
             </dialog>
-            {/* Error Modal */}
-            <dialog ref={errorDialogRef} className="modal">
+            {/* Unifi Error Modal */}
+            <dialog ref={unifiErrorDialogRef} className="modal">
                 <div className="modal-box">
                     <h3 className="font-bold text-lg text-error text-center">Unifi Error:</h3>
-                    <p className="py-4">Response Code: {submissionError.code}</p>
-                    <p className="py-4">Invalid App Id: {submissionError.details}</p>
-                    <p className="py-4">HTTP Error Code: {submissionError.errorCode}</p>
-                    <p className="py-4">Error Message: {submissionError.message}</p>
+                    <p className="py-4">Response Code: <span className="text-error">{unifiSubmissionError.code ? unifiSubmissionError.code : "none"}</span></p>
+                    <p className="py-4">Invalid App Id: <span className="text-error">{unifiSubmissionError.details ? unifiSubmissionError.details : "none"}</span></p>
+                    <p className="py-4">HTTP Error Code: <span className="text-error">{unifiSubmissionError.errorCode ? unifiSubmissionError.errorCode : "none"}</span></p>
+                    <p className="py-4">Error Message: <span className="text-error">{unifiSubmissionError.message ? unifiSubmissionError.message : "none"}</span></p>
                     <div className="modal-action">
                     <form method="dialog">
                         <button className="btn">Close</button>
@@ -842,6 +861,23 @@ export default function SeeAllApps()
                     </div>
                 </div>
             </dialog>
+            {/* Front end Error Modal */}
+            <dialog ref={errorDialogRef} className="modal">
+                <div className="modal-box">
+                    <h3 className="font-bold text-lg text-error text-center">Submission Error:</h3>
+                    <p className="py-4">Error Name: <span className="text-error">{submissionError.name ? submissionError.name : "none"}</span></p>
+                    <p className="py-4">Error Message: <span className="text-error">{submissionError.message ? submissionError.message : "none"}</span></p>
+                    <p className="py-4">Error Status: <span className="text-error">{submissionError.status ? submissionError?.status : "none"}</span></p>
+                    <p className="py-4">Error Status Text: <span className="text-error">{submissionError.statusText ? submissionError.statusText : "none"}</span></p>
+                    <div className="modal-action">
+                    <form method="dialog">
+                        <button className="btn">Close</button>
+                    </form>
+                    </div>
+                </div>
+            </dialog>
+
+
 
 
         </>

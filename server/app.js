@@ -1286,10 +1286,13 @@ app.post('/addappstrafficrule', async (req, res) => {
 
         // res.sendStatus(200);
         if (result) {
-            res.json({ result: result });
+            console.log('Result made it: \t', result);
+            res.status(200).json({ success: true, result: result });
         }
     } catch (error) {
-        res.status(error.response.status).json({ error: error.response.data });
+        // console.log('error.response \t', error.response);
+        res.status(500).json({ success: false, error: error?.response?.data });
+        // res.status(error.response.status).json({ error: error.response.data });
         console.error(error);
     }
 });
@@ -1553,20 +1556,29 @@ app.post('/getallworking', async (req, res) => {
         .catch((error) => console.error(error));
 });
 
+// ~~~~force error test~~~~
 app.post('/submitapptest', async (req, res) => {
     const { appDeviceObjectCopy } = req.body;
     const path = '/v2/api/site/default/trafficrules';
     try {
         const result = await unifi.customApiRequest(path, 'POST', appDeviceObjectCopy);
         console.log('Test Result \t', result);
-        if (result) {
-            res.json({ result: result });
+        // if (result) {
+        // }
+        if (!result) {
+            throw new Error('Server-Side Error');
+        } else {
+            res.json({ success: true, result: result });
+
         }
     } catch (error) {
         console.error('error.response.data \t', error.response.data);
+        res.status(500).json({ success: false, error: error?.response?.data });
+        // res.status(error.response.status).json({ error: error.response.data });
+
         // res.sendStatus(501);
         // res.status(400).json({ error: error.message });
-        res.json({ error: error.response.data });
+        // res.json({ error: error.response.data });
     }
 });
 
