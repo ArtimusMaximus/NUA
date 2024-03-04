@@ -118,20 +118,40 @@ export default function AdminConsole()
         handleGetMacAddresses();
     }, [toggleReRender]);
 
-    useEffect(() => {
-        const eventSource = new EventSource('/pingmacaddresses');
-        eventSource.onmessage = (event) => {
-            if (event) {
-                handleRenderToggle();
+    // useEffect(() => { // original 03/04/2024
+    //     const eventSource = new EventSource('/pingmacaddresses');
+    //     eventSource.onmessage = (event) => {
+    //         if (event) {
+    //             handleRenderToggle();
+    //         }
+    //     }
+    //     eventSource.onerror = (error) => {
+    //         console.error(error);
+    //     };
+    //     return () => {
+    //         eventSource.close();
+    //     }
+    // }, [])
+
+    useEffect(() => { // new 03/04/2024
+        let eventSource;
+        try {
+            eventSource = new EventSource('/pingmacaddresses');
+            eventSource.onmessage = (event) => {
+                if (event) {
+                    handleRenderToggle();
+                }
             }
-        }
-        eventSource.onerror = (error) => {
+            eventSource.onerror = (error) => {
+                console.error(error);
+            };
+            return () => {
+                eventSource.close();
+            }
+        } catch (error) {
             console.error(error);
-        };
-        return () => {
-            eventSource.close();
         }
-    }, [])
+    }, []);
 
     useEffect(() => { // check if server crash & jobs need re-initiation
         if (!initialized.current) {

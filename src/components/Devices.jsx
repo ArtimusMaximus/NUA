@@ -140,7 +140,9 @@ export default function Devices({ data, toggleReRender, handleRenderToggle, load
             id: e.target.dataset.id
         });
     }
-    const handleClose = () => { editRef.current.close(); }
+    const handleClose = () => {
+        editRef.current.close();
+    }
     const handleEditInput = e => {
         setUpdatedDeviceData({
             ...updatedDeviceData,
