@@ -199,32 +199,38 @@ export default function SeeAllApps()
                 body: JSON.stringify({ categoryObject, dbCatObject })
             });
             const result = await updateManagedCat.json();
-            // if (updateManagedCat.ok) {
-            //     console.log('POST Success');
-            //     setLoading(false);
-            //     handleModalClose();
-            //     resetState();
-            //     reRenderPage();
-            // }
-            if (!result.error) {
-                console.log('result.result \t', result.result);
+
+            if (result.success) {
                 console.log('POST Success');
+                console.log('result.result \t', result.result);
                 setLoading(false);
                 handleModalClose();
                 resetState();
                 reRenderPage();
             } else if (result.error) {
                 setLoading(false);
-                setUnifiSubmissionError({
-                    code: result.error.code,
-                    details: result.error.details.id,
-                    errorCode: result.error.errorCode,
-                    message: result.error.message
-                });
-                errorDialogRef.current.showModal();
+                handleModalClose();
             }
         } catch (error) {
             setLoading(false);
+            handleModalClose();
+            if (result.error) {
+                setUnifiSubmissionError({
+                    code: error?.code,
+                    details: error?.details.id,
+                    errorCode: error?.errorCode,
+                    message: error?.message
+                });
+                unifiErrorDialogRef.current.showModal();
+            } else {
+                setSubmissionError({
+                    name: error?.name,
+                    message: error?.message,
+                    status: error?.status,
+                    statusText: error?.statusText
+                });
+                errorDialogRef.current.showModal();
+            }
             console.error(error);
         }
     }
@@ -294,21 +300,14 @@ export default function SeeAllApps()
                 resetState();
                 reRenderPage();
             } else if (result.error) {
-                const { error } = result;
                 handleModalClose();
                 setLoading(false);
-                console.log(`result: \t${result} \n`);
-                console.log(`result result.result: \t${result.result} \n`);
+                console.log(`result result.result:\t ${result.result}`);
                 // console.log(`result.error: \t${result?.error} \n`);
-
-
             }
         } catch (error) {
             setLoading(false);
             handleModalClose();
-            console.log('error \t', error);
-
-
             if (result.error) {
                 setUnifiSubmissionError({
                     code: error?.code,
@@ -317,8 +316,7 @@ export default function SeeAllApps()
                     message: error?.message
                 });
                 unifiErrorDialogRef.current.showModal();
-            }
-            else {
+            } else {
                 setSubmissionError({
                     name: error?.name,
                     message: error?.message,
@@ -327,7 +325,6 @@ export default function SeeAllApps()
                 });
                 errorDialogRef.current.showModal();
             }
-
             console.error(error);
         }
     }
@@ -678,13 +675,12 @@ export default function SeeAllApps()
         const testId = 12345;
         // appDeviceObjectCopy.app_ids.push(testId);
         appDeviceObjectCopy.target_devices.push({ client_mac: 'd8:31:34:5f:01:12', type: 'CLIENT' });
-        appDeviceObjectCopy.app_ids.push(testId);
-        appDeviceObjectCopy.matching_target = 'APP';
-        // appDeviceObjectCopy.app_category_ids.push(testId);
-        // appDeviceObjectCopy.matching_target = 'APP_CATEGORY';
+        // appDeviceObjectCopy.app_ids.push(testId);
+        // appDeviceObjectCopy.matching_target = 'APP';
+        appDeviceObjectCopy.app_category_ids.push(testId);
+        appDeviceObjectCopy.matching_target = 'APP_CATEGORY';
 
         try {
-
             const submitTest = await fetch('/submitapptest', {
                 method: 'POST',
                 mode: 'cors',
@@ -696,10 +692,6 @@ export default function SeeAllApps()
             const result = await submitTest.json();
             // throw new Error('Test Error');
             if (result.error) {
-                // console.log(result.error.code);
-                // console.log(result.error.details.id);
-                // console.log(result.error.errorCode);
-                // console.log(result.error.message);
                 setUnifiSubmissionError({
                     code: result.error.code,
                     details: result.error.details.id,
@@ -707,7 +699,6 @@ export default function SeeAllApps()
                     message: result.error.message
                 });
                 unifiErrorDialogRef.current.showModal();
-
             }
         } catch (error) {
             console.error('test response error \t', error);

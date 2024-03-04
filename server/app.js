@@ -1178,10 +1178,11 @@ app.post('/addcategorytrafficrule', async (req, res) => {
         // console.log('setAppIds \t', setAppIds);
         // console.log('setTargetDevices \t', multipleData);
         if (result) {
-            res.json({ result: result });
+            console.log('Result: \t', result);
+            res.status(200).json({ success: true, result: result });
         }
     } catch (error) {
-        res.json({ error: error.response.data });
+        res.status(500).json({ success: false, error: error?.response?.data });
         console.error(error);
     }
 });
@@ -1290,10 +1291,10 @@ app.post('/addappstrafficrule', async (req, res) => {
             res.status(200).json({ success: true, result: result });
         }
     } catch (error) {
-        // console.log('error.response \t', error.response);
         res.status(500).json({ success: false, error: error?.response?.data });
-        // res.status(error.response.status).json({ error: error.response.data });
         console.error(error);
+        // console.log('error.response \t', error.response);
+        // res.status(error.response.status).json({ error: error.response.data });
     }
 });
 
