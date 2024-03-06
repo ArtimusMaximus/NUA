@@ -318,7 +318,7 @@ app.get('/pingmacaddresses', async (req, res) => {
         }
     } catch (error) {
         console.error(error);
-        res.sendStatus(500).json({ error: "Internal Server Error." });
+        // res.sendStatus(500).json({ error: "Internal Server Error." });
     }
 });
 

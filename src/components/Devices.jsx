@@ -209,7 +209,7 @@ export default function Devices({ data, toggleReRender, handleRenderToggle, load
                                                                 checked={device?.active}
                                                                 data-name={device?.id}
                                                             />
-                                                            {device?.name}
+                                                            {device.name ? device.name : device.oui ? device.oui : "No Name or OUI"}
                                                             {/* <div
                                                                 draggable={true}
                                                                 data-orderid={`${index+1}`}

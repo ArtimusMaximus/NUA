@@ -29,7 +29,6 @@ export default function AdminConsole()
         setRefresh(prev => !prev)
     }
     const timer = t => new Promise(res => setTimeout(res, t));
-
     const handleTimer = async () => {
         const timer = t => new Promise(res => setTimeout(res, t));
         try {
@@ -106,6 +105,7 @@ export default function AdminConsole()
                     setLoadingMacData(false)
                 } else if (!response.ok) {
                     await dialogRef.current.showModal();
+                    setLoadingMacData(false);
                     // await handleTimer();
                 }
             } catch (error) {
