@@ -104,15 +104,13 @@ export default function AdminConsole()
                     setMacData(data ? data : {});
                     setLoadingMacData(false)
                 } else if (!response.ok) {
-                    await dialogRef.current.showModal();
+                    dialogRef.current.showModal();
                     setLoadingMacData(false);
                     // await handleTimer();
                 }
             } catch (error) {
-                if (error) {
-                    setLoadingMacData(false);
-                    console.error('consoleerror in /getmacaddresses', error);
-                }
+                setLoadingMacData(false);
+                console.error('consoleerror in /getmacaddresses', error);
             }
         }
         handleGetMacAddresses();
