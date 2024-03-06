@@ -115,7 +115,7 @@ export default function AdminConsole()
             }
         }
         handleGetMacAddresses();
-    }, []);
+    }, [toggleReRender]);
 
     // useEffect(() => { // original 03/04/2024
     //     const eventSource = new EventSource('/pingmacaddresses');

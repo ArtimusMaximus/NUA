@@ -224,7 +224,8 @@ app.get('/getmacaddresses', async (req, res) => {
         const { initialSetup } = currentCredentials;
 
         if (!initialSetup) {
-            const blockedUsers = await unifi.getBlockedUsers();
+            const blockedUsers = await unifi?.getBlockedUsers();
+            console.log('blockedUsers in get mac addresses \t', blockedUsers);
             let macData = await prisma.device.findMany();
             let getRefreshTimer = await prisma.credentials.findUnique({
                 where: {
@@ -233,11 +234,15 @@ app.get('/getmacaddresses', async (req, res) => {
             });
             let refreshRate = getRefreshTimer.refreshRate;
 
-            const doMacAddressMatch = (macAddress, array) => {
-                return array.some(obj => obj.macAddress === macAddress)
+            const doMacAddressMatch = (unifiDataMacAddress, macData) => {
+                return macData.some(obj => obj.macAddress === unifiDataMacAddress);
             }
-            const matchedObjects = blockedUsers.filter(obj1 => doMacAddressMatch(obj1.mac, macData))
-
+            let matchedObjects;
+            if (blockedUsers.length) {
+                matchedObjects = blockedUsers?.filter(obj1 => doMacAddressMatch(obj1.mac, macData))
+            } else {
+                matchedObjects = [];
+            }
             if (matchedObjects.length === 0) {
                 const recordIds = macData.map(obj => obj.id);
                 const updateData = { active: true };
@@ -284,14 +289,14 @@ app.get('/getmacaddresses', async (req, res) => {
                 updateRecordsToActive(recordIds, updateData);
             }
         } else {
-            throw new Error('This is the initial setup, redirect.')
+            throw new Error('This is the initial setup, redirect.');
         }
     } catch (error) {
         if (error) {
             console.error('error in /getmacaddresses: \t');
-            // handleLoginError(error);
-            // res.sendStatus(401);
-            console.log('error in getmacaddresses catch block \t', error)
+            handleLoginError(error);
+            res.sendStatus(401);
+            console.log('error in getmacaddresses catch block \t', error);
         }
     }
 });

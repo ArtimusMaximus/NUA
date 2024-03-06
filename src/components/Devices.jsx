@@ -13,7 +13,8 @@ export default function Devices({ data, toggleReRender, handleRenderToggle, load
     const [updatedDeviceData, setUpdatedDeviceData] = useState(null);
     const [toggleIsLoading, setToggleIsLoading] = useState(false);
     const toggleLoadingDialogRef = useRef();
-
+    const newDeviceNameRef = useRef();
+    const newMacAddressRef = useRef();
 
     // const handleSchedule = device => {
     //     navigate(`/admin/${device}`)
@@ -168,6 +169,8 @@ export default function Devices({ data, toggleReRender, handleRenderToggle, load
                     setLoading(false);
                     handleRenderToggle();
                     editRef.current.close();
+                    newDeviceNameRef.current.value = '';
+                    newMacAddressRef.current.value = '';
                 }
             } catch (error) {
                 setLoading(false);
@@ -285,6 +288,7 @@ export default function Devices({ data, toggleReRender, handleRenderToggle, load
                                 placeholder="Device Name"
                                 className="input input-bordered w-full max-w-xs"
                                 onChange={handleEditInput}
+                                ref={newDeviceNameRef}
                             />
                             <div className="label">
                                 <span className="label-text italic">New Mac Address:</span>
@@ -295,6 +299,7 @@ export default function Devices({ data, toggleReRender, handleRenderToggle, load
                                 placeholder="Mac Address"
                                 className="input input-bordered w-full max-w-xs"
                                 onChange={handleEditInput}
+                                ref={newMacAddressRef}
                             />
                             <div className="flex flex-row justify-evenly mt-4">
                                 <button className={`btn btn-large ${loading ? 'disabled' : ''}`} onClick={handleSaveEdits}>{loading ? <span className="loading loading-spinner w-3 h-4"></span> : 'Save'}</button>
