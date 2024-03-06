@@ -104,17 +104,18 @@ export default function AdminConsole()
                     setMacData(data ? data : {});
                     setLoadingMacData(false)
                 } else if (!response.ok) {
-                    dialogRef.current.showModal();
-                    setLoadingMacData(false);
+                    // dialogRef.current.showModal();
+                    // setLoadingMacData(false);
                     // await handleTimer();
                 }
             } catch (error) {
+                dialogRef.current.showModal();
                 setLoadingMacData(false);
                 console.error('consoleerror in /getmacaddresses', error);
             }
         }
         handleGetMacAddresses();
-    }, [toggleReRender]);
+    }, []);
 
     // useEffect(() => { // original 03/04/2024
     //     const eventSource = new EventSource('/pingmacaddresses');

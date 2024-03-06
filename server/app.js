@@ -289,8 +289,9 @@ app.get('/getmacaddresses', async (req, res) => {
     } catch (error) {
         if (error) {
             console.error('error in /getmacaddresses: \t');
-            handleLoginError(error);
-            res.sendStatus(401);
+            // handleLoginError(error);
+            // res.sendStatus(401);
+            console.log('error in getmacaddresses catch block \t', error)
         }
     }
 });
