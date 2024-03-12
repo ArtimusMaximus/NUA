@@ -299,17 +299,14 @@ app.get('/getmacaddresses', async (req, res) => {
                 }
                 updateRecordsToActive(recordIds, updateData);
             }
-        }
-        else {
-            console.log('This is the initial setup, redirect.');
-            // throw new Error('This is the initial setup, redirect.');
+        } else {
+            throw new Error('This is the initial setup, redirect.');
         }
     } catch (error) {
         if (error) {
             console.error('error in /getmacaddresses: \t');
             handleLoginError(error);
             res.sendStatus(401);
-            console.log('error in getmacaddresses catch block \t', error);
         }
     }
 });
@@ -956,7 +953,8 @@ app.post('/updategeneralsettings', async (req, res) => {
 app.get('/checkforsettings', async (req, res) => {
     try {
         const checkForSettings = await prisma.credentials.findUnique({ where: { id: 1 }});
-        if (checkForSettings.length > 0) {
+        console.log('checkForSettings \t', checkForSettings);
+        if (checkForSettings) {
             res.json(checkForSettings)
         } else {
             res.sendStatus(404);

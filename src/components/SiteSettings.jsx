@@ -16,7 +16,8 @@ export default function SiteSettings()
     const [alertType, setAlertType] = useState("");
     const [reveal, setReveal] = useState(false);
     const [clicked, setClicked] = useState(false);
-    const [rangeValue, setRangeValue] = useState(0);
+    const [rangeValue, setRangeValue] = useState(60000);
+    const [refreshRateFromDB, setRefreshRateFromDB] = useState(null);
     const [selectDefaultPage, setSelectDefaultPage] = useState("");
     const hostnameRef = useRef();
     const usernameRef = useRef();
@@ -106,8 +107,6 @@ export default function SiteSettings()
                 const response = await submitSiteSettings.json();
                 // console.log('Front end success.', response);
                 setlocked(true);
-
-
                 hostnameRef.current.disabled = true;
                 usernameRef.current.disabled = true;
                 passwordRef.current.disabled = true;
@@ -135,7 +134,8 @@ export default function SiteSettings()
                     sslverifyRef.current.disabled = true;
                     timerRef.current.disabled = true;
                     const dbData = await fetchSettings.json();
-                    setPreExistingData(dbData[0])
+                    setPreExistingData(dbData);
+                    setRefreshRateFromDB(dbData.refreshRate)
 
                 } else if (!fetchSettings.ok) {
                     setDataExists(false);
@@ -146,7 +146,6 @@ export default function SiteSettings()
                     portRef.current.disabled = false;
                     sslverifyRef.current.disabled = false;
                     timerRef.current.disabled = false;
-
                 }
             } catch (error) {
                 if (error) throw error;
@@ -329,7 +328,7 @@ export default function SiteSettings()
                                     <input
                                         type="range"
                                         max={300000} min={60000}
-                                        value={rangeValue}
+                                        value={refreshRateFromDB !== null ? refreshRateFromDB : rangeValue}
                                         className="range w-full"
                                         step={60000}
                                         ref={timerRef}
