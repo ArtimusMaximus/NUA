@@ -267,7 +267,7 @@ app.get('/getmacaddresses', async (req, res) => {
                             },
                             data: updateData
                         });
-                        const newMacData = await prisma.device.findMany()
+                        const newMacData = await prisma.device.findMany();
                         res.json({ macData: newMacData, blockedUsers: blockedUsers, refreshRate: refreshRate });
                     } catch (error) {
                         console.error(error);
@@ -317,7 +317,7 @@ app.get('/getmacaddresses', async (req, res) => {
 app.get('/pingmacaddresses', async (req, res) => {
     try {
         const checkForInitial = await prisma.credentials.findUnique({ where: { id: 1 } });
-        const { initialSetup, refreshRate } = checkForInitial;
+        const { initialSetup } = checkForInitial;
         const sendFakeEventObj = { refresh: true };
 
         if (initialSetup === false) {
@@ -330,7 +330,13 @@ app.get('/pingmacaddresses', async (req, res) => {
                 res.write(`data: ${JSON.stringify({ sendFakeEventObj })}\n\n`);
             };
             sendUpdate();
+            let refreshRate = checkForInitial.refreshRate;
+
+            if (typeof refreshRate !== "number") {
+                refreshRate = 60000;
+            }
             const intervalId = setInterval(sendUpdate, refreshRate);
+
 
             req.on('close', () => {
                 clearInterval(intervalId);
