@@ -229,7 +229,7 @@ app.get('/getmacaddresses', async (req, res) => {
                 id: 1
             }
         });
-        const { initialSetup, refreshRate } = currentCredentials;
+        const { initialSetup } = currentCredentials;
 
         if (!initialSetup) {
             let macData = await prisma.device.findMany();
@@ -243,7 +243,7 @@ app.get('/getmacaddresses', async (req, res) => {
             // const blockedUsers = await unifi?.getBlockedUsers(); // old 03/11/2024
             const blockedUsers = await getBlockedUsers();
             // console.log('blockedUsers in get mac addresses \t', blockedUsers);
-            console.log('refreshRate \t', refreshRate);
+            // console.log('refreshRate \t', refreshRate);
 
             const doMacAddressMatch = (unifiDataMacAddress, macData) => {
                 return macData.some(obj => obj.macAddress === unifiDataMacAddress);
@@ -268,7 +268,7 @@ app.get('/getmacaddresses', async (req, res) => {
                             data: updateData
                         });
                         const newMacData = await prisma.device.findMany();
-                        res.json({ macData: newMacData, blockedUsers: blockedUsers, refreshRate: refreshRate });
+                        res.json({ macData: newMacData, blockedUsers: blockedUsers });
                     } catch (error) {
                         console.error(error);
                     }
@@ -292,7 +292,7 @@ app.get('/getmacaddresses', async (req, res) => {
                             data: updateData
                         });
                         const newMacData = await prisma.device.findMany();
-                        res.json({ macData: newMacData, blockedUsers: blockedUsers, refreshRate: refreshRate });
+                        res.json({ macData: newMacData, blockedUsers: blockedUsers });
                     } catch (error) {
                         console.error(error);
                     }
