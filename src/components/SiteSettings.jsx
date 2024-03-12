@@ -31,6 +31,7 @@ export default function SiteSettings()
 
     const handleInput = e => {
         if (e.target.name === 'refreshRate') {
+            setRefreshRateFromDB(null);
             setRangeValue(e.target.value);
         }
         if (dataExists) {
@@ -135,6 +136,7 @@ export default function SiteSettings()
                     timerRef.current.disabled = true;
                     const dbData = await fetchSettings.json();
                     setPreExistingData(dbData);
+                    console.log('dbData.refreshRate \t', dbData.refreshRate);
                     setRefreshRateFromDB(dbData.refreshRate)
 
                 } else if (!fetchSettings.ok) {
@@ -223,6 +225,7 @@ export default function SiteSettings()
         }
     }
     const handleRange = e => {
+
         setRangeValue(e.target.value);
         // console.log(e.target.value);
     }
