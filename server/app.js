@@ -221,18 +221,21 @@ app.get('/getmacaddresses', async (req, res) => {
                 id: 1
             }
         });
-        const { initialSetup } = currentCredentials;
+        const { initialSetup, refreshRate } = currentCredentials;
 
         if (!initialSetup) {
-            const blockedUsers = await unifi?.getBlockedUsers();
-            console.log('blockedUsers in get mac addresses \t', blockedUsers);
             let macData = await prisma.device.findMany();
-            let getRefreshTimer = await prisma.credentials.findUnique({
-                where: {
-                    id: 1
-                }
-            });
-            let refreshRate = getRefreshTimer.refreshRate;
+            // let getRefreshTimer = await prisma.credentials.findUnique({
+            //     where: {
+            //         id: 1
+            //     }
+            // });
+            // let refreshRate = getRefreshTimer.refreshRate;
+
+            // const blockedUsers = await unifi?.getBlockedUsers(); // old 03/11/2024
+            const blockedUsers = await getBlockedUsers();
+            // console.log('blockedUsers in get mac addresses \t', blockedUsers);
+            console.log('refreshRate \t', refreshRate);
 
             const doMacAddressMatch = (unifiDataMacAddress, macData) => {
                 return macData.some(obj => obj.macAddress === unifiDataMacAddress);
@@ -280,7 +283,7 @@ app.get('/getmacaddresses', async (req, res) => {
                             },
                             data: updateData
                         });
-                        const newMacData = await prisma.device.findMany()
+                        const newMacData = await prisma.device.findMany();
                         res.json({ macData: newMacData, blockedUsers: blockedUsers, refreshRate: refreshRate });
                     } catch (error) {
                         console.error(error);
@@ -288,8 +291,10 @@ app.get('/getmacaddresses', async (req, res) => {
                 }
                 updateRecordsToActive(recordIds, updateData);
             }
-        } else {
-            throw new Error('This is the initial setup, redirect.');
+        }
+        else {
+            console.log('This is the initial setup, redirect.');
+            // throw new Error('This is the initial setup, redirect.');
         }
     } catch (error) {
         if (error) {
@@ -307,7 +312,8 @@ app.get('/pingmacaddresses', async (req, res) => {
         const sendFakeEventObj = { refresh: true };
 
         if (checkForInitial.initialSetup === false) {
-            const refreshRate = checkForInitial.refreshRate;
+            // const refreshRate = checkForInitial.refreshRate;
+            const { refreshRate } = checkForInitial;
             res.setHeader('Content-Type', 'text/event-stream');
             res.setHeader('Cache-Control', 'no-cache');
             res.setHeader('Connection', 'keep-alive');
