@@ -138,7 +138,7 @@ export default function AdminConsole()
             eventSource = new EventSource('/pingmacaddresses');
             eventSource.onmessage = (event) => {
                 if (event) {
-                    // handleRenderToggle();
+                    handleRenderToggle();
                     console.log('%chandleRenderToggle() if(event)...', 'color: pink; background: black; font-size: 12px;');
                     console.log('event \t', event);
                 }

@@ -111,13 +111,16 @@ async function logIntoUnifi(hostname, port, sslverify, username, password) {
         return { validCredentials: false };
     }
 }
+console.log('unifi \t', unifi);
 
 let loginData;
 const fetchLoginInfo = async () => {
     const getAdminLoginInfo = async () => {
         try {
-          const adminLogin = await prisma.credentials.findMany();
-          loginData = adminLogin.pop();
+          const adminLogin = await prisma.credentials.findUnique({ where: { id: 1 }});
+        //   console.log('adminLogin \t', adminLogin);
+        //   loginData = adminLogin.pop();
+          loginData = adminLogin;
           return loginData;
         } catch (error) {
             if (error) {
@@ -132,11 +135,16 @@ const fetchLoginInfo = async () => {
 const info = fetchLoginInfo();
 info
     .then(() => logIntoUnifi(loginData?.hostname, loginData?.port, loginData?.sslverify, loginData?.username, loginData?.password))
+    .then(() => console.log('unifi \t', unifi))
     .catch((error) => console.error(error))
 
 async function getBlockedUsers() {
     const blockedUsers = await unifi.getBlockedUsers();
-    return blockedUsers;
+    if (blockedUsers === undefined) {
+        return [];
+    } else {
+        return blockedUsers;
+    }
 }
 async function blockMultiple(reqBodyArr) {
     for (const mac of reqBodyArr) {
@@ -309,11 +317,11 @@ app.get('/getmacaddresses', async (req, res) => {
 app.get('/pingmacaddresses', async (req, res) => {
     try {
         const checkForInitial = await prisma.credentials.findUnique({ where: { id: 1 } });
+        const { initialSetup, refreshRate } = checkForInitial;
         const sendFakeEventObj = { refresh: true };
 
-        if (checkForInitial.initialSetup === false) {
+        if (initialSetup === false) {
             // const refreshRate = checkForInitial.refreshRate;
-            const { refreshRate } = checkForInitial;
             res.setHeader('Content-Type', 'text/event-stream');
             res.setHeader('Cache-Control', 'no-cache');
             res.setHeader('Connection', 'keep-alive');
@@ -941,7 +949,7 @@ app.post('/updategeneralsettings', async (req, res) => {
 
 app.get('/checkforsettings', async (req, res) => {
     try {
-        const checkForSettings = await prisma.credentials.findMany();
+        const checkForSettings = await prisma.credentials.findUnique({ where: { id: 1 }});
         if (checkForSettings.length > 0) {
             res.json(checkForSettings)
         } else {
