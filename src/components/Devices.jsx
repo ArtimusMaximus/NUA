@@ -213,7 +213,7 @@ export default function Devices({ data, toggleReRender, handleRenderToggle, load
                                                                 checked={device?.active}
                                                                 data-name={device?.id}
                                                             />
-                                                            {device.name ? device.name : device.oui ? device.oui : "No Name or OUI"}
+                                                            {device?.name === "" ? device?.macAddress : device?.name}
                                                             {/* <div
                                                                 draggable={true}
                                                                 data-orderid={`${index+1}`}
@@ -225,7 +225,6 @@ export default function Devices({ data, toggleReRender, handleRenderToggle, load
                                                                 |||
                                                             </div> */}
                                                         </div>
-
                                                     </div>
                                                     <div className="collapse-content">
                                                             <div className="flex justify-between flex-wrap">
@@ -244,7 +243,6 @@ export default function Devices({ data, toggleReRender, handleRenderToggle, load
                                                         <div>
                                                             <Link to={`/admin/${device?.id}/cronmanager`} className="w-fit hover:cursor-pointer" >
                                                                 <div className="btn btn-block bg-base-300 hover:bg-base-content hover:text-base-100 my-2">Schedule</div>
-
                                                             </Link>
                                                         </div>
                                                         <div

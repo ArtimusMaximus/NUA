@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { IoCheckmarkSharp } from "react-icons/io5";
 
 
@@ -9,6 +9,7 @@ export default function AllDevicesCard({ props, length, handleAddToDevices })
     const [modalIdState, setModalIdState] = useState("");
 
     const handleAddOuiName = e => {
+        console.log('e.target.value \t', e.target.value);
         setNameInput(e.target.value);
     }
     const handleSaveName = e => {
@@ -31,6 +32,9 @@ export default function AllDevicesCard({ props, length, handleAddToDevices })
         const modalId = document.getElementById(e.target.dataset.btnid);
         modalId.showModal();
     }
+    useEffect(() => {
+        // console.log('props \t', props);
+    }, []);
     return (
         <>
             <div className={`card min-w-[375px] min-h-[384px] bg-base-100 mx-4 shadow-xl hover:bg-base-300`}>

@@ -100,7 +100,7 @@ export default function AdminConsole()
                 });
                 if (response.ok) {
                     const data = await response.json();
-                    // console.log(data);
+                    console.log('macData \t', data);
                     setMacData(data ? data : {});
                     setLoadingMacData(false)
                 } else if (!response.ok) {
@@ -139,8 +139,8 @@ export default function AdminConsole()
             eventSource.onmessage = (event) => {
                 if (event) {
                     handleRenderToggle();
-                    console.log('%chandleRenderToggle() if(event)...', 'color: pink; background: black; font-size: 12px;');
-                    console.log('event \t', event);
+                    // console.log('%chandleRenderToggle() if(event)...', 'color: pink; background: black; font-size: 12px;');
+                    // console.log('event \t', event);
                 }
             }
             eventSource.onerror = (error) => {
