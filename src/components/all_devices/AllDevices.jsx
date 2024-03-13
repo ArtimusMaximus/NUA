@@ -27,9 +27,6 @@ const handleAddToDevices = async (deviceToAdd, submittedName) => {
     if (submittedName !== "" || submittedName !== undefined) {
         deviceToAdd.customName = submittedName;
     }
-    console.log('deviceToAdd \t', deviceToAdd);
-    console.log('deviceToAdd deviceToAdd.oui \t', deviceToAdd.oui);
-    console.log('deviceToAdd deviceToAdd.name \t', deviceToAdd.customName);
     try {
         const response = await fetch('/addtodevicelist', {
             method: 'POST',

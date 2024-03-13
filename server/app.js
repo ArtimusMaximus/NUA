@@ -399,7 +399,6 @@ app.post('/addmacaddresses', async (req, res) => {
 app.post('/addtodevicelist', async (req, res) => {
     const { customName, hostname, oui, mac, blocked } = req.body; // blocked: true
     let name;
-    console.log('req.body \t', req.body);
     if (customName !== "") {
         name = customName;
     } else if (hostname !== "") {
@@ -409,9 +408,6 @@ app.post('/addtodevicelist', async (req, res) => {
     } else {
         name = "";
     }
-    console.log('name \t', name);
-
-
     try {
         const deviceAddedToList = await prisma.device.create({
                 data: {

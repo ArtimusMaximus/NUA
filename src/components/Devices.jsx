@@ -193,8 +193,8 @@ export default function Devices({ data, toggleReRender, handleRenderToggle, load
                         <div className="divider mt-2 mb-2"></div>
                         <ul className="flex flex-col w-full">
                             {
-                                // !loadingMacData ? data?.macData?.map((device) => {
-                                data?.macData?.map((device) => {
+                                !loadingMacData ? data?.macData?.map((device) => {
+                                // data?.macData?.map((device) => {
                                     return (
                                         <>
                                             <li key={device?.id} className="m-1">
@@ -257,8 +257,8 @@ export default function Devices({ data, toggleReRender, handleRenderToggle, load
                                             </li>
                                         </>
                                     );
-                                // }) : <DeviceSkeleton devices={data?.macData && data?.macData} loadingMacData={loadingMacData} />
-                                })
+                                }) : <DeviceSkeleton devices={data?.macData && data?.macData} loadingMacData={loadingMacData} />
+                                // })
                             }
                         </ul>
                     </div>

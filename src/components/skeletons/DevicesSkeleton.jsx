@@ -2,7 +2,7 @@ export default function DeviceSkeleton({ devices, loadingMacData })
 {
     const skeletons = () => {
         let arr=[];
-        let length = 6;
+        let length = 5;
         while(length > 0) {
             arr.push('NUA')
             length -= 1;
