@@ -200,9 +200,10 @@ export default function SeeAllApps()
             });
             const result = await updateManagedCat.json();
 
+
             if (result.success) {
                 console.log('POST Success');
-                console.log('result.result \t', result.result);
+                console.log('result.result \t', result?.result);
                 setLoading(false);
                 handleModalClose();
                 resetState();
@@ -210,11 +211,7 @@ export default function SeeAllApps()
             } else if (result.error) {
                 setLoading(false);
                 handleModalClose();
-            }
-        } catch (error) {
-            setLoading(false);
-            handleModalClose();
-            if (result.error) {
+                const { error } = result;
                 setUnifiSubmissionError({
                     code: error?.code,
                     details: error?.details.id,
@@ -222,15 +219,18 @@ export default function SeeAllApps()
                     message: error?.message
                 });
                 unifiErrorDialogRef.current.showModal();
-            } else {
-                setSubmissionError({
-                    name: error?.name,
-                    message: error?.message,
-                    status: error?.status,
-                    statusText: error?.statusText
-                });
-                errorDialogRef.current.showModal();
             }
+        } catch (error) {
+            console.log('catch block caught the error');
+            setLoading(false);
+            handleModalClose();
+            setSubmissionError({
+                name: error?.name,
+                message: error?.message,
+                status: error?.status,
+                statusText: error?.statusText
+            });
+            errorDialogRef.current.showModal();
             console.error(error);
         }
     }
@@ -292,6 +292,7 @@ export default function SeeAllApps()
             });
             const result = await updateManagedApps.json();
 
+
             if (result.success) {
                 console.log('POST Success');
                 console.log('result.result \t', result.result);
@@ -302,13 +303,9 @@ export default function SeeAllApps()
             } else if (result.error) {
                 handleModalClose();
                 setLoading(false);
-                console.log(`result result.result:\t ${result.result}`);
+                // console.log(`result result.result:\t ${result.result}`);
                 // console.log(`result.error: \t${result?.error} \n`);
-            }
-        } catch (error) {
-            setLoading(false);
-            handleModalClose();
-            if (result.error) {
+                const { error } = result;
                 setUnifiSubmissionError({
                     code: error?.code,
                     details: error?.details.id,
@@ -316,15 +313,17 @@ export default function SeeAllApps()
                     message: error?.message
                 });
                 unifiErrorDialogRef.current.showModal();
-            } else {
-                setSubmissionError({
-                    name: error?.name,
-                    message: error?.message,
-                    status: error?.status,
-                    statusText: error?.statusText
-                });
-                errorDialogRef.current.showModal();
             }
+        } catch (error) {
+            setLoading(false);
+            handleModalClose();
+            setSubmissionError({
+                name: error?.name,
+                message: error?.message,
+                status: error?.status,
+                statusText: error?.statusText
+            });
+            errorDialogRef.current.showModal();
             console.error(error);
         }
     }
@@ -530,6 +529,12 @@ export default function SeeAllApps()
                     setCatIds(prev => [...prev, 255])
                     setCatNameId(prev => [...prev, { app_cat_id: 255, app_cat_name: "Unknown_255" }])
                     break;
+                // case 'All':
+                //     setFilteredArray(allAppsList);
+                //     setSearchableCopy(allAppsList);
+                //     setCategoryName("All");
+
+                //     break;
                 default:
                     setFilteredArray([]);
                     break;
