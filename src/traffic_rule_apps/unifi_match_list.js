@@ -1762,7 +1762,7 @@ const  allAppsList = [
             { id: 655411, name:  "Splashtop" },
 			{ id: 655414, name:  "Supremo" },
 			{ id: 655415, name:  "MyQuickCloud" },
-            { id: 664400, name:  "fake test id" }, // delete this 02/27/2024
+            { id: 664400, name:  "fake test id" }, // delete this (fake app id for testing) 02/27/2024
             {
                 "id": 65540,
                 "name": "DirectConnect"
@@ -7206,6 +7206,16 @@ const  allAppsList = [
                 "name": "Thunder Private Protocol"
             }
         ]
+    },
+    { // fake test category
+        "cat": "Fake_Testing_Category",
+        "catId": 27,
+        "apps": [
+            {
+                "id": 111111,
+                "name": "Fake Test app for fake category"
+            }
+        ]
     }
 ];
 
@@ -7249,6 +7259,7 @@ const networkp19 = filterCats("Network Protocols_19");
 const networkp20 = filterCats("Network Protocols_20");
 const privateProtocols = filterCats("Private Protocols");
 const Unknown_255 = filterCats("Unknown_255");
+const Fake_Testing_Category = filterCats("Fake_Testing_Category");
 
 
 
@@ -7278,4 +7289,5 @@ export {
 	networkp20,
 	privateProtocols,
 	Unknown_255,
+    Fake_Testing_Category
 }

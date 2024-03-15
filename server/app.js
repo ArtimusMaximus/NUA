@@ -1146,6 +1146,7 @@ app.post('/addcategorytrafficrule', async (req, res) => {
     const { app_category_ids, description, enabled, matching_target, target_devices, categoryName, devices, action } = dbCatObject;
 
     console.log('devices \t', devices);
+    console.log('app_category_ids \t', app_category_ids);
 
     try {
         const path = '/v2/api/site/default/trafficrules';

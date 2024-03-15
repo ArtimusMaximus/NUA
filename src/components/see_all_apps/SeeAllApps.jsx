@@ -25,6 +25,7 @@ import {
 	networkp20,
 	privateProtocols,
 	Unknown_255,
+    Fake_Testing_Category
 } from "../../traffic_rule_apps/unifi_match_list";
 // } from "../../traffic_rule_apps/workingAppsAndCats";
 // } from "../../traffic_rule_apps/app_ids";
@@ -32,6 +33,7 @@ import {
 
 import { categoryDeviceObject, dbCategoryDeviceObject, appDeviceObject, appDbDeviceObject, allAppIds } from "./app_objects";
 import { IoMdRefresh } from "react-icons/io";
+import { Link } from "react-router-dom";
 
 
 export default function SeeAllApps()
@@ -61,6 +63,7 @@ export default function SeeAllApps()
     const errorDialogRef = useRef();
     const [unifiSubmissionError, setUnifiSubmissionError] = useState({});
     const [submissionError, setSubmissionError] = useState({});
+    const feedback = { message: "If you are having trouble creating a traffic rule for a specific app or category check the support section of the readme.md on the NUA github page.", url: "https://github.com/ArtimusMaximus/NUA/blob/master/README.md" }
 
     const reRenderPage = () => {
         setRender(prev => !prev);
@@ -216,7 +219,9 @@ export default function SeeAllApps()
                     code: error?.code,
                     details: error?.details.id,
                     errorCode: error?.errorCode,
-                    message: error?.message
+                    message: error?.message,
+                    feedback: feedback.message,
+                    url: feedback.url
                 });
                 unifiErrorDialogRef.current.showModal();
             }
@@ -292,7 +297,6 @@ export default function SeeAllApps()
             });
             const result = await updateManagedApps.json();
 
-
             if (result.success) {
                 console.log('POST Success');
                 console.log('result.result \t', result.result);
@@ -310,7 +314,9 @@ export default function SeeAllApps()
                     code: error?.code,
                     details: error?.details.id,
                     errorCode: error?.errorCode,
-                    message: error?.message
+                    message: error?.message,
+                    feedback: feedback.message,
+                    url: feedback.url
                 });
                 unifiErrorDialogRef.current.showModal();
             }
@@ -528,6 +534,14 @@ export default function SeeAllApps()
                     setCatId(255);
                     setCatIds(prev => [...prev, 255])
                     setCatNameId(prev => [...prev, { app_cat_id: 255, app_cat_name: "Unknown_255" }])
+                    break;
+                case "Fake_Testing_Category":
+                    setFilteredArray(Fake_Testing_Category);
+                    setSearchableCopy(Fake_Testing_Category);
+                    setCategoryName("Fake_Testing_Category");
+                    setCatId(27);
+                    setCatIds(prev => [...prev, 27])
+                    setCatNameId(prev => [...prev, { app_cat_id: 27, app_cat_name: "Fake_Testing_Category" }])
                     break;
                 // case 'All':
                 //     setFilteredArray(allAppsList);
@@ -747,6 +761,7 @@ export default function SeeAllApps()
                                             <a className="underline text-info italic" href={`https://www.google.com/search?q=${app?.name}`} target="_blank" rel="noreferrer">{app?.name}</a>
                                         ...
                                         </p>
+                                        { /*<p>Category: {app?.cat}</p> */}
                                         <div className="card-actions justify-end">
                                             <input type="checkbox" onChange={e => handleCheckbox(e, app?.id)} checked={checked[app?.id] || false} className="checkbox checkbox-primary" data-id={app?.id} data-name={app?.name} />
                                         </div>
@@ -756,7 +771,7 @@ export default function SeeAllApps()
                             )
                         })}
             </div>
-            <div className="btn btn-error" onClick={handleErrorTest}>Test Btn</div>
+            {/* <div className="btn btn-error" onClick={handleErrorTest}>Test Btn</div> */} {/*staged for deletion 03/12/2024 */}
             <dialog ref={manageDialogRef} className="modal">
                 <div className="modal-box">
                     <h3 className="flex font-bold text-lg items-center justify-center mt-2">Create Traffic Rule</h3>
@@ -850,6 +865,7 @@ export default function SeeAllApps()
                     <p className="py-4">Invalid App Id: <span className="text-error">{unifiSubmissionError.details ? unifiSubmissionError.details : "none"}</span></p>
                     <p className="py-4">HTTP Error Code: <span className="text-error">{unifiSubmissionError.errorCode ? unifiSubmissionError.errorCode : "none"}</span></p>
                     <p className="py-4">Error Message: <span className="text-error">{unifiSubmissionError.message ? unifiSubmissionError.message : "none"}</span></p>
+                    <p className="py-4">NUA Message: <span className="text-info italic">{unifiSubmissionError.feedback} <Link className="underline font-bold text-lg" to={unifiSubmissionError.url} target="_blank">Readme.md</Link></span></p>
                     <div className="modal-action">
                     <form method="dialog">
                         <button className="btn">Close</button>
