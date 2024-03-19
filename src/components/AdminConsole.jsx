@@ -104,8 +104,8 @@ export default function AdminConsole()
                     setMacData(data ? data : {});
                     setLoadingMacData(false)
                 } else if (!response.ok) {
-                    // dialogRef.current.showModal();
-                    // setLoadingMacData(false);
+                    dialogRef.current.showModal();
+                    setLoadingMacData(false);
                     // await handleTimer();
                 }
             } catch (error) {
