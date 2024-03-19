@@ -66,7 +66,7 @@ export default function AllDevicesCard({ props, length, handleAddToDevices })
             </div>
             <dialog id={`${props?._id}`} className="modal">
                 <div className="modal-box flex items-center justify-center flex-col gap-4">
-                    <h3 className="font-bold text-lg">Enter OUI Name for "Added Device List"</h3>
+                    <h3 className="font-bold text-lg">Enter Name for "Added Device List"</h3>
                     <input data-inputdata={props?._id} className="input input-bordered" onChange={handleAddOuiName} />
                     <div className="modal-action">
                         <button className="btn" data-savebtnid={props?._id} onClick={handleSaveName}>Save Name</button>
