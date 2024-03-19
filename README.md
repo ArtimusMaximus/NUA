@@ -73,7 +73,7 @@ git clone git@github.com:ArtimusMaximus/nodeunifireact.git
 1. Navigate to the project directory
 
 ```bash
-cd nodeunifireact
+cd NUA
 ```
 
 2. Install frontend Node prerequisites:
