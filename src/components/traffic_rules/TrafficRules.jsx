@@ -47,6 +47,12 @@ export default function TrafficRules()
     }
     const handleImportModalClose = () => {
         importDialogRef.current.close();
+        const resetCheckedState = {};
+        importRuleChoices.forEach(choice => {
+            resetCheckedState[choice._id] = false;
+        });
+        setChecked(false);
+        setImportRuleSelection([]);
     }
     const handleSelectedImport = (e, id) => {
         setChecked(prevState => ({
