@@ -747,7 +747,7 @@ export default function SeeAllApps()
                                 })}
                             </select>
                             <input className="input input-bordered" placeholder="Search..." onChange={handleSearchByText} />
-                        <button className="btn" onClick={handleModalOpen}>{appSelection.length ? 'Manage Selected Apps' : `Manage ${filter} Category`}</button>
+                        <button className={`${categoryName === "" ? "btn btn-disabled" : "btn"}`} onClick={handleModalOpen}>{appSelection.length ? 'Manage Selected Apps' : `Manage ${filter} Category`}</button>
                         <div className="btn btn-circle" onClick={handleResetManually}><IoMdRefresh className="pointer-events-none w-7 h-7" /></div>
                     </div>
                     {filteredArray?.map((app) => {
