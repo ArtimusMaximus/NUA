@@ -15,8 +15,13 @@ This software only works with [UniFi Cloud Gateways](https://ui.com/us/en/cloud-
 
 |                                       |                                       |
 |:-------------------------------------:|:-------------------------------------:|
+<<<<<<< HEAD
 | <img src="images/image01.webp" width="500"> |<img src="images/image02.webp" width="500">|
 | <img src="images/image03.webp" width="500"> |<img src="images/image04.webp" width="500">|
+=======
+| <img src="images/Home_Page.webp" width="500"> |<img src="images/Sidebar.webp" width="500">|
+| <img src="images/Connection_Settings.webp" width="500"> |<img src="images/Blocked_Devices.webp" width="500">|
+>>>>>>> master
 
 ![Usage](images/Usage.gif)
 
@@ -139,12 +144,15 @@ This will initiate the NUA software. Make sure to check the console for any logs
 ## How do I run this in the background/autostart?
 [Check out this pm2 documentation](https://pm2.keymetrics.io/docs/usage/quick-start/)
 
+## Wiki
+[Check the Wiki](https://github.com/ArtimusMaximus/NUA/wiki)
+
 # Support
 If you encounter issues with NUA, follow these steps before reporting a bug:
 * Update to the latest version of NUA.
 * Turn the device off and on again.
 * Use the search function to check if this issue has already been reported or resolved.
-* Check the Wiki (Not yet available).
+* [Check the Wiki](https://github.com/ArtimusMaximus/NUA/wiki)
 
 Following these steps can help address common problems and ensure that you are using the latest version of NUA. If the issue persists, consider reporting it to the appropriate channels.
 

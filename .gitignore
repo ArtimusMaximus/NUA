@@ -29,4 +29,4 @@ server/keepers.js
 server/ nodeunifi.db-journal
 
 # Ignore global settings
-*.globalSettings.js
+server/globalSettings.js
