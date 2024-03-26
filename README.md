@@ -15,13 +15,9 @@ This software only works with [UniFi Cloud Gateways](https://ui.com/us/en/cloud-
 
 |                                       |                                       |
 |:-------------------------------------:|:-------------------------------------:|
-<<<<<<< HEAD
 | <img src="images/image01.webp" width="500"> |<img src="images/image02.webp" width="500">|
 | <img src="images/image03.webp" width="500"> |<img src="images/image04.webp" width="500">|
-=======
-| <img src="images/Home_Page.webp" width="500"> |<img src="images/Sidebar.webp" width="500">|
-| <img src="images/Connection_Settings.webp" width="500"> |<img src="images/Blocked_Devices.webp" width="500">|
->>>>>>> master
+
 
 ![Usage](images/Usage.gif)
 
@@ -57,7 +53,7 @@ nvm install v18.18.1
 ```bash
 node -v
 ```
-or 
+or
 ```bash
 nvm list
 ```
@@ -165,7 +161,7 @@ Following these steps can help address common problems and ensure that you are u
 
     If you find a similar feature request, give it a thumbs up to show your support. Avoid adding comments like +1, as it can create unnecessary spam.
 
-By adhering to these guidelines, you contribute to a more organized and streamlined feature request process. Your input is valuable in shaping the future development of the software.  
+By adhering to these guidelines, you contribute to a more organized and streamlined feature request process. Your input is valuable in shaping the future development of the software.
 
 # Warning
 This software comes with the following warnings:
@@ -180,7 +176,7 @@ This software comes with the following warnings:
 
 3. Use at your own risk:
 
-    The use of this software is at your own risk. The developers do not guarantee its performance, security, or suitability for any specific purpose. Exercise caution and consider potential risks before deploying or using this software. 
+    The use of this software is at your own risk. The developers do not guarantee its performance, security, or suitability for any specific purpose. Exercise caution and consider potential risks before deploying or using this software.
 
 # License
 This software is released under the GNU Lesser General Public License version 3 (LGPL v3), an open-source license. You are free to use, modify, and distribute the software as you see fit. However, any modifications you make to the software must also be open-sourced under the same LGPL v3 license.
