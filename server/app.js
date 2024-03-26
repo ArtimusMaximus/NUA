@@ -1006,7 +1006,11 @@ app.get('/testconnection', async (req, res) => {
             const testCredentials = await unifiTest.login(adminLogin.username, adminLogin.password);
             console.log("Test Credentials: ", testCredentials); // returns true, not login info
         if (testCredentials === true) {
-            logIntoUnifi(loginData?.hostname, loginData?.port, loginData?.sslverify, loginData?.username, loginData?.password);
+            const info = fetchLoginInfo();
+            info
+                .then(() => logIntoUnifi(loginData?.hostname, loginData?.port, loginData?.sslverify, loginData?.username, loginData?.password))
+                .then(() => console.log('.then() => unifi \t', unifi))
+                .catch((error) => console.error(error))
             const setInitialSetupFalse = await prisma.credentials.update({ where: { id: 1 }, data: { initialSetup: false } }); // setup complete
             res.sendStatus(200);
         }
