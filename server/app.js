@@ -226,18 +226,6 @@ const jobFunction = async (crontype, macAddress) => { // for crons
 //         .then(() => console.log(result))
 // })()
 
-app.post('/initialunifilogin', async (req, res) => {
-    const { confirmation } = req.body;
-    try {
-        if (confirmation) {
-            logIntoUnifi(loginData?.hostname, loginData?.port, loginData?.sslverify, loginData?.username, loginData?.password);
-        } else {
-            console.log('Unifi credentials entered were inaccurate, please retry.');
-        }
-    } catch (error) {
-        console.error(error);
-    }
-});
 
 app.get('/getmacaddresses', async (req, res) => {
     try {
