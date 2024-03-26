@@ -24,7 +24,7 @@ export default function useFetchAllDevices()
                 blockedDevice.prismaDeviceId = null;
             }
         }
-        console.log('allDevicesArray ', allDevicesArray);
+        // console.log('allDevicesArray ', allDevicesArray);
         return allDevicesArray;
     }
 
@@ -37,7 +37,7 @@ export default function useFetchAllDevices()
                     throw new Error('Fetching all blocked devices Failed!');
                 }
                 const clientDev = await response.json();
-                console.log('clientDevices: ', clientDev);
+                // console.log('clientDevices: ', clientDev);
                 setClientDevices(
                     checkIfDeviceOnList(clientDev.getClientDevices, clientDev.getDeviceList)
                 );

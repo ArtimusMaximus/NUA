@@ -7,6 +7,7 @@ This software only works with [UniFi Cloud Gateways](https://ui.com/us/en/cloud-
 ## Features
 * ✨ **Intuitive Web Interface**: Enjoy a simple and easy-to-use web interface that streamlines the device management process.
 * 🔒 **Device Blocking**: Take control of your network by blocking specific devices, ensuring a distraction-free environment or enforcing necessary restrictions.
+* 🔒 **App Blocking**: Block specific apps and websites.
 * ⌚ **Cron Scheduler**: Leverage the built-in cron scheduler to automate device management tasks. Schedule device blocking for specific time slots, creating a structured environment.
 * 👨‍👩‍👧‍👦 **Parental Controls**: Use NUA as a robust parental control tool. Set device time limits or enforce restrictions until chores are completed, promoting a healthy balance of technology usage.
 
@@ -14,8 +15,13 @@ This software only works with [UniFi Cloud Gateways](https://ui.com/us/en/cloud-
 
 |                                       |                                       |
 |:-------------------------------------:|:-------------------------------------:|
+<<<<<<< HEAD
+| <img src="images/image01.webp" width="500"> |<img src="images/image02.webp" width="500">|
+| <img src="images/image03.webp" width="500"> |<img src="images/image04.webp" width="500">|
+=======
 | <img src="images/Home_Page.webp" width="500"> |<img src="images/Sidebar.webp" width="500">|
 | <img src="images/Connection_Settings.webp" width="500"> |<img src="images/Blocked_Devices.webp" width="500">|
+>>>>>>> master
 
 ![Usage](images/Usage.gif)
 
@@ -72,7 +78,7 @@ git clone git@github.com:ArtimusMaximus/nodeunifireact.git
 1. Navigate to the project directory
 
 ```bash
-cd nodeunifireact
+cd NUA
 ```
 
 2. Install frontend Node prerequisites:
@@ -168,7 +174,7 @@ This software comes with the following warnings:
 
     This software should not be used in a production environment. It may not have undergone sufficient testing or validation for reliable production use.
 
-2.  No internet accessibility:
+2.  This app should not be directly accessible from the internet :
 
     Ensure that this software is not accessible from the internet. Exposing it to the internet may pose security risks. Limit its usage to controlled and secure environments.
 

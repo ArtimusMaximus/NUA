@@ -1,6 +1,6 @@
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { GoGear } from "react-icons/go";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { GiHamburgerMenu } from "react-icons/gi";
 import NuaSvg from "../images/nua.svg";
 // import '../globals.css'
@@ -8,8 +8,10 @@ import NuaSvg from "../images/nua.svg";
 
 export default function Navbar({ themeValue, callBackChanged })
 {
-  const updateTheme = async () => {
+  const [open, setOpen] = useState(false);
+  const drawerRef = useRef();
 
+  const updateTheme = async () => {
     let theme;
     if (themeValue === 'light') {
       theme = 'dark';
@@ -35,12 +37,24 @@ export default function Navbar({ themeValue, callBackChanged })
     }
   }
 
+  const handleDrawerOn = () => {
+    if (drawerRef.current.value === 'on') {
+      setOpen(true);
+      drawerRef.current.value = 'off'
+    } else if (drawerRef.current.value === 'off') {
+      setOpen(false);
+      drawerRef.current.value = 'on'
+    }
+  }
+
+
+
   return (
     <>
-        <div className="navbar bg-base-100 grid grid-flow-row grid-cols-2">
+        <div className="navbar bg-base-100 grid grid-flow-row grid-cols-2 z-50">
           <div className="flex flex-row items-center justify-center w-fit z-50 mr-4 gap-1">
             <div className="drawer w-fit">
-              <input id="my-drawer" type="checkbox" className="drawer-toggle" />
+              <input id="my-drawer" type="checkbox" onClick={handleDrawerOn} ref={drawerRef} className="drawer-toggle" />
               <div className="drawer-content flex items-center justify-center">
                 {/* Page content here */}
                 <label
@@ -52,21 +66,25 @@ export default function Navbar({ themeValue, callBackChanged })
               <div className="drawer-side">
                 <label htmlFor="my-drawer" aria-label="close sidebar" className="drawer-overlay"></label>
                 <ul className="menu p-4 w-52 sm:w-80 min-h-full bg-base-200 text-base-content ">
-
                   <Link to="/"><li><div>
                     <img
                       src={NuaSvg}
                       alt="NUA Logo"
-                      className="w-16 h-16 p-0 "
+                      className="w-16 h-16 p-0"
                     />
-                    <div className="px-1 nuaFont text-2xl ">NUA</div>
+                    <div className="px-1 nuaFont text-2xl">NUA</div>
                   </div></li></Link>
                   {/* Sidebar content here */}
                   <Link to="/"><li className="font-bold text-lg"><a>Home</a></li></Link>
                   <Link to="/sitesettings"><li className="font-bold text-lg"><a>Site Settings</a></li></Link>
-                  <Link to="/blockeddevices"><li className="font-bold text-lg"><a>See All Blocked</a></li></Link>
+                  {/* <Link to="/blockeddevices"><li className="font-bold text-lg"><a>See All Blocked</a></li></Link> */}
                   <Link to="/alldevices"><li className="font-bold text-lg"><a>See All Devices</a></li></Link>
+                  <Link to="/trafficrules"><li className="font-bold text-lg"><a>Traffic Rules</a></li></Link>
+                  <Link to="/seeallapps"><li className="font-bold text-lg"><a>See All Apps</a></li></Link>
                 </ul>
+                <div className={`${open ? "absolute left-5 bottom-5" : "hidden"}`}>
+                  <div className="badge badge-outline">Version&nbsp;<span className="text-primary">2.0.0</span></div>
+                </div>
               </div>
             </div>
               <div className="flex justify-center items-center">
@@ -74,7 +92,7 @@ export default function Navbar({ themeValue, callBackChanged })
                   <img
                     src={NuaSvg}
                     alt="NUA Logo"
-                    className="w-10 h-10 p-0 "
+                    className="w-10 h-10 p-0"
                   />
                   NUA
                 </Link>

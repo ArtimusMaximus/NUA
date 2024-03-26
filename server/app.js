@@ -8,6 +8,8 @@ const { PrismaClient } = require('@prisma/client');
 const schedule = require('node-schedule');
 const cronValidate = require('node-cron');
 const customPORT = require('./globalSettings');
+const fs = require('fs');
+
 
 
 
@@ -26,6 +28,8 @@ app.use(cors());
 app.use(bodyParser.json());
 app.use(express.static(process.cwd().slice(0, -7) + '/dist'));
 
+let initialLoginAttempt;
+
 function red(text, color) { // specific console color logger
     if (color === 'red') {
         console.log('\x1b[31m\x1b[5m', text);
@@ -36,11 +40,35 @@ function red(text, color) { // specific console color logger
 function handleLoginError(error) {
     if (error !== undefined) {
         console.log('handleLoginErrors: \t');
+        console.log('Error \t', error);
         console.log(error?.code);
         console.log(error?.response?.data?.code);
         console.log(error?.response?.data?.message);
     }
     red('There was an error logging in with your credentials. Set them up in /sitesettings!', 'cyan');
+}
+// function writeJSONApps(successfulData) {
+//     // const data = JSON.stringify(successfulData);
+//     const data = successfulData;
+//     fs.appendFile('successfulIds.js', `${data}\n`, (error) => {
+//         if (error) {
+//             console.error(error);
+//         } else {
+//             console.log('The file has been saved!');
+//         }
+//     });
+// }
+function writeJSONApps(successfulData) {
+    // const data = JSON.stringify(successfulData);
+    successfulData.forEach((item) => {
+        const data = JSON.stringify(item) + '\n';
+        try {
+            fs.appendFileSync('successfulIds.js', data);
+        } catch (error) {
+            console.error('Error writing item: ', item, error)
+        }
+    })
+
 }
 
 // initial check for existing credentials in db
@@ -61,6 +89,7 @@ const checkForCredentials = async () => {
                     sslverify: false,
                     refreshRate: 60000,
                     theme: 'dark',
+                    defaultPage: '/',
                     initialSetup: true
                 }
             });
@@ -80,18 +109,22 @@ async function logIntoUnifi(hostname, port, sslverify, username, password) {
     unifi = new Unifi.Controller({hostname: hostname, port: port, sslverify: sslverify});
     const loginData = await unifi.login(username, password);
     if (loginData) {
-        return { unifi, validCredentials: true};
+        return { unifi, validCredentials: true };
     } else {
         return { validCredentials: false };
     }
 }
 
+
+// fetch login arguments
 let loginData;
 const fetchLoginInfo = async () => {
     const getAdminLoginInfo = async () => {
         try {
-          const adminLogin = await prisma.credentials.findMany();
-          loginData = adminLogin.pop();
+          const adminLogin = await prisma.credentials.findUnique({ where: { id: 1 }});
+        //   console.log('adminLogin \t', adminLogin);
+        //   loginData = adminLogin.pop();
+          loginData = adminLogin;
           return loginData;
         } catch (error) {
             if (error) {
@@ -106,11 +139,16 @@ const fetchLoginInfo = async () => {
 const info = fetchLoginInfo();
 info
     .then(() => logIntoUnifi(loginData?.hostname, loginData?.port, loginData?.sslverify, loginData?.username, loginData?.password))
+    .then(() => console.log('.then() => unifi \t', unifi))
     .catch((error) => console.error(error))
 
 async function getBlockedUsers() {
     const blockedUsers = await unifi.getBlockedUsers();
-    return blockedUsers;
+    if (blockedUsers === undefined) {
+        return [];
+    } else {
+        return blockedUsers;
+    }
 }
 async function blockMultiple(reqBodyArr) {
     for (const mac of reqBodyArr) {
@@ -154,7 +192,7 @@ async function unblockSingle(reqBodyMac) {
 }
 function extractMacs(body) {
     // console.log(body);
-    return body.macData.map(mac => mac.macAddress)
+    return body.macData.map(mac => mac.macAddress);
 }
 function validateCron(crontype) { // return true/false
     let validation = cronValidate.validate(crontype);
@@ -177,6 +215,18 @@ const jobFunction = async (crontype, macAddress) => { // for crons
     }
 }
 
+// (async function() {
+//     // const path = '/v2/api/site/default/trafficrules';
+//     const path = '/api/s/default/stat/sitedpi';
+//     // const path = 'https://192.168.0.1/proxy/network/api/s/default/stat/sitedpi';
+//     const timer = t => new Promise(res => setTimeout(res, t));
+//     let result;
+//     timer(2000)
+//         .then(() => result = unifi?.customApiRequest(path, 'GET'))
+//         .then(() => console.log(result))
+// })()
+
+
 app.get('/getmacaddresses', async (req, res) => {
     try {
         const currentCredentials = await prisma.credentials.findUnique({
@@ -187,20 +237,28 @@ app.get('/getmacaddresses', async (req, res) => {
         const { initialSetup } = currentCredentials;
 
         if (!initialSetup) {
-            const blockedUsers = await unifi.getBlockedUsers();
             let macData = await prisma.device.findMany();
-            let getRefreshTimer = await prisma.credentials.findUnique({
-                where: {
-                    id: 1
-                }
-            });
-            let refreshRate = getRefreshTimer.refreshRate;
+            // let getRefreshTimer = await prisma.credentials.findUnique({
+            //     where: {
+            //         id: 1
+            //     }
+            // });
+            // let refreshRate = getRefreshTimer.refreshRate;
 
-            const doMacAddressMatch = (macAddress, array) => {
-                return array.some(obj => obj.macAddress === macAddress)
+            // const blockedUsers = await unifi?.getBlockedUsers(); // old 03/11/2024
+            const blockedUsers = await getBlockedUsers();
+            // console.log('blockedUsers in get mac addresses \t', blockedUsers);
+            // console.log('refreshRate \t', refreshRate);
+
+            const doMacAddressMatch = (unifiDataMacAddress, macData) => {
+                return macData.some(obj => obj.macAddress === unifiDataMacAddress);
             }
-            const matchedObjects = blockedUsers.filter(obj1 => doMacAddressMatch(obj1.mac, macData))
-
+            let matchedObjects;
+            if (blockedUsers.length) {
+                matchedObjects = blockedUsers?.filter(obj1 => doMacAddressMatch(obj1.mac, macData))
+            } else {
+                matchedObjects = [];
+            }
             if (matchedObjects.length === 0) {
                 const recordIds = macData.map(obj => obj.id);
                 const updateData = { active: true };
@@ -214,8 +272,8 @@ app.get('/getmacaddresses', async (req, res) => {
                             },
                             data: updateData
                         });
-                        const newMacData = await prisma.device.findMany()
-                        res.json({ macData: newMacData, blockedUsers: blockedUsers, refreshRate: refreshRate });
+                        const newMacData = await prisma.device.findMany();
+                        res.json({ macData: newMacData, blockedUsers: blockedUsers });
                     } catch (error) {
                         console.error(error);
                     }
@@ -238,8 +296,8 @@ app.get('/getmacaddresses', async (req, res) => {
                             },
                             data: updateData
                         });
-                        const newMacData = await prisma.device.findMany()
-                        res.json({ macData: newMacData, blockedUsers: blockedUsers, refreshRate: refreshRate });
+                        const newMacData = await prisma.device.findMany();
+                        res.json({ macData: newMacData, blockedUsers: blockedUsers });
                     } catch (error) {
                         console.error(error);
                     }
@@ -247,7 +305,7 @@ app.get('/getmacaddresses', async (req, res) => {
                 updateRecordsToActive(recordIds, updateData);
             }
         } else {
-            throw new Error('This is the initial setup, redirect.')
+            throw new Error('This is the initial setup, redirect.');
         }
     } catch (error) {
         if (error) {
@@ -261,27 +319,34 @@ app.get('/getmacaddresses', async (req, res) => {
 app.get('/pingmacaddresses', async (req, res) => {
     try {
         const checkForInitial = await prisma.credentials.findUnique({ where: { id: 1 } });
-        const sendFakeEventObj = { refresh: true }
+        const { initialSetup } = checkForInitial;
+        const sendFakeEventObj = { refresh: true };
 
-        if (checkForInitial.initialSetup === false) {
-            const refreshRate = checkForInitial.refreshRate;
+        if (initialSetup === false) {
+            // const refreshRate = checkForInitial.refreshRate;
             res.setHeader('Content-Type', 'text/event-stream');
             res.setHeader('Cache-Control', 'no-cache');
             res.setHeader('Connection', 'keep-alive');
 
             const sendUpdate = () => {
-                res.write(`data: ${JSON.stringify({ sendFakeEventObj })}\n\n`)
+                res.write(`data: ${JSON.stringify({ sendFakeEventObj })}\n\n`);
             };
             sendUpdate();
+            let refreshRate = checkForInitial.refreshRate;
+
+            if (typeof refreshRate !== "number") {
+                refreshRate = 60000;
+            }
             const intervalId = setInterval(sendUpdate, refreshRate);
 
+
             req.on('close', () => {
-                clearInterval(intervalId)
+                clearInterval(intervalId);
             });
         }
     } catch (error) {
         console.error(error);
-        res.sendStatus(500).json({ error: "Internal Server Error."})
+        // res.sendStatus(500).json({ error: "Internal Server Error." });
     }
 });
 
@@ -337,11 +402,21 @@ app.post('/addmacaddresses', async (req, res) => {
 });
 
 app.post('/addtodevicelist', async (req, res) => {
-    const { oui, mac, blocked } = req.body; // blocked: true
+    const { customName, hostname, oui, mac, blocked } = req.body; // blocked: true
+    let name;
+    if (customName !== "") {
+        name = customName;
+    } else if (hostname !== "") {
+        name = hostname;
+    } else if (oui !== "") {
+        name = oui;
+    } else {
+        name = "";
+    }
     try {
         const deviceAddedToList = await prisma.device.create({
                 data: {
-                    name: oui,
+                    name: name,
                     macAddress: mac,
                     active: !blocked
                 },
@@ -404,7 +479,7 @@ app.put('/updatemacaddressstatus', async (req, res) => { // toggler
     ///////////////////////////////////// confirm user is blocked below////////////////
         const filterBlockedUsers = blockedUsers.filter((device) => {
             return device.mac === macAddress
-        })
+        });
         console.log('Filtered only blocked users from db: ', filterBlockedUsers);
         // console.log(blockedUsers);
     ///////////////////////////////////// bash block device command here///////////////
@@ -876,10 +951,25 @@ app.put('/updatesitesettings', async (req, res) => {
     }
 });
 
+app.post('/updategeneralsettings', async (req, res) => {
+    const { selectDefaultPage } = req.body;
+    const updateDefaultPage = await prisma.credentials.update({
+        where: {
+            id: 1
+        },
+        data: {
+            defaultPage: selectDefaultPage
+        }
+    });
+
+    res.sendStatus(200);
+});
+
 app.get('/checkforsettings', async (req, res) => {
     try {
-        const checkForSettings = await prisma.credentials.findMany();
-        if (checkForSettings.length > 0) {
+        const checkForSettings = await prisma.credentials.findUnique({ where: { id: 1 }});
+        console.log('checkForSettings \t', checkForSettings);
+        if (checkForSettings) {
             res.json(checkForSettings)
         } else {
             res.sendStatus(404);
@@ -904,7 +994,12 @@ app.get('/testconnection', async (req, res) => {
             const testCredentials = await unifiTest.login(adminLogin.username, adminLogin.password);
             console.log("Test Credentials: ", testCredentials); // returns true, not login info
         if (testCredentials === true) {
-            const setInitialSetupFalse = await prisma.credentials.update({ where: { id: 1}, data: { initialSetup: false } }); // setup complete
+            const info = fetchLoginInfo();
+            info
+                .then(() => logIntoUnifi(loginData?.hostname, loginData?.port, loginData?.sslverify, loginData?.username, loginData?.password))
+                .then(() => console.log('.then() => unifi \t', unifi))
+                .catch((error) => console.error(error))
+            const setInitialSetupFalse = await prisma.credentials.update({ where: { id: 1 }, data: { initialSetup: false } }); // setup complete
             res.sendStatus(200);
         }
 
@@ -942,6 +1037,15 @@ app.get('/getalldevices', async (req, res) => {
         // console.log(getClientDevices);
         res.json({ getClientDevices: getClientDevices, getDeviceList: getDeviceList })
         // res.sendStatus(200)
+    } catch (error) {
+        console.error(error);
+    }
+});
+
+app.get('/getcurrentdevices', async (req, res) => {
+    try {
+        const getDeviceList = await prisma.device.findMany();
+        res.json({ getDeviceList: getDeviceList });
     } catch (error) {
         console.error(error);
     }
@@ -986,6 +1090,590 @@ app.post('/login', (req, res) => {
         res.sendStatus(500)
     }
 });
+
+//~~~~~~reorder data~~~~~~
+app.put('/updatedeviceorder', async (req, res) => {
+    const { newData } = req.body;
+    try {
+        const updateOrder = async () => {
+            for (const device of newData) {
+                await prisma.device.update({
+                    where: {
+                        id: device.id
+                    },
+                    data: {
+                        order: parseInt(device.order)
+                    }
+                });
+            }
+        }
+        updateOrder();
+        // res.json({ message: 'Updated Successful'})
+        res.sendStatus(200);
+    } catch (error) {
+        console.error(error);
+    }
+});
+
+//~~~~~~~category/app firewall rules~~~~~~
+
+app.get('/getdbcustomapirules', async (req, res) => { // get dbtrafficrules && unifi rules
+    try {
+        const path = '/v2/api/site/default/trafficrules';
+        const result = await unifi.customApiRequest(path, 'GET');
+
+        const fetchTrafficRules = await prisma?.trafficRules?.findMany();
+        const fetchAppCatIds = await prisma?.appCatIds?.findMany();
+        const fetchAppIds = await prisma?.appIds?.findMany();
+        const fetchTargetDevices = await prisma?.targetDevice?.findMany();
+
+        const joinedData = fetchTrafficRules?.map((trafficRule) => {
+            const matchingFetchAppCatIds = fetchAppCatIds.find(appCatId => appCatId.trafficRulesId === trafficRule.id);
+            const matchingAppIds = fetchAppIds.filter(appId => appId.trafficRulesId === trafficRule.id);
+            const matchingTargetDevices = fetchTargetDevices.filter(targetDevice => targetDevice.trafficRulesId === trafficRule.id);
+
+            return {
+                trafficRule,
+                matchingFetchAppCatIds,
+                matchingAppIds,
+                matchingTargetDevices
+            }
+        });
+        if (joinedData.length) {
+            res.status(200).json({ trafficRuleDbData: joinedData, unifiData: result });
+        } else if (result.length && !joinedData.length) {
+            res.status(206).json({ unifiData: result });
+        }
+    } catch (error) {
+        console.error(error);
+    }
+});
+
+app.post('/addcategorytrafficrule', async (req, res) => {
+    const { categoryObject, dbCatObject } = req.body;
+
+    // console.log('categoryObject \t', categoryObject); // verified
+    const { app_category_ids, description, enabled, matching_target, target_devices, categoryName, devices, action } = dbCatObject;
+
+    console.log('devices \t', devices);
+    console.log('app_category_ids \t', app_category_ids);
+
+    try {
+        const path = '/v2/api/site/default/trafficrules';
+        const result = await unifi.customApiRequest(path, 'POST', categoryObject);
+        // console.log('result \t', result);
+        // console.log('result._id \t', result._id);
+
+        const setTrafficRuleEntry = await prisma.trafficRules.create({
+            data: {
+                unifiId: result._id,
+                description: description,
+                enabled: enabled,
+                blockAllow: action,
+            }
+        });
+        const setAppCatIds = await prisma.appCatIds.create({
+            data: {
+                app_cat_id: app_category_ids[0].categoryId,
+                app_cat_name: app_category_ids[0].categoryName,
+                trafficRules: {
+                    connect: { id: setTrafficRuleEntry.id }
+                }
+            },
+        });
+        const setMultipleDevices = async () => {
+            let allData = [];
+            for (const device of devices) {
+                const update = await prisma.trafficRuleDevices.create({
+                    data: {
+                        deviceName: device.name,
+                        deviceId: device.id,
+                        macAddress: device.macAddress,
+                        trafficRules: {
+                            connect: { id: setTrafficRuleEntry.id }
+                        }
+                    }
+                });
+                allData.push(update)
+            }
+            return allData;
+        }
+        await setMultipleDevices();
+
+
+        const setMultipleTargetDevices = async () => {
+            let allData = [];
+            for (const td of target_devices) {
+                const data = await prisma.targetDevice.create({
+                    data: {
+                        client_mac: td.client_mac,
+                        type: td.type,
+                        trafficRules: {
+                            connect: { id: setTrafficRuleEntry.id }
+                        }
+                    },
+                });
+                allData.push(data);
+            }
+            return allData;
+        }
+        await setMultipleTargetDevices();
+        // console.log('setTrafficRuleEntry \t', setTrafficRuleEntry);
+        // console.log('setAppCatIds \t', setAppCatIds);
+        // console.log('setAppIds \t', setAppIds);
+        // console.log('setTargetDevices \t', multipleData);
+        if (result) {
+            console.log('Result: \t', result);
+            res.status(200).json({ success: true, result: result });
+        }
+    } catch (error) {
+        res.status(500).json({ success: false, error: error?.response?.data });
+        console.error(error);
+    }
+});
+
+app.post('/addappstrafficrule', async (req, res) => {
+    const { appObject, appDbObject } = req.body;
+    const { app_category_ids, app_ids, description, enabled, matching_target, target_devices, devices, action, appSelection } = appDbObject;
+    console.log('appDbObject \t', appDbObject);
+    let r;
+    try {
+        const path = '/v2/api/site/default/trafficrules';
+        const result = await unifi.customApiRequest(path, 'POST', appObject);
+        r = result;
+
+        const setTrafficRuleEntry = await prisma.trafficRules.create({
+            data: {
+                unifiId: result._id,
+                description: description,
+                enabled: enabled,
+                blockAllow: action
+            }
+        });
+        // const setAppCatIds = await prisma.appCatIds.create({
+        //     data: {
+        //         app_cat_id: app_category_ids[0],
+        //         trafficRules: {
+        //             connect: { id: setTrafficRuleEntry.id }
+        //         }
+        //     },
+        // });
+        const setMultipleAppCatIds = async () => {
+            let allData = [];
+            for (const appCatIds of app_category_ids) {
+                const setAppIds = await prisma.appCatIds.create({
+                    data: {
+                        app_cat_id: appCatIds.app_cat_id,
+                        app_cat_name: appCatIds.app_cat_name,
+                        trafficRules: {
+                            connect: { id: setTrafficRuleEntry.id }
+                        }
+                    }
+                });
+                allData.push(setAppIds)
+            }
+            return allData;
+        }
+        await setMultipleAppCatIds();
+
+        const setMultipleAppIds = async () => {
+            let allData = [];
+            for (const appIds of appSelection) {
+                const setAppIds = await prisma.appIds.create({
+                    data: {
+                        app_id: appIds.id,
+                        app_name: appIds.name,
+                        trafficRules: {
+                            connect: { id: setTrafficRuleEntry.id }
+                        }
+                    }
+                });
+                allData.push(setAppIds)
+            }
+            return allData;
+        }
+        await setMultipleAppIds();
+
+        const setMultipleDevices = async () => {
+            let allData = [];
+            for (const device of devices) {
+                const update = await prisma.trafficRuleDevices.create({
+                    data: {
+                        deviceName: device.name,
+                        deviceId: device.id,
+                        macAddress: device.macAddress,
+                        trafficRules: {
+                            connect: { id: setTrafficRuleEntry.id }
+                        }
+                    }
+                });
+                allData.push(update)
+            }
+            return allData;
+        }
+        await setMultipleDevices();
+        const setMultipleTargetDevices = async () => {
+            let allData = [];
+            for (const td of target_devices) {
+                const data = await prisma.targetDevice.create({
+                    data: {
+                        client_mac: td.client_mac,
+                        type: td.type,
+                        trafficRules: {
+                            connect: { id: setTrafficRuleEntry.id }
+                        }
+                    },
+                });
+                allData.push(data);
+            }
+            return allData;
+        }
+        await setMultipleTargetDevices();
+
+        // res.sendStatus(200);
+        if (result) {
+            console.log('Result made it: \t', result);
+            res.status(200).json({ success: true, result: result });
+        }
+    } catch (error) {
+        res.status(500).json({ success: false, error: error?.response?.data });
+        console.error(error);
+        // console.log('error.response \t', error.response);
+        // res.status(error.response.status).json({ error: error.response.data });
+    }
+});
+
+app.put('/updatecategorytrafficrule', async (req, res) => {
+    const { categoryObject } = req.body;
+    console.log('catId \t', categoryObject); // verified
+    try {
+        // console.log('unifi.customApiRequest \t', unifi.customApiRequest)
+        const path = `/v2/api/site/default/trafficrules/${categoryObject._id}`;
+
+        const result = await unifi.customApiRequest(path, 'PUT', categoryObject._id);
+        console.log('result \t', result);
+        // result?.map(r => console.log(r))
+        // result.forEach(r => r.target_devices.forEach(device => console.log('target_devices \t', device)))
+
+        // res.json(car)
+        res.sendStatus(200);
+    } catch (error) {
+        console.error(error);
+    }
+});
+
+app.put('/updatetrafficruletoggle', async (req, res) => {
+    const { _id, trafficRuleId, unifiObjCopy } = req.body;
+    console.log('unifiObjCopy \t', unifiObjCopy);
+    try {
+        const path = `/v2/api/site/default/trafficrules/${_id}`
+
+        const result = await unifi.customApiRequest(path, 'PUT', unifiObjCopy)
+        console.log('result \t', result);
+
+        const updateTrafficRule = await prisma.trafficRules.update({
+            where: {
+                id: parseInt(trafficRuleId)
+            },
+            data: {
+                enabled: unifiObjCopy.enabled
+            }
+        });
+        console.log('updateTrafficRule \t', updateTrafficRule);
+        res.sendStatus(200);
+    } catch (error) {
+        res.status(400).json({ error: error })
+        console.error(error);
+    }
+});
+
+app.delete('/deletecustomapi', async (req, res) => { // deletes unifi rule, not db (yet)
+    const { _id, trafficRuleId } = req.body;
+    console.log('id of rule to delete \t', _id);
+    console.log('trafficRuleId \t', trafficRuleId);
+    const path = `/v2/api/site/default/trafficrules/${_id}`
+    try {
+        // console.log('unifi.customApiRequest \t', unifi.customApiRequest)
+        const checkForExistingUnifiRule = await unifi.customApiRequest('/v2/api/site/default/trafficrules', 'GET');
+        console.log('checkForExistingUnifiRule \t', checkForExistingUnifiRule);
+        const checkFilter = checkForExistingUnifiRule.filter((rule) => {
+            return rule._id === _id
+        });
+        if (checkFilter.length) {
+            const result = await unifi.customApiRequest(path, 'DELETE', null)
+            console.log('"DELETE" result: \t', result);
+        }
+        const deleteTrafficRuleAndAssociated = async (trafficRuleId) => {
+            try {
+                await prisma.$transaction(async (trule) => {
+                    await trule.appCatIds.deleteMany({ where: { trafficRulesId: trafficRuleId }});
+                    await trule.appIds.deleteMany({ where: { trafficRulesId: trafficRuleId }});
+                    await trule.targetDevice.deleteMany({ where: { trafficRulesId: trafficRuleId }});
+                    await trule.trafficRuleDevices.deleteMany({ where: { trafficRulesId: trafficRuleId }});
+                    await trule.trafficRules.delete({ where: { id: trafficRuleId }})
+                });
+                console.log('Traffic Rule and associated entries deleted successfully!')
+            } catch (error) {
+                console.error('Error Deleting TrafficRule and associated entries.');
+            } finally {
+                await prisma.$disconnect();
+            }
+        }
+        await deleteTrafficRuleAndAssociated(parseInt(trafficRuleId));
+
+        res.status(200).json({ result: checkFilter });
+    } catch (error) {
+        console.error(error);
+    }
+});
+
+app.post('/importexistingunifirules', async (req, res) => {
+    const { categoryClones, appClones } = req.body;
+
+    try {
+        if (categoryClones.length) {
+            console.log('categoryClones \t', categoryClones);
+        }
+        if (appClones.length) {
+            console.log('appClones \t', appClones);
+
+            for (const appClone of appClones) {
+                const trafficRuleEntry = await prisma.trafficRules.create({
+                    data: {
+                        unifiId: appClone._id,
+                        description: appClone.description,
+                        enabled: appClone.enabled,
+                        blockAllow: appClone.action
+                    }
+                });
+                if (appClone.app_category_ids.length) {
+                    for (const appCatNameId of appClone.app_category_ids) {
+                        const appCatIdsEntry = await prisma.appCatIds.create({ // need app_cat_name if exists // changed to appCatIds from appIds 02/15
+                            data: {
+                                app_cat_id: appCatNameId.app_cat_id,
+                                app_cat_name: appCatNameId.app_cat_name,
+                                trafficRules: {
+                                    connect: { id: trafficRuleEntry.id }
+                                }
+                            }
+                        });
+                    }
+                }
+                for (const appCloneNameIds of appClone.appSelection) {
+                    const appIdsEntry = await prisma.appIds.create({
+                        data: {
+                            app_id: appCloneNameIds.id,
+                            app_name: appCloneNameIds.name,
+                            trafficRules: {
+                                connect: { id: trafficRuleEntry.id }
+                            }
+                        }
+                    });
+                }
+                for (const appCloneTargetDevice of appClone.target_devices) {
+
+                    const targetDeviceEntry = await prisma.targetDevice.create({
+                        data: {
+                            client_mac: appCloneTargetDevice.client_mac ? appCloneTargetDevice.client_mac : "Not a client device",
+                            type: appCloneTargetDevice.type,
+                            trafficRules: {
+                                connect: { id: trafficRuleEntry.id }
+                            }
+                        }
+                    });
+                }
+                // for (const appCloneTargetDevice of appClone.devices) {
+                //     const trafficRuleDevicesEntry = await prisma.trafficRuleDevices.create({
+                //         data: {
+                //             deviceName: appCloneTargetDevice.deviceName ? appCloneTargetDevice.deviceName : "No Name Provided",
+                //             // deviceId:
+                //             macAddress: appCloneTargetDevice.macAddress,
+                //             trafficRules: {
+                //                 connect: { id: trafficRuleEntry.id }
+                //             }
+                //         }
+                //     });
+                //     // look into how to properly update the deviceId and which devices to add....
+                //     const deviceEntryForUnifiRule = await prisma.device.create({
+                //         data: {
+                //             name: appCloneTargetDevice.oui ? appCloneTargetDevice.oui : appCloneTargetDevice.hostname ? appCloneTargetDevice.hostname : `"none"` ,
+                //             macAddress: appCloneTargetDevice.macAddress,
+                //             active: appClone.enabled
+                //         }
+                //     });
+
+                //     const updateTrafficRuleDevicesEntry = await prisma.trafficRuleDevices.update({
+                //         where: {
+                //             id: trafficRuleDevicesEntry.id,
+                //         },
+                //         data: {
+                //             deviceId: deviceEntryForUnifiRule.id,
+                //         }
+                //     });
+                // }
+            }
+        }
+        res.sendStatus(200);
+    } catch (error) {
+        console.error(error);
+        res.sendStatus(502)
+    }
+
+
+});
+
+app.delete('/unmanageapp', async (req, res) => {
+    const { dbId } = req.body;
+    try {
+        const unmanageTrafficRule = async (trafficRuleId) => {
+            try {
+                await prisma.$transaction(async (trafficRule) => {
+                    await trafficRule.appCatIds.deleteMany({ where: { trafficRulesId: trafficRuleId }});
+                    await trafficRule.appIds.deleteMany({ where: { trafficRulesId: trafficRuleId }});
+                    await trafficRule.targetDevice.deleteMany({ where: { trafficRulesId: trafficRuleId }});
+                    await trafficRule.trafficRuleDevices.deleteMany({ where: { trafficRulesId: trafficRuleId }});
+                    await trafficRule.trafficRules.delete({ where: { id: trafficRuleId }});
+                });
+                console.log(`Unmanaged traffic rule: ${dbId}, successfully!`);
+                res.sendStatus(200);
+            } catch (error) {
+                console.error(error);
+            } finally {
+                await prisma.$disconnect();
+            }
+        }
+        await unmanageTrafficRule(parseInt(dbId));
+
+    } catch (error) {
+        console.error(error);
+    }
+});
+
+
+// ~~~~~~~~~~TEMPORARY TESTING~~~~~~~~~~~~~~
+//~~~~~~temp get all available devices~~~~~~
+app.post('/getallworking', async (req, res) => {
+    const { arrayOfObjects } = req.body;
+    const path = '/v2/api/site/default/trafficrules';
+
+    const getAllWorkingCategories = async (arrayObjects) => {
+        let failedRequests = [];
+        let successfulRequests = [];
+        for (const arrayObject of arrayObjects) {
+            try {
+                await unifi.customApiRequest(path, 'POST', arrayObject);
+                successfulRequests.push({ arrayObject })
+            } catch (error) {
+                failedRequests.push({ arrayObject });
+            }
+        }
+        return { successfulRequests, failedRequests }
+    }
+    function chunkArray(array, chunkSize) {
+        const chunks = [];
+        for (let i = 0; i < array.length; i+=chunkSize) {
+            chunks.push(array.slice(i, i+chunkSize))
+        }
+        return chunks;
+    }
+    async function sendRequestsInChunks(arrayOfObjects, chunkSize) {
+        const chunks = chunkArray(arrayOfObjects, chunkSize);
+        let allFailedApps = [];
+        let allSuccessfulApps = [];
+        for (const chunk of chunks) {
+            const { successfulRequests, failedRequests } = await getAllWorkingCategories(chunk);
+            allFailedApps = allFailedApps.concat(failedRequests);
+            allSuccessfulApps = allSuccessfulApps.concat(successfulRequests)
+        }
+        return { allSuccessfulApps, allFailedApps };
+    }
+    const chunkSize = 5;
+    sendRequestsInChunks(arrayOfObjects, chunkSize)
+        .then(({ allSuccessfulApps, allFailedApps }) => {
+            console.log('successfulCategories \t', allSuccessfulApps.length);
+            console.log('failedCategories \t', allFailedApps.length);
+            res.json({ allSuccessfulApps: allSuccessfulApps, allFailedApps: allFailedApps })
+            console.log('allSuccessfulApps.length: \t', allSuccessfulApps.length);
+            // const mappedIds = allSuccessfulApps.flatMap(item => item.app_ids || []);
+            // allSuccessfulApps.forEach(item => console.log('item.app_ids: \t', item.app_ids)) // undefined
+            // writeJSONApps(mappedIds)
+            writeJSONApps(allSuccessfulApps);
+        })
+        .catch((error) => console.error(error));
+});
+
+// ~~~~force error test~~~~
+app.post('/submitapptest', async (req, res) => {
+    const { appDeviceObjectCopy } = req.body;
+    const path = '/v2/api/site/default/trafficrules';
+    try {
+        const result = await unifi.customApiRequest(path, 'POST', appDeviceObjectCopy);
+        console.log('Test Result \t', result);
+        // if (result) {
+        // }
+        if (!result) {
+            throw new Error('Server-Side Error');
+        } else {
+            res.json({ success: true, result: result });
+
+        }
+    } catch (error) {
+        console.error('error.response.data \t', error.response.data);
+        res.status(500).json({ success: false, error: error?.response?.data });
+        // res.status(error.response.status).json({ error: error.response.data });
+
+        // res.sendStatus(501);
+        // res.status(400).json({ error: error.message });
+        // res.json({ error: error.response.data });
+    }
+});
+
+//~~~~~~~temp delete test ids~~~~~~~~~
+app.delete('/deletetestids', async (req, res) => {
+    const { touchableIds, asda } = req.body;
+    console.log('touchableIds \t', touchableIds);
+
+    let path = `/v2/api/site/default/trafficrules/${asda[0]}`;
+            try {
+                await unifi.customApiRequest(path, 'DELETE', null)
+            } catch (error) {
+                console.error(error)
+            }
+
+    async function deleteTestIds(touchableIds) {
+        // for (const id of touchableIds) {
+            // let path = `/v2/api/site/default/trafficrules/${asda[0]}`;
+            // try {
+            //     await unifi.customApiRequest(path, 'DELETE', null)
+            // } catch (error) {
+            //     console.error(error)
+            // }
+        // }
+    }
+    // function chunkArray(array, chunkSize) {
+    //     const chunks = [];
+    //     for (let i = 0; i < array.length; i+=chunkSize) {
+    //         chunks.push(array.slice(i, i+chunkSize))
+    //     }
+    //     return chunks;
+    // }
+    // async function deleteRulesInChunks(touchableIds, chunkSize) {
+    //     const chunks = chunkArray(touchableIds, chunkSize);
+    //     const successArray = [];
+    //     for (const chunk of chunks) {
+    //         const delResult = await deleteTestIds(chunk);
+    //         successArray.push(delResult)
+    //     }
+    //     return successArray;
+    // }
+    // const chunkSize = 5;
+    // deleteRulesInChunks(touchableIds, chunkSize)
+    //     .then((successArray) => {
+    //         console.log(successArray.length);
+    //         res.json({ successArray: successArray })
+    //     }).catch(error => console.error(error, 'Error deleting many...'))
+});
+
 
 //~~~~~~refresh redirect~~~~~~
 app.get('**', async (req, res) => {

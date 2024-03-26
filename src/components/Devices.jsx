@@ -1,37 +1,47 @@
 import { useRef, useState } from "react";
-import { IoEllipseOutline } from "react-icons/io5";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { HiMiniPencilSquare } from "react-icons/hi2";
+import DeviceSkeleton from "./skeletons/DevicesSkeleton";
 
-const device = {
-    name: '',
-    macAddress: '',
-    active: false,
-    url: '',
-    id: '',
-};
 
-export default function Devices({ data, toggleReRender, handleRenderToggle })
+
+export default function Devices({ data, toggleReRender, handleRenderToggle, loadingMacData })
 {
     const navigate = useNavigate();
     const [loading, setLoading] = useState(false);
     const editRef = useRef();
     const [updatedDeviceData, setUpdatedDeviceData] = useState(null);
+    const [toggleIsLoading, setToggleIsLoading] = useState(false);
+    const toggleLoadingDialogRef = useRef();
+    const newDeviceNameRef = useRef();
+    const newMacAddressRef = useRef();
 
     // const handleSchedule = device => {
     //     navigate(`/admin/${device}`)
     // }
 
+    function handleToggleIsLoading() {
+        if (toggleIsLoading) {
+            toggleLoadingDialogRef.current.showModal();
+        } else if (!toggleIsLoading) {
+            toggleLoadingDialogRef.current.close();
+        }
+    }
+    const delay = t => new Promise(res => setTimeout(res, t));
+
     const handleToggle = async e => { // toggle device blocked or unblocked
-        setLoading(true)
+        setLoading(true);
+        setToggleIsLoading(true);
+        toggleLoadingDialogRef.current.showModal();
+
         try {
             // const itemId = e.target.dataset.name;
             const dataToUpdate = data?.macData?.filter((data) => data?.id === parseInt(e.target.dataset.name));
             // const dataToUpdate = data?.macData?.find((data) => data.id === itemId)
-            console.log(dataToUpdate);
+            // console.log(dataToUpdate);
 
             // dataToUpdate[0]?.active === true ? dataToUpdate[0].active = false : dataToUpdate[0].active = true
-            console.log('dataToUpdate[0]: ', dataToUpdate[0]);
+            // console.log('dataToUpdate[0]: ', dataToUpdate[0]);
 
                 const updateToggle = await fetch(`/updatemacaddressstatus`, {
                     method: "PUT",
@@ -46,13 +56,24 @@ export default function Devices({ data, toggleReRender, handleRenderToggle })
                     const updatedData = await updateToggle.json();
                     console.log('Updated data: ', updatedData);
                     setLoading(false);
-                    handleRenderToggle()
+                    handleRenderToggle();
+
+                    delay(2000).then(() => {
+                        setToggleIsLoading(false);
+                        toggleLoadingDialogRef.current.close();
+                    });
+
                     // console.log(dataToUpdate[0]);
                 }
 
-        } catch (error) {
-            console.log(error);
-            setLoading(false);
+            } catch (error) {
+                console.log(error);
+                setLoading(false);
+
+                delay(2000).then(() => {
+                    setToggleIsLoading(false);
+                    toggleLoadingDialogRef.current.close();
+                });
         }
     }
     const handleUnBlockAll = async () => {
@@ -120,16 +141,18 @@ export default function Devices({ data, toggleReRender, handleRenderToggle })
             id: e.target.dataset.id
         });
     }
-    const handleClose = () => { editRef.current.close(); }
+    const handleClose = () => {
+        editRef.current.close();
+    }
     const handleEditInput = e => {
         setUpdatedDeviceData({
             ...updatedDeviceData,
             [e.target.name]: e.target.value
         });
-        console.log(updatedDeviceData);
+        // console.log(updatedDeviceData);
     }
     const handleSaveEdits = () => {
-        setLoading(true)
+        setLoading(true);
         const updateEdits = async () => {
             try {
                 const updates = await fetch('/updatedevicedata', {
@@ -146,6 +169,8 @@ export default function Devices({ data, toggleReRender, handleRenderToggle })
                     setLoading(false);
                     handleRenderToggle();
                     editRef.current.close();
+                    newDeviceNameRef.current.value = '';
+                    newMacAddressRef.current.value = '';
                 }
             } catch (error) {
                 setLoading(false);
@@ -154,6 +179,7 @@ export default function Devices({ data, toggleReRender, handleRenderToggle })
         }
         updateEdits();
     }
+
 
     return (
         <>
@@ -167,41 +193,56 @@ export default function Devices({ data, toggleReRender, handleRenderToggle })
                         <div className="divider mt-2 mb-2"></div>
                         <ul className="flex flex-col w-full">
                             {
-                                data?.macData?.map((device) => {
+                                !loadingMacData ? data?.macData?.map((device) => {
+                                // data?.macData?.map((device) => {
                                     return (
                                         <>
                                             <li key={device?.id} className="m-1">
                                                 <div className="collapse bg-base-200">
                                                 <input type="checkbox" />
                                                     <div className="collapse-title text-xl font-medium">
-                                                        <div onClick={e => handleToggle(e)} className="w-full flex flex-row items-center justify-between hover:cursor-pointer z-40">
-                                                            <IoEllipseOutline
-                                                                data-name={`${device?.id}`}
+                                                        <div className="w-full flex flex-row items-center justify-between hover:cursor-pointer z-40">
+                                                            {/* <IoEllipseOutline
+                                                                data-name={device?.id}
                                                                 className={`${device?.active ? 'text-green-500' : 'text-red-500'} animate-pulse w-8 h-8 z-40`}
-                                                                />
-                                                            {device?.name}
-
+                                                            /> */}
+                                                            <input
+                                                                type="checkbox"
+                                                                className="toggle toggle-success z-40"
+                                                                onClick={handleToggle}
+                                                                checked={device?.active}
+                                                                data-name={device?.id}
+                                                            />
+                                                            {device?.name === "" ? device?.macAddress : device?.name}
+                                                            {/* <div
+                                                                draggable={true}
+                                                                data-orderid={`${index+1}`}
+                                                                data-devid={device?.id}
+                                                                onDragStart={handleDragStart}
+                                                                onDragOver={handleDragOver}
+                                                                onDrop={handleDrop}
+                                                                className="rotate-90 z-50 hover:cursor-grab">
+                                                                |||
+                                                            </div> */}
                                                         </div>
                                                     </div>
                                                     <div className="collapse-content">
-
-                                                                <div className="flex justify-between flex-wrap">
-                                                                    <p><span className="font-thin italic">Name:</span> {device?.name}</p>
-                                                                    <p><span className="font-thin italic">Mac:</span> {device?.macAddress}</p>
-                                                                    <p><span className="font-thin italic">Status:</span> <span className={`${device?.active ? 'text-green-500' : 'text-red-500'}`}>{device?.active ? 'Allowed' : 'Blocked'}</span></p>
-                                                                    <span className="flex items-center justify-center"
-                                                                        onClick={openEditDialog}
-                                                                        data-id={device?.id}
-                                                                    >
-                                                                        <HiMiniPencilSquare
-                                                                            className="w-6 h-6 pointer-events-none"
-                                                                        />
-                                                                    </span>
-                                                                </div>
+                                                            <div className="flex justify-between flex-wrap">
+                                                                <p><span className="font-thin italic">Name:</span> {device?.name}</p>
+                                                                <p><span className="font-thin italic">Mac:</span> {device?.macAddress}</p>
+                                                                <p><span className="font-thin italic">Status:</span> <span className={`${device?.active ? 'text-green-500' : 'text-red-500'}`}>{device?.active ? 'Allowed' : 'Blocked'}</span></p>
+                                                                <span className="flex items-center justify-center"
+                                                                    onClick={openEditDialog}
+                                                                    data-id={device?.id}
+                                                                >
+                                                                    <HiMiniPencilSquare
+                                                                        className="w-6 h-6 pointer-events-none"
+                                                                    />
+                                                                </span>
+                                                            </div>
                                                         <div>
                                                             <Link to={`/admin/${device?.id}/cronmanager`} className="w-fit hover:cursor-pointer" >
                                                                 <div className="btn btn-block bg-base-300 hover:bg-base-content hover:text-base-100 my-2">Schedule</div>
-
                                                             </Link>
                                                         </div>
                                                         <div
@@ -212,10 +253,12 @@ export default function Devices({ data, toggleReRender, handleRenderToggle })
                                                         </div>
                                                     </div>
                                                 </div>
+
                                             </li>
                                         </>
                                     );
-                                })
+                                }) : <DeviceSkeleton devices={data?.macData && data?.macData} loadingMacData={loadingMacData} />
+                                // })
                             }
                         </ul>
                     </div>
@@ -224,6 +267,10 @@ export default function Devices({ data, toggleReRender, handleRenderToggle })
             <div className="flex flex-row gap-6 flex-wrap mx-auto">
                 <div className="btn" onClick={handleUnBlockAll}>Unblock All</div>
                 <div className="btn" onClick={handleBlockAll}>Block All</div>
+                {/* <div className="btn btn-circle" onClick={deleteCustomRule}>delete custom api</div> */}
+            </div>
+            <div className="flex flex-row flex-wrap mx-auto pt-4">
+                <Link to="/alldevices"><div className="btn px-10">Add Device</div></Link>
             </div>
             <dialog id="my_modal_1" ref={editRef} className="modal">
                 <div className="modal-box">
@@ -239,6 +286,7 @@ export default function Devices({ data, toggleReRender, handleRenderToggle })
                                 placeholder="Device Name"
                                 className="input input-bordered w-full max-w-xs"
                                 onChange={handleEditInput}
+                                ref={newDeviceNameRef}
                             />
                             <div className="label">
                                 <span className="label-text italic">New Mac Address:</span>
@@ -249,6 +297,7 @@ export default function Devices({ data, toggleReRender, handleRenderToggle })
                                 placeholder="Mac Address"
                                 className="input input-bordered w-full max-w-xs"
                                 onChange={handleEditInput}
+                                ref={newMacAddressRef}
                             />
                             <div className="flex flex-row justify-evenly mt-4">
                                 <button className={`btn btn-large ${loading ? 'disabled' : ''}`} onClick={handleSaveEdits}>{loading ? <span className="loading loading-spinner w-3 h-4"></span> : 'Save'}</button>
@@ -256,6 +305,12 @@ export default function Devices({ data, toggleReRender, handleRenderToggle })
                             </div>
                         </label>
                     </div>
+                </div>
+            </dialog>
+
+            <dialog ref={toggleLoadingDialogRef} className="modal">
+                <div className="flex items-center justify-center w-full h-full">
+                    <span className="loading loading-spinner w-1/2 h-1/2"></span>
                 </div>
             </dialog>
         </>

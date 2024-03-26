@@ -16,7 +16,9 @@ export default function SiteSettings()
     const [alertType, setAlertType] = useState("");
     const [reveal, setReveal] = useState(false);
     const [clicked, setClicked] = useState(false);
-    const [rangeValue, setRangeValue] = useState(0)
+    const [rangeValue, setRangeValue] = useState(60000);
+    const [refreshRateFromDB, setRefreshRateFromDB] = useState(null);
+    const [selectDefaultPage, setSelectDefaultPage] = useState("");
     const hostnameRef = useRef();
     const usernameRef = useRef();
     const passwordRef = useRef();
@@ -29,6 +31,7 @@ export default function SiteSettings()
 
     const handleInput = e => {
         if (e.target.name === 'refreshRate') {
+            setRefreshRateFromDB(null);
             setRangeValue(e.target.value);
         }
         if (dataExists) {
@@ -44,6 +47,27 @@ export default function SiteSettings()
             });
 
             // console.log(data);
+        }
+    }
+    const handleSelect = e => {
+        setSelectDefaultPage(e.target.value);
+    }
+    const handleUpdateGeneralSettings = async () => {
+        try {
+            const updateGeneralSettings = await fetch('/updategeneralsettings', {
+                method: 'POST',
+                mode: 'cors',
+                headers: {
+                    "Content-Type" : "application/json"
+                },
+                body: JSON.stringify({ selectDefaultPage: selectDefaultPage })
+            });
+            if (updateGeneralSettings.ok) {
+                console.log('confirmed');
+            }
+            // updateGeneralSettings();
+        } catch (error) {
+            console.error(error)
         }
     }
 
@@ -84,8 +108,6 @@ export default function SiteSettings()
                 const response = await submitSiteSettings.json();
                 // console.log('Front end success.', response);
                 setlocked(true);
-
-
                 hostnameRef.current.disabled = true;
                 usernameRef.current.disabled = true;
                 passwordRef.current.disabled = true;
@@ -113,7 +135,9 @@ export default function SiteSettings()
                     sslverifyRef.current.disabled = true;
                     timerRef.current.disabled = true;
                     const dbData = await fetchSettings.json();
-                    setPreExistingData(dbData[0])
+                    setPreExistingData(dbData);
+                    console.log('dbData.refreshRate \t', dbData.refreshRate);
+                    setRefreshRateFromDB(dbData.refreshRate)
 
                 } else if (!fetchSettings.ok) {
                     setDataExists(false);
@@ -124,7 +148,6 @@ export default function SiteSettings()
                     portRef.current.disabled = false;
                     sslverifyRef.current.disabled = false;
                     timerRef.current.disabled = false;
-
                 }
             } catch (error) {
                 if (error) throw error;
@@ -136,7 +159,7 @@ export default function SiteSettings()
     const handlelocked = () => {
         if (locked) {
             setlocked(false);
-            setClicked(true)
+            setClicked(true);
             setDataExists(true);
             hostnameRef.current.disabled = false;
             usernameRef.current.disabled = false;
@@ -144,7 +167,6 @@ export default function SiteSettings()
             portRef.current.disabled = false;
             sslverifyRef.current.disabled = false;
             timerRef.current.disabled = false;
-
         }
     }
     const handleTest = async () => {
@@ -203,12 +225,13 @@ export default function SiteSettings()
         }
     }
     const handleRange = e => {
+
         setRangeValue(e.target.value);
         // console.log(e.target.value);
     }
     return (
         <>
-            <div className="flex items-center justify-center w-full h-full sm:w-3/4 lg:w-1/2 mx-auto pb-12">
+            <div className="flex flex-col items-center justify-center w-full h-full sm:w-3/4 lg:w-1/2 mx-auto pb-24">
                 <div className="flex w-full mx-2">
                     <div className="flex flex-col items-center justify-center w-full h-full mx-auto border rounded-lg shadow overflow-hidden border-neutral shadow-base-300 m-8">
                         <div className="flex w-full mt-2 justify-around">
@@ -308,7 +331,7 @@ export default function SiteSettings()
                                     <input
                                         type="range"
                                         max={300000} min={60000}
-                                        value={rangeValue}
+                                        value={refreshRateFromDB !== null ? refreshRateFromDB : rangeValue}
                                         className="range w-full"
                                         step={60000}
                                         ref={timerRef}
@@ -338,9 +361,6 @@ export default function SiteSettings()
                                 <GoUnlock
                                     className={`w-8 h-8 hover:cursor-pointer `}
                                     onClick={handleSubmit}
-                                    // data-id={cronData?.id}
-                                    // data-jobname={cronData?.jobName}
-                                    // ref={submitButtonRef}
                                     />
                             </div>
                             <div
@@ -355,6 +375,26 @@ export default function SiteSettings()
                     </div>
                 </div>
                 {reveal && <Confirmation message={testMessage} alertType={alertType} duration={5000} reveal={reveal} />}
+
+                    {/* <div className="flex flex-col items-center justify-center w-full h-full mx-auto border rounded-lg shadow overflow-hidden border-neutral shadow-base-300 mt-4">
+                        <div className="flex w-full mt-2 justify-around">
+                            <div className="text-2xl font-bold">General</div>
+                        </div>
+                        <div className="divider"></div>
+                        <div className="flex items-center flex-col justify-end gap-4">
+                            <div>Choose default page:</div>
+                            <div className="pl-2">
+                                <select onChange={handleSelect} className="select select-bordered w-full max-w-xs">
+                                    <option disabled selected>Choose Page</option>
+                                    <option value="/">Device List</option>
+                                    <option value="/trafficrules">Traffic Rules</option>
+                                </select>
+                            </div>
+                            <div className="flex pb-4">
+                                <div className="btn" onClick={handleUpdateGeneralSettings}>Submit</div>
+                            </div>
+                        </div>
+                    </div> */}
             </div>
         </>
     )
