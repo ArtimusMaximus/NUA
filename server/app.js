@@ -28,6 +28,8 @@ app.use(cors());
 app.use(bodyParser.json());
 app.use(express.static(process.cwd().slice(0, -7) + '/dist'));
 
+let initialLoginAttempt;
+
 function red(text, color) { // specific console color logger
     if (color === 'red') {
         console.log('\x1b[31m\x1b[5m', text);
@@ -38,6 +40,7 @@ function red(text, color) { // specific console color logger
 function handleLoginError(error) {
     if (error !== undefined) {
         console.log('handleLoginErrors: \t');
+        console.log('Error \t', error);
         console.log(error?.code);
         console.log(error?.response?.data?.code);
         console.log(error?.response?.data?.message);
@@ -106,13 +109,14 @@ async function logIntoUnifi(hostname, port, sslverify, username, password) {
     unifi = new Unifi.Controller({hostname: hostname, port: port, sslverify: sslverify});
     const loginData = await unifi.login(username, password);
     if (loginData) {
-        return { unifi, validCredentials: true};
+        return { unifi, validCredentials: true };
     } else {
         return { validCredentials: false };
     }
 }
-console.log('unifi \t', unifi);
 
+
+// fetch login arguments
 let loginData;
 const fetchLoginInfo = async () => {
     const getAdminLoginInfo = async () => {
@@ -135,7 +139,7 @@ const fetchLoginInfo = async () => {
 const info = fetchLoginInfo();
 info
     .then(() => logIntoUnifi(loginData?.hostname, loginData?.port, loginData?.sslverify, loginData?.username, loginData?.password))
-    .then(() => console.log('unifi \t', unifi))
+    .then(() => console.log('.then() => unifi \t', unifi))
     .catch((error) => console.error(error))
 
 async function getBlockedUsers() {
@@ -221,6 +225,19 @@ const jobFunction = async (crontype, macAddress) => { // for crons
 //         .then(() => result = unifi?.customApiRequest(path, 'GET'))
 //         .then(() => console.log(result))
 // })()
+
+app.post('/initialunifilogin', async (req, res) => {
+    const { confirmation } = req.body;
+    try {
+        if (confirmation) {
+            logIntoUnifi(loginData?.hostname, loginData?.port, loginData?.sslverify, loginData?.username, loginData?.password);
+        } else {
+            console.log('Unifi credentials entered were inaccurate, please retry.');
+        }
+    } catch (error) {
+        console.error(error);
+    }
+});
 
 app.get('/getmacaddresses', async (req, res) => {
     try {
@@ -989,7 +1006,8 @@ app.get('/testconnection', async (req, res) => {
             const testCredentials = await unifiTest.login(adminLogin.username, adminLogin.password);
             console.log("Test Credentials: ", testCredentials); // returns true, not login info
         if (testCredentials === true) {
-            const setInitialSetupFalse = await prisma.credentials.update({ where: { id: 1}, data: { initialSetup: false } }); // setup complete
+            logIntoUnifi(loginData?.hostname, loginData?.port, loginData?.sslverify, loginData?.username, loginData?.password);
+            const setInitialSetupFalse = await prisma.credentials.update({ where: { id: 1 }, data: { initialSetup: false } }); // setup complete
             res.sendStatus(200);
         }
 
