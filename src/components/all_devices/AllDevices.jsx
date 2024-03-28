@@ -135,9 +135,34 @@ useEffect(() => {
                     ${filteredArray.length <= 2 ? 'xl:grid-cols-2 mx-auto' : 'xl:grid-cols-3'}
                     `
                 }>
-            <h1 className="my-6 text-3xl italic mx-auto row-start-1 col-span-full text-center">{filter === 'all' ? 'All Client Devices' : filter} ({filteredArray.length}<span className="font-thin italic text-lg ml-1">items<span className="text-3xl italic">)</span></span></h1>
-            <div className="flex flex-row flex-wrap items-center sm:flex-nowrap row-start-2 gap-2 col-span-full mx-auto">
-                <select className="select select-bordered w-full max-w-xs" ref={currentSelectedRef} onChange={handleSelect}>
+            <h1 className="my-6 text-3xl italic mx-auto row-start-1 col-span-full text-center">{filter === 'all' ? 'All Client Devices' : filter} ({filteredArray.length}<span className="font-thin italic text-lg ml-1">items<span className="text-3xl italic">)</span></span>
+            </h1>
+            <div className="flex flex-row flex-wrap items-center justify-center sm:flex-nowrap row-start-2 gap-2 col-span-full mx-auto">
+                <div className="flex flex-row">
+                    {/* <label className="form-control w-full max-w-xs flex flex-row">
+                        <input
+                            type="text" placeholder="Search"
+                            className="input input-bordered w-full max-w-xs"
+                            ref={textSearchRef}
+                            onChange={handleSearchByNameMac}
+                        />
+                    </label> */}
+                    {/* <div className="relative">
+                        <div className="btn absolute right-0 " onClick={handleRefresh}>
+                            <IoMdRefresh className="w-4 h-4 pointer-events-none" />
+                        </div>
+                    </div> */}
+                    <div className="join">
+                        <input
+                            type="text" placeholder="Search"
+                            className="input input-bordered w-full max-w-xs join-item"
+                            ref={textSearchRef}
+                            onChange={handleSearchByNameMac}
+                        />
+                        <button className="btn join-item rounded-r-full" onClick={handleRefresh}><IoMdRefresh className="w-4 h-4 pointer-events-none" /></button>
+                    </div>
+                </div>
+                <select className="select select-bordered max-w-xs" ref={currentSelectedRef} onChange={handleSelect}>
                     <option disabled ref={selectRef} selected value={'all'}>Filter Selection</option>
                     <option value={'Blocked Devices'}>Blocked Devices</option>
                     <option value={'Offline Devices'}>Offline Devices</option>
@@ -146,17 +171,6 @@ useEffect(() => {
                     <option value={'Wired Devices'}>Wired Devices</option>
                     <option value={'Wireless Devices'}>Wireless Devices</option>
                 </select>
-                <div className="btn btn-circle" onClick={handleRefresh}>
-                    <IoMdRefresh className="w-4 h-4 pointer-events-none" />
-                </div>
-                <label className="form-control w-full max-w-xs flex flex-row">
-                    <input
-                        type="text" placeholder="Search"
-                        className="input input-bordered w-full max-w-xs"
-                        ref={textSearchRef}
-                        onChange={handleSearchByNameMac}
-                    />
-                </label>
             </div>
             {
                 loading ? <DeviceCardSkeleton devices={filteredArray} loading={loading} />
