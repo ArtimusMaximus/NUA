@@ -36,9 +36,9 @@ export default function AllDevicesCard({ props, length, handleAddToDevices })
     }, []);
     return (
         <>
-            <div className={`card min-w-[375px] min-h-[384px] bg-base-100 mx-4 shadow-xl hover:bg-base-300`}>
+            <div className={`card min-w-[375px] max-w-[375px] min-h-[384px] bg-base-100 mx-4 shadow-xl hover:bg-base-300`}>
                 <div className="card-body">
-                    <h2 className="card-title"><span className="italic font-thin">oui: </span>{props?.oui ? props?.oui : '"none"'}</h2>
+                    <h2 className="card-title"><span className="italic font-thin text-wrap">oui: </span>{props?.oui ? props?.oui : '"none"'}</h2>
                     <p><span className="italic font-thin">hostname: </span>{props?.hostname ? props?.hostname : '"none"'}</p>
                     <p><span className="italic font-thin">mac: </span>{props?.mac}</p>
                     <p><span className="italic font-thin">last ip: </span>{props?.last_ip}</p>
