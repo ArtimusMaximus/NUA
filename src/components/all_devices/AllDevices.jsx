@@ -135,7 +135,8 @@ useEffect(() => {
                     grid grid-cols-1
                     md:grid-cols-2
                     gap-4 xl:gap-8 pb-24
-                    ${filteredArray.length <= 2 ? 'xl:grid-cols-2 mx-auto' : 'xl:grid-cols-3'}
+                    ${filteredArray.length === 2 ? 'xl:grid-cols-2 mx-auto' : filteredArray.length === 1 ? 'xl:grid-cols-1' : 'xl:grid-cols-3'}
+
                     `
                 }>
             <h1 className="my-6 text-3xl italic mx-auto row-start-1 col-span-full text-center">{filter === 'all' ? 'All Client Devices' : filter} ({filteredArray.length}<span className="font-thin italic text-lg ml-1">items<span className="text-3xl italic">)</span></span>
