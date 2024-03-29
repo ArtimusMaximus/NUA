@@ -70,10 +70,13 @@ const handleSelect = e => {
 }
 const handleSearchByNameMac = e => {
     const newArr = filteredArray.filter(i => {
-        return i?.name?.toLowerCase().includes(e.target.value) || i?.oui?.toLowerCase().includes(e.target.value) || i?.mac?.toLowerCase().includes(e.target.value);
+        return i?.name?.toLowerCase().includes(e.target.value)
+        || i?.oui?.toLowerCase().includes(e.target.value)
+        || i?.mac?.toLowerCase().includes(e.target.value)
+        || i?.hostname?.toLowerCase().includes(e.target.value);
     });
     setFilteredArray(newArr)
-    if (e.target.value.length < 2 ) {
+    if (e.target.value.length < 2) {
         setFilteredArray(searchableCopy)
     }
 }
@@ -132,7 +135,6 @@ useEffect(() => {
                     grid grid-cols-1
                     md:grid-cols-2
                     gap-4 xl:gap-8 pb-24
-
                     ${filteredArray.length <= 2 ? 'xl:grid-cols-2 mx-auto' : 'xl:grid-cols-3'}
                     `
                 }>
