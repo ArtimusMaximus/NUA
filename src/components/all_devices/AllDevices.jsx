@@ -39,6 +39,7 @@ const handleAddToDevices = async (deviceToAdd, submittedName) => {
         if (response.ok) {
             const returnData = await response.json();
             console.log('return data from blocked devices', returnData);
+            textSearchRef.current.value = '';
             reFetch();
         }
     } catch (error) {
