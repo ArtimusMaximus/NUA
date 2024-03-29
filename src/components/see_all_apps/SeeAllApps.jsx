@@ -33,7 +33,8 @@ import {
 
 import { categoryDeviceObject, dbCategoryDeviceObject, appDeviceObject, appDbDeviceObject, allAppIds } from "./app_objects";
 import { IoMdRefresh } from "react-icons/io";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+
 
 
 export default function SeeAllApps()
@@ -64,7 +65,11 @@ export default function SeeAllApps()
     const [unifiSubmissionError, setUnifiSubmissionError] = useState({});
     const [submissionError, setSubmissionError] = useState({});
     const feedback = { message: "If you are having trouble creating a traffic rule for a specific app or category check the support section of the readme.md on the NUA github page.", url: "https://github.com/ArtimusMaximus/NUA/blob/master/README.md" }
+    const navigate = useNavigate();
 
+    const handleRedirect = () => {
+        navigate('/trafficrules');
+    }
     const reRenderPage = () => {
         setRender(prev => !prev);
     }
@@ -203,7 +208,6 @@ export default function SeeAllApps()
             });
             const result = await updateManagedCat.json();
 
-
             if (result.success) {
                 console.log('POST Success');
                 console.log('result.result \t', result?.result);
@@ -211,6 +215,7 @@ export default function SeeAllApps()
                 handleModalClose();
                 resetState();
                 reRenderPage();
+                handleRedirect();
             } else if (result.error) {
                 setLoading(false);
                 handleModalClose();
@@ -304,6 +309,7 @@ export default function SeeAllApps()
                 handleModalClose();
                 resetState();
                 reRenderPage();
+                handleRedirect();
             } else if (result.error) {
                 handleModalClose();
                 setLoading(false);
