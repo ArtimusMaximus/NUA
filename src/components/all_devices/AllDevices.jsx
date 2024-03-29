@@ -39,6 +39,7 @@ const handleAddToDevices = async (deviceToAdd, submittedName) => {
         if (response.ok) {
             const returnData = await response.json();
             console.log('return data from blocked devices', returnData);
+            textSearchRef.current.value = '';
             reFetch();
         }
     } catch (error) {
@@ -69,10 +70,13 @@ const handleSelect = e => {
 }
 const handleSearchByNameMac = e => {
     const newArr = filteredArray.filter(i => {
-        return i?.name?.toLowerCase().includes(e.target.value) || i?.oui?.toLowerCase().includes(e.target.value) || i?.mac?.toLowerCase().includes(e.target.value);
+        return i?.name?.toLowerCase().includes(e.target.value)
+        || i?.oui?.toLowerCase().includes(e.target.value)
+        || i?.mac?.toLowerCase().includes(e.target.value)
+        || i?.hostname?.toLowerCase().includes(e.target.value);
     });
     setFilteredArray(newArr)
-    if (e.target.value.length < 2 ) {
+    if (e.target.value.length < 2) {
         setFilteredArray(searchableCopy)
     }
 }
@@ -131,8 +135,8 @@ useEffect(() => {
                     grid grid-cols-1
                     md:grid-cols-2
                     gap-4 xl:gap-8 pb-24
+                    ${filteredArray.length === 2 ? 'xl:grid-cols-2 mx-auto' : filteredArray.length === 1 ? 'xl:grid-cols-1' : 'xl:grid-cols-3'}
 
-                    ${filteredArray.length <= 2 ? 'xl:grid-cols-2 mx-auto' : 'xl:grid-cols-3'}
                     `
                 }>
             <h1 className="my-6 text-3xl italic mx-auto row-start-1 col-span-full text-center">{filter === 'all' ? 'All Client Devices' : filter} ({filteredArray.length}<span className="font-thin italic text-lg ml-1">items<span className="text-3xl italic">)</span></span>
