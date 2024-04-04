@@ -28,8 +28,6 @@ app.use(cors());
 app.use(bodyParser.json());
 app.use(express.static(process.cwd().slice(0, -7) + '/dist'));
 
-let initialLoginAttempt;
-
 function red(text, color) { // specific console color logger
     if (color === 'red') {
         console.log('\x1b[31m\x1b[5m', text);

@@ -33,7 +33,8 @@ import {
 
 import { categoryDeviceObject, dbCategoryDeviceObject, appDeviceObject, appDbDeviceObject, allAppIds } from "./app_objects";
 import { IoMdRefresh } from "react-icons/io";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, ScrollRestoration, useNavigate } from "react-router-dom";
+import ScrollToTop from "../utility_components/ScrollToTop";
 
 
 
@@ -776,6 +777,7 @@ export default function SeeAllApps()
                             </>
                             )
                         })}
+                        <ScrollToTop />
             </div>
             {/* <div className="btn btn-error" onClick={handleErrorTest}>Test Btn</div> */} {/*staged for deletion 03/12/2024 */}
             <dialog ref={manageDialogRef} className="modal">
