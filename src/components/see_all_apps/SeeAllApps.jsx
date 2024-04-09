@@ -562,8 +562,8 @@ export default function SeeAllApps()
                     setSearchableCopy(apps);
                     setCategoryName("All");
                     setCatId(255);
-                    setCatIds(prev => [...prev, 255])
-                    setCatNameId(prev => [...prev, { app_cat_id: 255, app_cat_name: "All" }])
+                    setCatIds(prev => [...prev, 255]);
+                    setCatNameId(prev => [...prev, { app_cat_id: 255, app_cat_name: "All" }]);
 
                     break;
                 default:
