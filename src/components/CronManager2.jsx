@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { GoInfo, GoTrash } from "react-icons/go";
+import TimeClock from './TimeClock/TimeClock'
 
 
 export default function CronManager2()
@@ -18,8 +19,36 @@ export default function CronManager2()
     const [changed, setChanged] = useState(false);
     const [invalidscheduleMessage, setInvalidscheduleMessage] = useState({});
     const [deviceInfo, setDeviceInfo] = useState({});
-    const oneTimeScheduleRef = useRef();
-    const recurringScheduleRef = useRef();
+    const oneTimeScheduleRef = useRef(null);
+    const recurringScheduleRef = useRef(null);
+    const [oneTimeSchedule, setOneTimeSchedule] = useState(false);
+
+
+
+
+    // function PickerComponent() {
+    //     useEffect(() => {
+    //         import ('../../node_modules/pickerjs/src/css/picker.css');
+    //         const script = document.createElement('script');
+    //         script.src = '../../node_modules/pickerjs/src/js/picker.js';
+    //         script.async = true;
+
+    //         script.onload = () => {
+    //             let input = document.getElementById('pickerjs');
+    //             if (input) {
+    //                 new Picker(input, {
+    //                     format: 'MM/DD HH:mm'
+    //                 });
+    //             }
+    //         }
+    //         document.body.appendChild(script);
+    //         return () => {
+    //             document.body.removeChild(script);
+    //         }
+    //     }, []);
+    //     return <input type="text" id="pickerjs" />;
+    // }
+
 
     const reFetch = () => { setChanged(prev => !prev); }
 
@@ -35,7 +64,6 @@ export default function CronManager2()
             scheduletype : e.target.dataset.scheduletype,
             deviceId : parseInt(e.target.dataset.deviceid)
         }
-
 
         async function togglescheduleUpdate() {
             try {
@@ -90,6 +118,7 @@ export default function CronManager2()
             [e.target.name]: parseInt(e.target.value)
         })
     }
+
 
     useEffect(() => { // fetch existing schedule data
         const getscheduleData = async () => {
@@ -187,6 +216,20 @@ export default function CronManager2()
         getDeviceData();
     }, []);
 
+    const handlePickedSchedule = e => {
+        const { onetime, recur } = e.target.dataset
+
+        if (onetime) {
+            setOneTimeSchedule(true);
+            oneTimeScheduleRef.current.checked = true;
+            recurringScheduleRef.current.checked = false;
+        } else if (recur) {
+            setOneTimeSchedule(false);
+            oneTimeScheduleRef.current.checked = false;
+            recurringScheduleRef.current.checked = true;
+        }
+        console.log(oneTimeSchedule);
+    }
 
 
 
@@ -197,7 +240,7 @@ export default function CronManager2()
                 <div className="flex w-full mx-2">
                     <div className="flex flex-col items-center justify-center w-full h-full mx-auto border rounded-lg shadow overflow-hidden border-neutral shadow-base-300 m-8">
                         <div className="flex mt-8">
-                            <h1 className="italic text-3xl text-center my-2">Adjust schedule for device &quot;{deviceInfo?.name}&quot;</h1>
+                            <h1 className="italic text-3xl text-center my-2">New schedule for device &quot;{deviceInfo?.name}&quot;</h1>
                             <a href="https://schedule.help" target="_blank" rel="noreferrer" className="link hover:text-info" >
                                 <GoInfo />
                             </a>
@@ -205,14 +248,67 @@ export default function CronManager2()
                         <div className="divider"></div>
 
                         <div className="flex flex-row gap-4 my-4">
-                            <span>One Time Schedule:</span>
-                            <input type="radio" data-onetime="onetime" ref={oneTimeScheduleRef} name="radio-2" className="radio radio-primary" checked />
                             <span>Recurring Schedule:</span>
-                            <input type="radio" data-recur="recur" ref={recurringScheduleRef} name="radio-2" className="radio radio-primary" />
+                            <input
+                                type="radio"
+                                data-recur="recur"
+                                ref={recurringScheduleRef}
+                                onClick={handlePickedSchedule}
+                                name="radio-2"
+                                className="radio radio-primary"
+                                checked={!oneTimeSchedule}
+                            />
+                            <span>One Time Schedule:</span>
+                            <input
+                                type="radio"
+                                data-onetime="onetime"
+                                ref={oneTimeScheduleRef}
+                                onClick={handlePickedSchedule}
+                                name="radio-2"
+                                className="radio radio-primary"
+                                checked={oneTimeSchedule}
+                            />
                         </div>
+                        <hr className="w-[414px] mx-auto my-1 border-neutral" />
+
+                        <span className="font-semibold">Action</span>
+                        <hr className="w-[414px] mx-auto my-1 border-neutral" />
+
+                        <div className="flex items-center justify-center">
+                            <div className="join m-4">
+                                <input
+                                    onClick={handleAllow}
+                                    className={`btn join-item`}
+                                    value="allow"
+                                    type="radio"
+                                    aria-label="Allow"
+                                    name="options"
+                                />
+                                <input
+                                    onClick={handleBlock}
+                                    className={`btn join-item`}
+                                    value="block"
+                                    type="radio"
+                                    aria-label="Block"
+                                    name="options"
+                                />
+                            </div>
+                        </div>
+
+
 
                         <div className={`flex items-center justify-center flex-col`}>
                             <div className="flex flex-col">
+
+                                <div className="flex flex-row gap-2 mt-2 items-center justify-center text-primary mx-auto">
+                                    {/* <input onChange={handleScheduleTimes} onFocus={handleFocusTime} onClick={handleTimeClick} name="hour" type="time" placeholder="Hour to recur" className="input italic input-bordered w-full max-w-xs" /> */}
+                                    {/* <input onChange={handleScheduleTimes} name="minute" type="number" placeholder="Minute to recur" className="input italic input-bordered w-full max-w-xs" /> */}
+                                    <TimeClock oneTime={oneTimeSchedule} />
+
+                                </div>
+
+                                <span className="font-bold">Repeat</span>
+                                <hr className="w-full my-1 border-neutral" />
                                 <div className="flex justify-center items-center gap-4">
                                     <div className="flex flex-row my-2">
                                         <div className="join">
@@ -225,32 +321,9 @@ export default function CronManager2()
                                             <input onChange={handleScheduleDayOfWeek} name="sat" value="6" type="checkbox" className="btn join-item rounded-r-full" aria-label="Sat"/>
                                         </div>
                                     </div>
+                                </div>
 
-                                </div>
-                                <div className="flex flex-row gap-2 mt-2">
-                                    <input onChange={handleScheduleTimes} name="hour" type="number" placeholder="Hour to recur" className="input italic input-bordered w-full max-w-xs" />
-                                    <input onChange={handleScheduleTimes} name="minute" type="number" placeholder="Minute to recur" className="input italic input-bordered w-full max-w-xs" />
-                                </div>
-                                <div className="flex items-center justify-center">
-                                    <div className="join m-4">
-                                        <input
-                                            onClick={handleAllow}
-                                            className={`btn join-item`}
-                                            value="allow"
-                                            type="radio"
-                                            aria-label="Allow"
-                                            name="options"
-                                        />
-                                        <input
-                                            onClick={handleBlock}
-                                            className={`btn join-item`}
-                                            value="block"
-                                            type="radio"
-                                            aria-label="Block"
-                                            name="options"
-                                        />
-                                    </div>
-                                </div>
+
                                 <div className="btn mb-8" onClick={handleSubmit}>Submit</div>
 
                                 <table className="table table-zebra border rounded-lg shadow overflow-hidden dark:border-gray-700 dark:shadow-gray-900 mb-8">

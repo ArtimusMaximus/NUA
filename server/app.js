@@ -737,12 +737,8 @@ app.post('/addschedule', async (req, res) => { // adds cron data specific front 
                 //     jb = reInitiatedJob.name
                 //     console.log('jb.name: ', jb.name);
                 // }
-
                     console.log('continue new');
                     const startNewJob = schedule.scheduleJob(croninput, () => jobFunction(crontype, getMacAddress.macAddress));
-
-
-
 
                 if (addCron) { // add device id
                     // const addDeviceId = await prisma.cron.update({
