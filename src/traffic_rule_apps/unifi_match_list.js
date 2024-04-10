@@ -7216,13 +7216,18 @@ const  allAppsList = [
                 "name": "Fake Test app for fake category"
             }
         ]
+    },
+    { // fake test category
+        "cat": "All",
+        "catId": 0,
+        "apps": []
     }
 ];
 
 
 
 const keys = allAppsList
-    .filter(cat => cat.apps.length > 0)
+    .filter(cat => cat.apps.length >= 0) // 04/08/2024 - changed from > to >= , also on line 7239
     .map(cat => cat.cat);
 
 // const keys = allAppsList.map(cat => cat.cat);
@@ -7231,7 +7236,7 @@ function filterCats(cat)
 {
 	if (cat !== undefined) {
 		let filtList = allAppsList?.filter(i => i.cat === `${cat}`)?.pop();
-        if (filtList && filtList['apps'] && filtList.apps.length > 0) {
+        if (filtList && filtList['apps'] && filtList.apps.length >= 0) {
             return filtList.apps;
         }
 		// console.table(a);

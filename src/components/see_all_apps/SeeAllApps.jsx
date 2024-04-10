@@ -33,7 +33,8 @@ import {
 
 import { categoryDeviceObject, dbCategoryDeviceObject, appDeviceObject, appDbDeviceObject, allAppIds } from "./app_objects";
 import { IoMdRefresh } from "react-icons/io";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, ScrollRestoration, useNavigate } from "react-router-dom";
+import ScrollToTop from "../utility_components/ScrollToTop";
 
 
 
@@ -62,8 +63,14 @@ export default function SeeAllApps()
     const allowRef = useRef();
     const unifiErrorDialogRef = useRef();
     const errorDialogRef = useRef();
+    const searchRef = useRef();
     const [unifiSubmissionError, setUnifiSubmissionError] = useState({});
     const [submissionError, setSubmissionError] = useState({});
+
+    const allApps = allAppsList.map((allApps) => allApps.apps.map((app) => app));
+    const mapApps = allApps.map((apps) => apps.map((app) => app));
+    const apps = mapApps.flat();
+
     const feedback = { message: "If you are having trouble creating a traffic rule for a specific app or category check the support section of the readme.md on the NUA github page.", url: "https://github.com/ArtimusMaximus/NUA/blob/master/README.md" }
     const navigate = useNavigate();
 
@@ -89,6 +96,7 @@ export default function SeeAllApps()
         setCatNameId([]);
         selectCatRef.current.value = "default";
         descriptionRef.current.value = "";
+        searchRef.current.value = "";
         allowRef.current.checked = false;
         blockRef.current.checked = false;
     }
@@ -549,14 +557,22 @@ export default function SeeAllApps()
                     setCatIds(prev => [...prev, 27])
                     setCatNameId(prev => [...prev, { app_cat_id: 27, app_cat_name: "Fake_Testing_Category" }])
                     break;
-                // case 'All':
-                //     setFilteredArray(allAppsList);
-                //     setSearchableCopy(allAppsList);
-                //     setCategoryName("All");
-
-                //     break;
+                case 'All':
+                    setFilteredArray(apps);
+                    setSearchableCopy(apps);
+                    setCategoryName("All");
+                    setCatId(255);
+                    setCatIds(prev => [...prev, 255]);
+                    setCatNameId(prev => [...prev, { app_cat_id: 255, app_cat_name: "All" }]);
+                    break;
                 default:
-                    setFilteredArray([]);
+                    // setFilteredArray([]);
+                    setFilteredArray(apps);
+                    setSearchableCopy(apps);
+                    setCategoryName("All");
+                    setCatId(255);
+                    setCatIds(prev => [...prev, 255]);
+                    setCatNameId(prev => [...prev, { app_cat_id: 255, app_cat_name: "All" }]);
                     break;
             }
         }
@@ -747,16 +763,21 @@ export default function SeeAllApps()
                                 {keys.map((i) => {
                                     return (
                                         <>
-                                            <option key={i.id} className="font-bold hover:bg-accent" value={i}>{i}</option>
+                                            { i === "All"
+                                            ? <option key={i.id} selected className="font-bold hover:bg-accent" value={i}>{i}</option>
+                                            : <option key={i.id} className="font-bold hover:bg-accent" value={i}>{i}</option>
+                                            }
                                         </>
                                     )
                                 })}
                             </select>
-                            <input className="input input-bordered" placeholder="Search..." onChange={handleSearchByText} />
-                        <button className={`${categoryName === "" ? "btn btn-disabled" : "btn"}`} onClick={handleModalOpen}>{appSelection.length ? 'Manage Selected Apps' : `Manage ${filter} Category`}</button>
+                            <input className="input input-bordered" placeholder="Search..." ref={searchRef} onChange={handleSearchByText} />
+                        <button className={`${categoryName === "" || categoryName === "All" && !appSelection.length ? "btn btn-disabled" : "btn"}`} onClick={handleModalOpen}>{appSelection.length ? 'Manage Selected Apps' : `Manage ${filter} Category`}</button>
                         <div className="btn btn-circle" onClick={handleResetManually}><IoMdRefresh className="pointer-events-none w-7 h-7" /></div>
                     </div>
-                    {filteredArray?.map((app) => {
+                    {
+
+                    filteredArray?.map((app) => {
                         return (
                             <>
                                 <div key={app?.id} className="card w-80 min-h-[204px] bg-base-100 shadow-xl hover:bg-base-200 mx-auto">
@@ -775,7 +796,9 @@ export default function SeeAllApps()
                                 </div>
                             </>
                             )
-                        })}
+                        })
+                        }
+                        <ScrollToTop />
             </div>
             {/* <div className="btn btn-error" onClick={handleErrorTest}>Test Btn</div> */} {/*staged for deletion 03/12/2024 */}
             <dialog ref={manageDialogRef} className="modal">
@@ -894,10 +917,6 @@ export default function SeeAllApps()
                     </div>
                 </div>
             </dialog>
-
-
-
-
         </>
     );
 }

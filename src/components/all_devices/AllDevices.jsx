@@ -3,7 +3,7 @@ import DeviceCardSkeleton from "../skeletons/DeviceCardSkeleton";
 import AllDevicesCard from "./AllDevicesCard";
 import useFetchAllDevices from "./useFetchAllDevices";
 import { IoMdRefresh } from "react-icons/io";
-
+import ScrollToTop from "../utility_components/ScrollToTop";
 
 export default function AllDevices()
 {
@@ -139,6 +139,7 @@ useEffect(() => {
 
                     `
                 }>
+
             <h1 className="my-6 text-3xl italic mx-auto row-start-1 col-span-full text-center">{filter === 'all' ? 'All Client Devices' : filter} ({filteredArray.length}<span className="font-thin italic text-lg ml-1">items<span className="text-3xl italic">)</span></span>
             </h1>
             <div className="flex flex-row flex-wrap items-center justify-center sm:flex-nowrap row-start-2 gap-2 col-span-full mx-auto">
@@ -194,6 +195,7 @@ useEffect(() => {
                     )
                 })
             }
+            <ScrollToTop />
             </div>
         </>
     );
