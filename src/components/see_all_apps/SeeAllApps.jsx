@@ -564,10 +564,15 @@ export default function SeeAllApps()
                     setCatId(255);
                     setCatIds(prev => [...prev, 255]);
                     setCatNameId(prev => [...prev, { app_cat_id: 255, app_cat_name: "All" }]);
-
                     break;
                 default:
-                    setFilteredArray([]);
+                    // setFilteredArray([]);
+                    setFilteredArray(apps);
+                    setSearchableCopy(apps);
+                    setCategoryName("All");
+                    setCatId(255);
+                    setCatIds(prev => [...prev, 255]);
+                    setCatNameId(prev => [...prev, { app_cat_id: 255, app_cat_name: "All" }]);
                     break;
             }
         }
@@ -758,13 +763,16 @@ export default function SeeAllApps()
                                 {keys.map((i) => {
                                     return (
                                         <>
-                                            <option key={i.id} className="font-bold hover:bg-accent" value={i}>{i}</option>
+                                            { i === "All"
+                                            ? <option key={i.id} selected className="font-bold hover:bg-accent" value={i}>{i}</option>
+                                            : <option key={i.id} className="font-bold hover:bg-accent" value={i}>{i}</option>
+                                            }
                                         </>
                                     )
                                 })}
                             </select>
                             <input className="input input-bordered" placeholder="Search..." ref={searchRef} onChange={handleSearchByText} />
-                        <button className={`${categoryName === "" ? "btn btn-disabled" : "btn"}`} onClick={handleModalOpen}>{appSelection.length ? 'Manage Selected Apps' : `Manage ${filter} Category`}</button>
+                        <button className={`${categoryName === "" || categoryName === "All" && !appSelection.length ? "btn btn-disabled" : "btn"}`} onClick={handleModalOpen}>{appSelection.length ? 'Manage Selected Apps' : `Manage ${filter} Category`}</button>
                         <div className="btn btn-circle" onClick={handleResetManually}><IoMdRefresh className="pointer-events-none w-7 h-7" /></div>
                     </div>
                     {
