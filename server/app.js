@@ -224,6 +224,26 @@ const jobFunction = async (crontype, macAddress) => { // for crons
 //         .then(() => console.log(result))
 // })()
 
+function nodeOneTimeScheduleRule(data) { // 04 22 2024 - scheduleJob not firing console.log, pick up here, check for timezones??
+    console.log('data from nodeOneTimeSchedule: ', data);
+    const { date, hour, minute } = data;
+    const breakDownDate = date.split("-");
+    const year = parseInt(breakDownDate[0]);
+    const month = parseInt(breakDownDate[1]);
+    const day = parseInt(breakDownDate[2]);
+    console.log(year, month, day);
+
+    // y m d h min s
+    const oneTimeDate = new Date(year, month-1, day, hour, parseInt(minute), 0);
+    schedule.scheduleJob(oneTimeDate, () => {
+        console.log(`One Time Schedule is created!!!!!!!!!`);
+    });
+}
+
+function nodeScheduleRecurrenceRule(data) {
+    const rule = new schedule.RecurrenceRule();
+}
+
 
 app.get('/getmacaddresses', async (req, res) => {
     try {
@@ -880,15 +900,17 @@ app.post('/getcrondata', async (req, res) => { // fetches cron data specific to 
 // });
 
 app.post('/addeasyschedule', async (req, res) => {
-    const { date, hour, minute, ampm, oneTime, scheduletype, daysOfTheWeek } = req.body;
-    console.log(date, hour, minute, ampm, oneTime, scheduletype, daysOfTheWeek);
+    const { date, hour, minute, oneTime, scheduletype, daysOfTheWeek } = req.body;
+    console.log(date, hour, minute, 'oneTime \t', oneTime, 'scheduletype \t', scheduletype, 'daysOfTheWeek \t', daysOfTheWeek);
 
     try {
+        if (oneTime) {
+            nodeOneTimeScheduleRule({ date, hour, minute });
 
+        }
     } catch (error) {
         console.error(error);
     }
-
 
     res.sendStatus(200);
     // res.sendStatus(200).json({ message: 'Time Data received', timeData: timeData });

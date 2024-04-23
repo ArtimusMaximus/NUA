@@ -23,6 +23,7 @@ export default function CronManager2()
     const recurringScheduleRef = useRef(null);
     const [oneTimeSchedule, setOneTimeSchedule] = useState(false);
     const [timeData, setTimeData] = useState(null);
+    const [mondaySelected, setMondaySelected] = useState(false);
 
 
     const handleTimeData = (data) => {
@@ -114,6 +115,7 @@ export default function CronManager2()
             daysOfTheWeek: updatedDaysOfTheWeek,
             id: parseInt(params.id)
         }));
+        setMondaySelected(prev => !prev)
         console.log(schedule)
     }
     const handleScheduleTimes = e => {
@@ -246,14 +248,14 @@ export default function CronManager2()
                     <div className="flex flex-col items-center justify-center w-full h-full mx-auto border rounded-lg shadow overflow-hidden border-neutral shadow-base-300 m-8">
                         <div className="flex mt-8">
                             <h1 className="italic text-3xl text-center my-2">New schedule for device &quot;{deviceInfo?.name}&quot;</h1>
-                            <a href="https://schedule.help" target="_blank" rel="noreferrer" className="link hover:text-info" >
+                            {/* <a href="https://schedule.help" target="_blank" rel="noreferrer" className="link hover:text-info" >
                                 <GoInfo />
-                            </a>
+                            </a> */}
                         </div>
                         <div className="divider"></div>
 
                         <div className="flex flex-row gap-4 my-4">
-                            <span>Recurring Schedule:</span>
+                            <span>Recurring:</span>
                             <input
                                 type="radio"
                                 data-recur="recur"
@@ -263,7 +265,7 @@ export default function CronManager2()
                                 className="radio radio-primary"
                                 checked={!oneTimeSchedule}
                             />
-                            <span>One Time Schedule:</span>
+                            <span>Single Use:</span>
                             <input
                                 type="radio"
                                 data-onetime="onetime"
@@ -274,10 +276,8 @@ export default function CronManager2()
                                 checked={oneTimeSchedule}
                             />
                         </div>
-                        <hr className="w-[414px] mx-auto my-1 border-neutral" />
 
-                        <span className="font-semibold">Action</span>
-                        <hr className="w-[414px] mx-auto my-1 border-neutral" />
+                        <div class="divider">Action</div>
 
                         <div className="flex items-center justify-center">
                             <div className="join m-4">
@@ -305,6 +305,10 @@ export default function CronManager2()
                         <div className={`flex items-center justify-center flex-col`}>
                             <div className="flex flex-col">
 
+                                {oneTimeSchedule
+                                ? <div class="divider">Date & Time</div>
+                                : <><div class="divider">Time</div>
+                                </>}
                                 <div className="flex flex-row gap-2 mt-2 items-center justify-center text-primary mx-auto">
                                     {/* <input onChange={handleScheduleTimes} onFocus={handleFocusTime} onClick={handleTimeClick} name="hour" type="time" placeholder="Hour to recur" className="input italic input-bordered w-full max-w-xs" /> */}
                                     {/* <input onChange={handleScheduleTimes} name="minute" type="number" placeholder="Minute to recur" className="input italic input-bordered w-full max-w-xs" /> */}
@@ -314,13 +318,13 @@ export default function CronManager2()
 
                                 {oneTimeSchedule
                                 ? <div></div>
-                                : <><span className="font-bold">Repeat</span>
-                                <hr className="w-full my-1 border-neutral" />
+                                : <><div class="divider">Repeat</div>
+                                
                                 <div className="flex justify-center items-center gap-4">
-                                    <div className="flex flex-row my-2">
+                                    <div className="flex flex-row my-4">
                                         <div className="join">
                                             <input onChange={handleScheduleDayOfWeek} name="sun" value="0" type="checkbox" className="btn join-item rounded-l-full" aria-label="Sun"/>
-                                            <input onChange={handleScheduleDayOfWeek} name="mon" value="1" type="checkbox" className="btn join-item" aria-label="M"/>
+                                            <input onChange={handleScheduleDayOfWeek} name="mon" value="1" type="checkbox" className={`btn join-item`} aria-label="M"/>
                                             <input onChange={handleScheduleDayOfWeek} name="tue" value="2" type="checkbox" className="btn join-item" aria-label="T"/>
                                             <input onChange={handleScheduleDayOfWeek} name="wed" value="3" type="checkbox" className="btn join-item" aria-label="W"/>
                                             <input onChange={handleScheduleDayOfWeek} name="thu" value="4" type="checkbox" className="btn join-item" aria-label="Th"/>
@@ -332,6 +336,7 @@ export default function CronManager2()
                                 </>}
 
 
+                                <div class="divider"></div>
                                 <div className="btn mb-8" onClick={handleSubmit}>Submit</div>
 
                                 <table className="table table-zebra border rounded-lg shadow overflow-hidden dark:border-gray-700 dark:shadow-gray-900 mb-8">
