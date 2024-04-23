@@ -879,14 +879,21 @@ app.post('/getcrondata', async (req, res) => { // fetches cron data specific to 
 //     }
 // });
 
-// app.post('/addschedule', async (req, res) => {
-//     const { id, scheduletype, toggleschedule, minute, hour, daysOfTheWeek } = req.body;
+app.post('/addeasyschedule', async (req, res) => {
+    const { date, hour, minute, ampm, oneTime, scheduletype, daysOfTheWeek } = req.body;
+    console.log(date, hour, minute, ampm, oneTime, scheduletype, daysOfTheWeek);
 
-//     console.log(req.body);
+    try {
 
-//     res.sendStatus(200);
+    } catch (error) {
+        console.error(error);
+    }
 
-// });
+
+    res.sendStatus(200);
+    // res.sendStatus(200).json({ message: 'Time Data received', timeData: timeData });
+
+});
 
 // ~~~~~~
 app.post('/savesitesettings', async (req, res) => {

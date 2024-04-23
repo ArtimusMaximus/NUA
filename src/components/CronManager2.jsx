@@ -22,8 +22,12 @@ export default function CronManager2()
     const oneTimeScheduleRef = useRef(null);
     const recurringScheduleRef = useRef(null);
     const [oneTimeSchedule, setOneTimeSchedule] = useState(false);
+    const [timeData, setTimeData] = useState(null);
 
 
+    const handleTimeData = (data) => {
+        setTimeData(data);
+    };
 
 
     // function PickerComponent() {
@@ -120,44 +124,46 @@ export default function CronManager2()
     }
 
 
-    useEffect(() => { // fetch existing schedule data
-        const getscheduleData = async () => {
-        try {
-                const scheduleData = await fetch('/getscheduledata', {
-                    method: "POST",
-                    mode: "cors",
-                    headers: {
-                        "Content-Type" : "application/json"
-                    },
-                    body: JSON.stringify(schedule)
-                });
-                if(scheduleData.ok) {
-                    const returnedData = await scheduleData.json();
-                    setReturnData(returnedData);
-                    console.log('returned data: ', returnedData);
-                }
-            } catch (error) {
-                if (error) throw error;
-            }
-        }
-        getscheduleData();
-    }, [changed])
+    // useEffect(() => { // fetch existing schedule data
+    //     const getscheduleData = async () => {
+    //     try {
+    //             const scheduleData = await fetch('/getscheduledata', {
+    //                 method: "POST",
+    //                 mode: "cors",
+    //                 headers: {
+    //                     "Content-Type" : "application/json"
+    //                 },
+    //                 body: JSON.stringify(schedule)
+    //             });
+    //             if(scheduleData.ok) {
+    //                 const returnedData = await scheduleData.json();
+    //                 setReturnData(returnedData);
+    //                 console.log('returned data: ', returnedData);
+    //             }
+    //         } catch (error) {
+    //             if (error) throw error;
+    //         }
+    //     }
+    //     getscheduleData();
+    // }, [changed])
 
     const handleSubmit = async () => {
+        console.log('preSubmittedData: ', {...timeData, ...schedule});
         try {
-            const submitData = await fetch('/addschedule', {
+            const submitData = await fetch('/addeasyschedule', {
                 method: "POST",
                 mode: "cors",
                 headers: {
                     "Content-Type" : "application/json"
                 },
-                body: JSON.stringify(schedule)
+                body: JSON.stringify({ ...timeData, ...schedule })
             });
             if (submitData.ok) {
                 setInvalidscheduleMessage({ error: false });
-                // const results = await submitData.json();
-                // console.log(results);
-                // inputRef.current.value = '';
+                // const res = submitData.json();
+                // console.log(`message: ${res.message} timeData: ${res.timeData}`)
+                console.log('submitData \t', submitData);
+
                 reFetch();
             } else if (submitData.status === 422) {
                 // const badResults = await submitData.json();
@@ -167,9 +173,8 @@ export default function CronManager2()
                     error: true,
                 });
             }
-        } catch (e) {
-            if (e) throw e;
-            console.log('e: ', e)
+        } catch (error) {
+            console.error(error);
         }
     }
     const handleDeleteschedule = async e => {
@@ -303,11 +308,13 @@ export default function CronManager2()
                                 <div className="flex flex-row gap-2 mt-2 items-center justify-center text-primary mx-auto">
                                     {/* <input onChange={handleScheduleTimes} onFocus={handleFocusTime} onClick={handleTimeClick} name="hour" type="time" placeholder="Hour to recur" className="input italic input-bordered w-full max-w-xs" /> */}
                                     {/* <input onChange={handleScheduleTimes} name="minute" type="number" placeholder="Minute to recur" className="input italic input-bordered w-full max-w-xs" /> */}
-                                    <TimeClock oneTime={oneTimeSchedule} />
+                                    <TimeClock oneTime={oneTimeSchedule} handleTimeData={handleTimeData}  />
 
                                 </div>
 
-                                <span className="font-bold">Repeat</span>
+                                {oneTimeSchedule
+                                ? <div></div>
+                                : <><span className="font-bold">Repeat</span>
                                 <hr className="w-full my-1 border-neutral" />
                                 <div className="flex justify-center items-center gap-4">
                                     <div className="flex flex-row my-2">
@@ -322,6 +329,7 @@ export default function CronManager2()
                                         </div>
                                     </div>
                                 </div>
+                                </>}
 
 
                                 <div className="btn mb-8" onClick={handleSubmit}>Submit</div>

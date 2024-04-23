@@ -31,15 +31,26 @@ const dateItems = Array.from({ length: currentDaysInMonth * 2 }, (_, i) => {
   };
 });
 
-export default function TimeClock({ oneTime }) {
+export default function TimeClock({ oneTime, handleTimeData }) {
   const [date, setDate] = useState(dateItems[currentDaysInMonth].value);
   const [hour, setHour] = useState(hourItems[5].value);
   const [minute, setMinute] = useState(minuteItems[2].value);
   const [ampm, setAmpm] = useState(ampmItems[0].value);
 
   useEffect(() => {
-    console.log(date, hour, minute);
-  }, [hour, minute, oneTime])
+    console.log('date \t', date, '\n', 'hour \t', hour, '\n', 'minute \t', minute, '\n', 'ampm \t', ampm, '\n', 'oneTime \t', oneTime);
+    handleTimeData((data) => (
+      {
+        ...data,
+        date: date,
+        hour: hour,
+        minute: minute,
+        ampm: ampm,
+        oneTime: oneTime
+      }
+    ));
+
+  }, [date, hour, minute, oneTime, ampm])
 
   return (
     <div className="App">
