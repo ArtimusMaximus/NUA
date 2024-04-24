@@ -23,7 +23,7 @@ export default function CronManager2()
     const recurringScheduleRef = useRef(null);
     const [oneTimeSchedule, setOneTimeSchedule] = useState(false);
     const [timeData, setTimeData] = useState(null);
-    const [mondaySelected, setMondaySelected] = useState(false);
+    const [deviceId] = useState({ deviceId: parseInt(params.id) });
 
 
     const handleTimeData = (data) => {
@@ -115,8 +115,8 @@ export default function CronManager2()
             daysOfTheWeek: updatedDaysOfTheWeek,
             id: parseInt(params.id)
         }));
-        setMondaySelected(prev => !prev)
-        console.log(schedule)
+
+        console.log(schedule);
     }
     const handleScheduleTimes = e => {
         setSchedule({
@@ -158,7 +158,7 @@ export default function CronManager2()
                 headers: {
                     "Content-Type" : "application/json"
                 },
-                body: JSON.stringify({ ...timeData, ...schedule })
+                body: JSON.stringify({ ...timeData, ...schedule, ...deviceId })
             });
             if (submitData.ok) {
                 setInvalidscheduleMessage({ error: false });
@@ -265,7 +265,7 @@ export default function CronManager2()
                                 className="radio radio-primary"
                                 checked={!oneTimeSchedule}
                             />
-                            <span>Single Use:</span>
+                            <span>Single Event:</span>
                             <input
                                 type="radio"
                                 data-onetime="onetime"
@@ -319,7 +319,7 @@ export default function CronManager2()
                                 {oneTimeSchedule
                                 ? <div></div>
                                 : <><div class="divider">Repeat</div>
-                                
+
                                 <div className="flex justify-center items-center gap-4">
                                     <div className="flex flex-row my-4">
                                         <div className="join">

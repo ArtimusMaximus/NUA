@@ -455,7 +455,7 @@ const WheelPickerComponent = ({
           </li>
         ))}
       </ul>
-      <ul className="items hidden" ref={ampmItemsContRef}>
+      <ul className="items" ref={ampmItemsContRef}>
         {ampmItems.map((item, index) => (
           <li
             className="item"

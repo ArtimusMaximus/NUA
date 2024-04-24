@@ -200,15 +200,15 @@ function validateCron(crontype) { // return true/false
 const jobFunction = async (crontype, macAddress) => { // for crons
     try {
         if (crontype === 'allow') {
-            console.log('unifi === undefined \t', unifi === undefined)
-            const confirmAllow = await unifi.unblockClient(macAddress)
+            console.log('unifi === undefined \t', unifi === undefined);
+            const confirmAllow = await unifi.unblockClient(macAddress);
             console.log(`${macAddress} has been unblocked: ${confirmAllow}`);
         } else if (crontype === 'block') {
-            const confirmBlocked = await unifi.blockClient(macAddress)
+            const confirmBlocked = await unifi.blockClient(macAddress);
             console.log(`${macAddress} has been blocked: ${confirmBlocked}`);
         }
     } catch (error) {
-        red('~~~~~~CATCH BLOCK IN JOB FUNCITON~~~~~~~~~~~', 'red');
+        red('~~~~~~CATCH BLOCK IN JOB FUNCITON~~~~~~', 'red');
         console.error(error);
     }
 }
@@ -224,20 +224,87 @@ const jobFunction = async (crontype, macAddress) => { // for crons
 //         .then(() => console.log(result))
 // })()
 
+async function addEasySchedule(deviceId, dateTime, blockAllow, scheduleData) {
+    const { month, day, minute, modifiedHour, ampm, date, modifiedDaysOfTheWeek } = scheduleData;
+    // model EasySchedule {
+    //     id            Int      @id @default(autoincrement())
+    //     createdAt     DateTime @default(now())
+    //     month         Int
+    //     day           Int
+    //     minute        Int
+    //     hour          Int
+    //     ampm          String
+    //     date          String
+    //     blockAllow    String
+    //     jobName       String?
+    //     device        Device?  @relation(fields: [deviceId], references: [id])
+    //     deviceId      Int?
+    //     toggleSched   Boolean?
+    //   }
+    try {
+        const deviceToSchedule = await prisma.device.findUnique({ where: { id: deviceId } }); // deviceToSchedule.macAddress
+        const startNewJob = schedule.scheduleJob(dateTime, () => jobFunction(blockAllow, deviceToSchedule.macAddress));
+        console.log('startNewJob \t', startNewJob);
+
+        if (startNewJob) {
+            const addEasySchedule = await prisma.easySchedule.create({ // create easySched
+                data: {
+                    month: month,
+                    day: day,
+                    minute: parseInt(minute),
+                    hour: modifiedHour,
+                    ampm: ampm,
+                    date: date,
+                    blockAllow: blockAllow,
+                    jobName: startNewJob?.name,
+                    // deviceId: deviceId,
+                    toggleSched: true,
+                    device: {
+                        connect: { id: deviceToSchedule.id }
+                    },
+                }
+            });
+        }
+    } catch (error) {
+        console.error(error);
+    }
+}
+
+
 function nodeOneTimeScheduleRule(data) { // 04 22 2024 - scheduleJob not firing console.log, pick up here, check for timezones??
-    console.log('data from nodeOneTimeSchedule: ', data);
-    const { date, hour, minute } = data;
+    // console.log('data from nodeOneTimeSchedule: ', data);
+
+    const { date, hour, minute, ampm, modifiedDaysOfTheWeek, deviceId, scheduletype } = data;
     const breakDownDate = date.split("-");
     const year = parseInt(breakDownDate[0]);
     const month = parseInt(breakDownDate[1]);
     const day = parseInt(breakDownDate[2]);
-    console.log(year, month, day);
+    let modifiedHour = hour;
+
+    if (ampm === "AM" && hour === 12) {
+        modifiedHour = hour - 12;
+    } else if (ampm === "PM" && hour === 12) {
+        modifiedHour = hour;
+    } else if (ampm === "PM") {
+        modifiedHour = hour + 12;
+    }
+    const scheduleData = {
+        year,
+        month,
+        day,
+        date,
+        minute,
+        ampm,
+        modifiedHour
+    }
+
+    console.log('Data for scheduleJob', year, month-1, day, modifiedHour, parseInt(minute));
 
     // y m d h min s
-    const oneTimeDate = new Date(year, month-1, day, hour, parseInt(minute), 0);
-    schedule.scheduleJob(oneTimeDate, () => {
-        console.log(`One Time Schedule is created!!!!!!!!!`);
-    });
+    const dateTime = new Date(year, month-1, day, modifiedHour, parseInt(minute), 0);
+
+    addEasySchedule(deviceId, dateTime, scheduletype, scheduleData);
+
 }
 
 function nodeScheduleRecurrenceRule(data) {
@@ -717,7 +784,7 @@ app.post('/addschedule', async (req, res) => { // adds cron data specific front 
             where: {
                 id: id
             }
-        })
+        });
         console.log('Device to schedule ', deviceToSchedule) // job creation removed from here spefically to be performed in /togglecron
         // const jobFunction = async (crontype, macAddress) => {
         //     if (crontype === 'allow') {
@@ -821,7 +888,7 @@ app.put('/togglecron', async (req, res) => { // soon to be deprecated
         } else if (toggleCron === true) {
             console.log('continue');
             const reInitiatedJob = schedule.scheduleJob(crontime, () => jobFunction(crontype, getMacAddress.macAddress));
-            jb = reInitiatedJob.name
+            jb = reInitiatedJob.name;
             console.log('jb.name: ', jb.name);
         }
         const updateCronToggle = await prisma.cron.update({
@@ -900,21 +967,23 @@ app.post('/getcrondata', async (req, res) => { // fetches cron data specific to 
 // });
 
 app.post('/addeasyschedule', async (req, res) => {
-    const { date, hour, minute, oneTime, scheduletype, daysOfTheWeek } = req.body;
-    console.log(date, hour, minute, 'oneTime \t', oneTime, 'scheduletype \t', scheduletype, 'daysOfTheWeek \t', daysOfTheWeek);
-
+    const { date, hour, minute, oneTime, scheduletype, daysOfTheWeek, ampm, deviceId } = req.body;
+    let modifiedDaysOfTheWeek = daysOfTheWeek;
+    if (daysOfTheWeek === undefined) {
+        modifiedDaysOfTheWeek = "No DOTW assigned";
+    }
+    console.log(date, hour, minute, 'oneTime \t', oneTime, 'scheduletype \t', scheduletype, 'daysOfTheWeek \t', modifiedDaysOfTheWeek, 'ampm \t', ampm, 'deviceId \t', deviceId);
     try {
         if (oneTime) {
-            nodeOneTimeScheduleRule({ date, hour, minute });
-
+            nodeOneTimeScheduleRule({ date, hour, minute, ampm, modifiedDaysOfTheWeek, deviceId, scheduletype });
+        } else {
+            nodeScheduleRecurrenceRule();
         }
     } catch (error) {
         console.error(error);
     }
-
     res.sendStatus(200);
     // res.sendStatus(200).json({ message: 'Time Data received', timeData: timeData });
-
 });
 
 // ~~~~~~

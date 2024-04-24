@@ -3,7 +3,7 @@ import dayjs from "dayjs";
 
 import { WheelPicker } from "./wheel-picker/WheelPicker";
 
-const hourItems = Array.from({ length: 23 }, (_, index) => ({
+const hourItems = Array.from({ length: 12 }, (_, index) => ({
   value: index + 1,
   label: index + 1
 }));
@@ -38,18 +38,19 @@ export default function TimeClock({ oneTime, handleTimeData }) {
   const [ampm, setAmpm] = useState(ampmItems[0].value);
 
   useEffect(() => {
-    console.log('date \t', date, '\n', 'hour \t', hour, '\n', 'minute \t', minute, '\n', '\n', 'oneTime \t', oneTime);
+    console.log('date \t', date, '\n', 'hour \t', hour, '\n', 'minute \t', minute, '\n', 'ampm \t', ampm, '\n', 'oneTime \t', oneTime);
     handleTimeData((data) => (
       {
         ...data,
         date: date,
         hour: hour,
         minute: minute,
-        oneTime: oneTime
+        oneTime: oneTime,
+        ampm: ampm
       }
     ));
 
-  }, [date, hour, minute, oneTime])
+  }, [date, hour, minute, oneTime, ampm])
 
   return (
     <div className="App">

@@ -21,13 +21,14 @@ model Credentials {
 }
 
 model Device {
-  id         Int      @id @default(autoincrement())
-  name       String
-  macAddress String
-  active     Boolean
-  createdAt  DateTime @default(now())
-  crons      Cron[]
-  order      Int?
+  id            Int      @id @default(autoincrement())
+  name          String
+  macAddress    String
+  active        Boolean
+  createdAt     DateTime @default(now())
+  crons         Cron[]
+  easySchedules EasySchedule[]
+  order         Int?
 }
 
 model Cron {
@@ -39,6 +40,22 @@ model Cron {
   device     Device?  @relation(fields: [deviceId], references: [id])
   deviceId   Int?
   toggleCron Boolean?
+}
+
+model EasySchedule {
+  id            Int      @id @default(autoincrement())
+  createdAt     DateTime @default(now())
+  month         Int
+  day           Int
+  minute        Int
+  hour          Int
+  ampm          String
+  date          String
+  blockAllow    String
+  jobName       String?
+  device        Device?  @relation(fields: [deviceId], references: [id])
+  deviceId      Int?
+  toggleSched   Boolean?
 }
 
 model TrafficRules {
