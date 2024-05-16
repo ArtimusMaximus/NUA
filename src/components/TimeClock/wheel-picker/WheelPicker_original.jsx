@@ -30,7 +30,7 @@ const WheelPickerComponent = ({
   const ampmRefs = useRef([]);
   const dateItemsMap = useMemo(
     () =>
-      dateItems.reduce(
+      dateItems?.reduce(
         (map, item, index) => map.set(item.value, index),
         new Map()
       ),
@@ -87,8 +87,10 @@ const WheelPickerComponent = ({
           const sin = scrollOffset / maxScrollOffset;
           const cos = Math.sqrt(1 - sin ** 2);
           const [div] = item.getElementsByTagName("div");
+
           div.style.transform = `rotateX(${Math.asin(sin)}rad) scale(${cos})`;
           div.style.transformOrigin = "right";
+
         });
     }
   }

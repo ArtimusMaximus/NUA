@@ -1,6 +1,5 @@
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import dayjs from "dayjs";
-import "./wheel-picker/styles.css";
 
 import { WheelPicker } from "./wheel-picker/WheelPicker";
 
@@ -9,16 +8,17 @@ const hourItems = Array.from({ length: 12 }, (_, index) => ({
   label: index + 1
 }));
 
-// const minuteItems = Array.from({ length: 4 }, (_, index) => ({
-//   value: `${(index * 15).toString().padStart(2, "0")}`,
-//   label: `${(index * 15).toString().padStart(2, "0")}`
-// }));
-
-// temporary test
-const minuteItems = Array.from({ length: 60, }, (_, index) => ({
-    value: `${(index * 1).toString().padStart(2, "0")}`,
-    label: `${(index * 1).toString().padStart(2, "0")}`
+// @issue - original minuteItems code
+const minuteItems = Array.from({ length: 4 }, (_, index) => ({
+  value: `${(index * 15).toString().padStart(2, "0")}`,
+  label: `${(index * 15).toString().padStart(2, "0")}`
 }));
+
+// @issue - below is modified code, above is original
+// const minuteItems = Array.from({ length: 60, }, (_, index) => ({
+//     value: `${(index * 1).toString().padStart(2, "0")}`,
+//     label: `${(index * 1).toString().padStart(2, "0")}`
+// }));
 
 const ampmItems = [
   { value: "AM", label: "AM" },
@@ -55,7 +55,6 @@ export default function TimeClock({ oneTime, handleTimeData }) {
 
   }, [date, hour, minute, oneTime, ampm])
 
-
   return (
     <div className="App">
       {/* <span style={{ textAlign: "center", width: "100%" }}>
@@ -63,19 +62,19 @@ export default function TimeClock({ oneTime, handleTimeData }) {
       </span> */}
       <div style={{ width: "100%", display: "flex", justifyContent: "center" }}>
         <WheelPicker
-          dateItems={dateItems}
-          dateValue={date}
-          onDateChange={setDate}
-          hourItems={hourItems}
-          hourValue={hour}
-          onHourChange={setHour}
-          minuteItems={minuteItems}
-          minuteValue={minute}
-          onMinuteChange={setMinute}
-          ampmItems={ampmItems}
-          ampmValue={ampm}
-          onAmpmChange={setAmpm}
-          oneTime={oneTime}
+            dateItems={dateItems}
+            dateValue={date}
+            onDateChange={setDate}
+            hourItems={hourItems}
+            hourValue={hour}
+            onHourChange={setHour}
+            minuteItems={minuteItems}
+            minuteValue={minute}
+            onMinuteChange={setMinute}
+            ampmItems={ampmItems}
+            ampmValue={ampm}
+            onAmpmChange={setAmpm}
+            oneTime={oneTime}
         />
       </div>
     </div>

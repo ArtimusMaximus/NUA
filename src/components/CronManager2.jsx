@@ -224,13 +224,19 @@ export default function CronManager2()
     }, []);
 
     const handlePickedSchedule = e => {
+        // if (e.target.type !== 'radio') {
+        //     return;
+        // }
+        console.log(e.target);
+        console.log(e.target.value);
+
         const { onetime, recur } = e.target.dataset
 
-        if (onetime) {
+        if (e.target.dataset.onetime === 'onetime') {
             setOneTimeSchedule(true);
             oneTimeScheduleRef.current.checked = true;
             recurringScheduleRef.current.checked = false;
-        } else if (recur) {
+        } else if (e.target.dataset.recur === 'recur') {
             setOneTimeSchedule(false);
             oneTimeScheduleRef.current.checked = false;
             recurringScheduleRef.current.checked = true;
