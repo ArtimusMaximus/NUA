@@ -9,6 +9,7 @@ const schedule = require('node-schedule');
 const cronValidate = require('node-cron');
 const customPORT = require('./globalSettings');
 const fs = require('fs');
+const { convertToMilitaryTime } = require('./server_util_funcs/convert_to_military_time');
 
 
 
@@ -279,15 +280,9 @@ function nodeOneTimeScheduleRule(data) { // 04 22 2024 - scheduleJob not firing 
     const year = parseInt(breakDownDate[0]);
     const month = parseInt(breakDownDate[1]);
     const day = parseInt(breakDownDate[2]);
-    let modifiedHour = hour;
 
-    if (ampm === "AM" && hour === 12) {
-        modifiedHour = hour - 12;
-    } else if (ampm === "PM" && hour === 12) {
-        modifiedHour = hour;
-    } else if (ampm === "PM") {
-        modifiedHour = hour + 12;
-    }
+    const modifiedHour = convertToMilitaryTime(ampm, hour);
+
     const scheduleData = {
         year,
         month,
@@ -308,7 +303,30 @@ function nodeOneTimeScheduleRule(data) { // 04 22 2024 - scheduleJob not firing 
 }
 
 function nodeScheduleRecurrenceRule(data) {
+    // const rule = new schedule.RecurrenceRule();
+    // rule.dayOfWeek = [0, new schedule.Range(4, 6)];
+    // rule.hour = 17;
+    // rule.minute = 0;
+
+    // const job = schedule.scheduleJob(rule, function(){
+    // console.log('Today is recognized by Rebecca Black!');
+    // });
+
     const rule = new schedule.RecurrenceRule();
+    const daysOfTheWeek = data.daysOfTheWeek;
+    rule.dayOfWeek = [...daysOfTheWeek];
+    rule.hour = data.hour;
+    rule.minute = data.minute;
+
+    function recurringJob() {
+        console.log('Recurring job works & is recurring!');
+    }
+
+    const job = schedule.scheduleJob(rule, () => recurringJob());
+    const jobName = job.name;
+    console.log('jobName: \t', jobName);
+    return jobName;
+
 }
 
 
@@ -968,16 +986,50 @@ app.post('/getcrondata', async (req, res) => { // fetches cron data specific to 
 
 app.post('/addeasyschedule', async (req, res) => {
     const { date, hour, minute, oneTime, scheduletype, daysOfTheWeek, ampm, deviceId } = req.body;
-    let modifiedDaysOfTheWeek = daysOfTheWeek;
+    let daysOfTheWeekNumerals = [...Object.values(daysOfTheWeek)];
+    let modifiedDaysOfTheWeek = daysOfTheWeekNumerals;
     if (daysOfTheWeek === undefined) {
-        modifiedDaysOfTheWeek = "No DOTW assigned";
+        modifiedDaysOfTheWeek = [0, 1, 2, 3, 4, 5, 6];
     }
-    console.log(date, hour, minute, 'oneTime \t', oneTime, 'scheduletype \t', scheduletype, 'daysOfTheWeek \t', modifiedDaysOfTheWeek, 'ampm \t', ampm, 'deviceId \t', deviceId);
+    console.log(
+        'date          \t', date,    '\n',
+        'hour          \t', hour,    '\n',
+        'minute        \t', minute,  '\n',
+        'oneTime       \t', oneTime, '\n',
+        'scheduletype  \t', scheduletype, '\n',
+        'daysOfTheWeek \t', modifiedDaysOfTheWeek, '\n',
+        'ampm          \t', ampm,     '\n',
+        'deviceId      \t', deviceId, '\n'
+    );
     try {
         if (oneTime) {
             nodeOneTimeScheduleRule({ date, hour, minute, ampm, modifiedDaysOfTheWeek, deviceId, scheduletype });
         } else {
-            nodeScheduleRecurrenceRule();
+            // const jobScheduleData = new Object();
+            // jobScheduleData.jobName = '';
+            // const rule = new schedule.RecurrenceRule();
+            // const daysOfTheWeek = data.daysOfTheWeek;
+            // rule.dayOfWeek = [...daysOfTheWeek];
+            // rule.hour = data.hour;
+            // rule.minute = data.minute;
+
+            function FactoryData(daysOfTheWeek, hour, minute) {
+                this.daysOfTheWeek = daysOfTheWeek;
+                this.hour = hour;
+                this.minute = minute;
+                this.jobName = '';
+            }
+            // console.log('typeof convertToMilitaryTime \t', typeof convertToMilitaryTime);
+
+            const modifiedHour = convertToMilitaryTime(ampm, hour);
+            const recurrenceData = new FactoryData(modifiedDaysOfTheWeek, modifiedHour, minute);
+
+
+
+            // @data -
+            const jName = nodeScheduleRecurrenceRule(recurrenceData);
+            console.log('jName from nodeScheduleRecurrenceRule:\t', jName);
+            // handle jobName in DB
         }
     } catch (error) {
         console.error(error);
