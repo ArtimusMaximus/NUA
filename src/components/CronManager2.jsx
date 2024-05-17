@@ -34,6 +34,9 @@ export default function CronManager2()
     const [timeData, setTimeData] = useState(null);
     const [deviceId] = useState({ deviceId: parseInt(params.id) });
     const [dayOfTheWeekSelected, setDayOfTheWeekSelected] = useState(false);
+    const [selectAllow, setSelectAllow] = useState(true);
+
+
 
     const handleTimeData = (data) => {
         setTimeData(data);
@@ -55,6 +58,8 @@ export default function CronManager2()
     useEffect(() => {
         setDayOfTheWeekSelected(checkDaysOfWeekNotChosen());
     }, [schedule.daysOfTheWeek, oneTimeSchedule]);
+
+    useEffect(() => { console.log(schedule.scheduletype) }, [schedule]);
 
 
     // function PickerComponent() {
@@ -122,13 +127,15 @@ export default function CronManager2()
         setSchedule({
             ...schedule,
             scheduletype: e.target.value
-        })
+        });
+        setSelectAllow(true);
     }
     const handleBlock = e => {
         setSchedule({
             ...schedule,
             scheduletype: e.target.value
         });
+        setSelectAllow(false);
     }
     const handleScheduleDayOfWeek = e => {
         const isChecked = e.target.checked;
@@ -141,7 +148,11 @@ export default function CronManager2()
             daysOfTheWeek: updatedDaysOfTheWeek,
             id: parseInt(params.id)
         }));
+        if (e.target.name === "allow") {
+            allowRef.current.checked = true;
+        }
     }
+
     const handleScheduleTimes = e => {
         setSchedule({
             ...schedule,
@@ -318,6 +329,7 @@ export default function CronManager2()
                                     type="radio"
                                     aria-label="Allow"
                                     name="options"
+                                    checked={selectAllow}
                                 />
                                 <input
                                     onClick={handleBlock}
@@ -326,6 +338,7 @@ export default function CronManager2()
                                     type="radio"
                                     aria-label="Block"
                                     name="options"
+                                    checked={!selectAllow}
                                 />
                             </div>
                         </div>
