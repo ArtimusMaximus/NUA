@@ -59,7 +59,7 @@ export default function CronManager2()
         setDayOfTheWeekSelected(checkDaysOfWeekNotChosen());
     }, [schedule.daysOfTheWeek, oneTimeSchedule]);
 
-    useEffect(() => { console.log(schedule.scheduletype) }, [schedule]);
+
 
 
     // function PickerComponent() {
@@ -148,9 +148,6 @@ export default function CronManager2()
             daysOfTheWeek: updatedDaysOfTheWeek,
             id: parseInt(params.id)
         }));
-        if (e.target.name === "allow") {
-            allowRef.current.checked = true;
-        }
     }
 
     const handleScheduleTimes = e => {
@@ -259,24 +256,29 @@ export default function CronManager2()
     }, []);
 
     const handlePickedSchedule = e => {
-        // if (e.target.type !== 'radio') {
-        //     return;
-        // }
-        console.log(e.target);
-        console.log(e.target.value);
-
-        const { onetime, recur } = e.target.dataset
-
         if (e.target.dataset.onetime === 'onetime') {
             setOneTimeSchedule(true);
             oneTimeScheduleRef.current.checked = true;
             recurringScheduleRef.current.checked = false;
+            setSchedule((prev) => ({
+                ...prev,
+                daysOfTheWeek: {
+                    sun: undefined,
+                    mon: undefined,
+                    tue: undefined,
+                    wed: undefined,
+                    thu: undefined,
+                    fri: undefined,
+                    sat: undefined,
+                },
+            }));
         } else if (e.target.dataset.recur === 'recur') {
             setOneTimeSchedule(false);
             oneTimeScheduleRef.current.checked = false;
             recurringScheduleRef.current.checked = true;
         }
         console.log(oneTimeSchedule);
+        console.log('schedule \t', schedule);
     }
 
 
