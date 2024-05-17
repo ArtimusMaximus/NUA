@@ -1030,6 +1030,10 @@ app.post('/addeasyschedule', async (req, res) => {
             const jName = nodeScheduleRecurrenceRule(recurrenceData);
             console.log('jName from nodeScheduleRecurrenceRule:\t', jName);
             // handle jobName in DB
+
+
+
+
         }
     } catch (error) {
         console.error(error);

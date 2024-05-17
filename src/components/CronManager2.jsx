@@ -10,6 +10,15 @@ export default function CronManager2()
     const [schedule, setSchedule] = useState({
         scheduletype: 'allow',
         id: parseInt(params.id),
+        daysOfTheWeek: {
+            sun: undefined,
+            mon: undefined,
+            tue: undefined,
+            wed: undefined,
+            thu: undefined,
+            fri: undefined,
+            sat: undefined,
+        },
         toggleschedule: null
     });
     const submitButtonRef = useRef();
@@ -24,11 +33,28 @@ export default function CronManager2()
     const [oneTimeSchedule, setOneTimeSchedule] = useState(false);
     const [timeData, setTimeData] = useState(null);
     const [deviceId] = useState({ deviceId: parseInt(params.id) });
-
+    const [dayOfTheWeekSelected, setDayOfTheWeekSelected] = useState(false);
 
     const handleTimeData = (data) => {
         setTimeData(data);
     };
+    const checkDaysOfWeekNotChosen = () => {
+        const chosenDaysOfWeek = Object.values(schedule.daysOfTheWeek);
+        let mapChosen = chosenDaysOfWeek.map((i) => {
+            if (typeof i === "number") {
+                return true;
+            } else {
+                return false;
+            }
+        });
+        let chosen = mapChosen.includes(true);
+        console.log('chosen \t', chosen);
+        return chosen;
+    }
+
+    useEffect(() => {
+        setDayOfTheWeekSelected(checkDaysOfWeekNotChosen());
+    }, [schedule.daysOfTheWeek]);
 
 
     // function PickerComponent() {
@@ -115,8 +141,6 @@ export default function CronManager2()
             daysOfTheWeek: updatedDaysOfTheWeek,
             id: parseInt(params.id)
         }));
-
-        console.log(schedule);
     }
     const handleScheduleTimes = e => {
         setSchedule({
@@ -343,7 +367,7 @@ export default function CronManager2()
 
 
                                 <div class="divider"></div>
-                                <div className="btn mb-8" onClick={handleSubmit}>Submit</div>
+                                <div className={`btn mb-8 ${dayOfTheWeekSelected ? '' : 'btn-disabled'}`} onClick={handleSubmit}>Submit</div>
 
                                 <table className="table table-zebra border rounded-lg shadow overflow-hidden dark:border-gray-700 dark:shadow-gray-900 mb-8">
                                     <tbody>
