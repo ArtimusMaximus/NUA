@@ -54,7 +54,7 @@ export default function CronManager2()
 
     useEffect(() => {
         setDayOfTheWeekSelected(checkDaysOfWeekNotChosen());
-    }, [schedule.daysOfTheWeek]);
+    }, [schedule.daysOfTheWeek, oneTimeSchedule]);
 
 
     // function PickerComponent() {
@@ -367,7 +367,7 @@ export default function CronManager2()
 
 
                                 <div class="divider"></div>
-                                <div className={`btn mb-8 ${dayOfTheWeekSelected ? '' : 'btn-disabled'}`} onClick={handleSubmit}>Submit</div>
+                                <div className={`btn mb-8 ${oneTimeSchedule ? '' : dayOfTheWeekSelected ? '' : 'btn-disabled'}`} onClick={handleSubmit}>Submit</div>
 
                                 <table className="table table-zebra border rounded-lg shadow overflow-hidden dark:border-gray-700 dark:shadow-gray-900 mb-8">
                                     <tbody>
