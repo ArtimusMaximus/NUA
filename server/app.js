@@ -717,6 +717,7 @@ app.delete('/removedevice', async (req, res) => { // Devices.jsx device delete
 
 app.get('/checkjobreinitiation', async (req, res) => {
     try {
+        // @todo - also pull from prisma.easyschedule.findMany(); for job re-initiation - 05 16 2024
         const previousJobData = await prisma.cron.findMany();
         const getMacAddress = await prisma.device.findMany();
 

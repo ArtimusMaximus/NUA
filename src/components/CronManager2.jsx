@@ -35,8 +35,19 @@ export default function CronManager2()
     const [deviceId] = useState({ deviceId: parseInt(params.id) });
     const [dayOfTheWeekSelected, setDayOfTheWeekSelected] = useState(false);
     const [selectAllow, setSelectAllow] = useState(true);
+    const [scheduleMode, setScheduleMode] = useState("standard");
 
 
+    const handleSelectScheduleMode = e => {
+      e.target.value === "standard" 
+      ? setScheduleMode("standard") 
+      : e.target.value === "advanced" 
+      ? setScheduleMode("advanced") 
+      : null;
+    };
+    useEffect(() => {
+        
+    }, [scheduleMode]);
 
     const handleTimeData = (data) => {
         setTimeData(data);
@@ -296,6 +307,11 @@ export default function CronManager2()
                             </a> */}
                         </div>
                         <div className="divider"></div>
+                        <select className="select select-bordered w-full max-w-xs" onChange={handleSelectScheduleMode}>
+                            <option disabled selected>Select Schedule Type...</option>
+                            <option value="standard">Standard</option>
+                            <option value="advanced">Advanced</option>
+                        </select>
 
                         <div className="flex flex-row gap-4 my-4">
                             <span>Recurring:</span>
