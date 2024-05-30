@@ -1,10 +1,10 @@
 import { useEffect, useRef, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { GoInfo, GoTrash } from "react-icons/go";
-import TimeClock from './TimeClock/TimeClock'
+import TimeClock from './TimeClock/TimeClock';
 
 
-export default function CronManager2()
+export default function EasySched()
 {
     const params = useParams();
     const [schedule, setSchedule] = useState({
@@ -46,7 +46,7 @@ export default function CronManager2()
       : null;
     };
     useEffect(() => {
-        
+
     }, [scheduleMode]);
 
     const handleTimeData = (data) => {
@@ -297,7 +297,7 @@ export default function CronManager2()
 
     return (
         <>
-            <div className="flex items-center justify-center w-full h-full sm:w-3/4 lg:w-1/2 mx-auto pb-12 pt-12">
+            <div className="flex items-center justify-center w-full h-full sm:w-3/4 lg:w-1/2 mx-auto pb-12">
                 <div className="flex w-full mx-2">
                     <div className="flex flex-col items-center justify-center w-full h-full mx-auto border rounded-lg shadow overflow-hidden border-neutral shadow-base-300 m-8">
                         <div className="flex mt-8">
@@ -308,11 +308,11 @@ export default function CronManager2()
                         </div>
                         <div className="divider"></div>
                         <select className="select select-bordered w-full max-w-xs" onChange={handleSelectScheduleMode}>
-                            <option disabled selected>Select Schedule Type...</option>
+                            <option disabled selected>Scheduler Type...</option>
                             <option value="standard">Standard</option>
-                            <option value="advanced">Advanced</option>
+                            <option value="advanced">Cron</option>
                         </select>
-
+                        
                         <div className="flex flex-row gap-4 my-4">
                             <span>Recurring:</span>
                             <input
@@ -399,6 +399,8 @@ export default function CronManager2()
 
                                 <div class="divider"></div>
                                 <div className={`btn mb-8 ${oneTimeSchedule ? '' : dayOfTheWeekSelected ? '' : 'btn-disabled'}`} onClick={handleSubmit}>Submit</div>
+
+                               
 
                                 <table className="table table-zebra border rounded-lg shadow overflow-hidden dark:border-gray-700 dark:shadow-gray-900 mb-8">
                                     <tbody>

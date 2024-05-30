@@ -241,7 +241,7 @@ export default function Devices({ data, toggleReRender, handleRenderToggle, load
                                                                 </span>
                                                             </div>
                                                         <div>
-                                                            <Link to={`/admin/${device?.id}/cronmanager`} className="w-fit hover:cursor-pointer" >
+                                                            <Link to={`/admin/${device?.id}/scheduler`} className="w-fit hover:cursor-pointer" >
                                                                 <div className="btn btn-block bg-base-300 hover:bg-base-content hover:text-base-100 my-2">Schedule</div>
                                                             </Link>
                                                         </div>
