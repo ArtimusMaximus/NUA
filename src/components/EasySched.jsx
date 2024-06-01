@@ -1,6 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { Link, useParams } from "react-router-dom";
-import { GoInfo, GoTrash } from "react-icons/go";
+import { useParams } from "react-router-dom";
 import TimeClock from './TimeClock/TimeClock';
 
 
@@ -24,10 +23,9 @@ export default function EasySched({ triggerRender })
     const submitButtonRef = useRef();
     const inputRef = useRef();
     const [checked, setChecked] = useState(true);
-    const [returnData, setReturnData] = useState(null);
+    const [deviceInfo, setDeviceInfo] = useState({});
     const [changed, setChanged] = useState(false);
     const [invalidscheduleMessage, setInvalidscheduleMessage] = useState({});
-    const [deviceInfo, setDeviceInfo] = useState({});
     const oneTimeScheduleRef = useRef(null);
     const recurringScheduleRef = useRef(null);
     const [oneTimeSchedule, setOneTimeSchedule] = useState(false);
@@ -37,7 +35,6 @@ export default function EasySched({ triggerRender })
     const [selectAllow, setSelectAllow] = useState(true);
 
     
-
     const handleTimeData = (data) => {
         setTimeData(data);
     };
@@ -61,41 +58,6 @@ export default function EasySched({ triggerRender })
 
     const reFetch = () => { setChanged(prev => !prev); }
 
-    const handleChecked = e => { // /toggleschedule
-        setChecked(prev => !prev)
-        console.log(e.target.checked);
-
-        const toggleData = {
-            toggleschedule : e.target.checked,
-            id : parseInt(e.target.dataset.scheduletimeid),
-            jobName :e.target.dataset.jobname,
-            scheduletime : e.target.dataset.scheduletime,
-            scheduletype : e.target.dataset.scheduletype,
-            deviceId : parseInt(e.target.dataset.deviceid)
-        }
-
-        async function togglescheduleUpdate() {
-            try {
-
-                const togglescheduleOnOff = await fetch('/toggleschedule', {
-                    method: 'PUT',
-                    mode: 'cors',
-                    headers: {
-                        "Content-Type" : "application/json"
-                    },
-                    body: JSON.stringify(toggleData)
-                });
-                if (togglescheduleOnOff.ok) {
-                    const result = await togglescheduleOnOff.json();
-                    console.log('result', result);
-                    reFetch(); // refetch get schedule data
-                }
-            } catch (error) {
-                if (error) throw error;
-            }
-        }
-        togglescheduleUpdate();
-    }
     const handleAllow = e => {
         setSchedule({
             ...schedule,
@@ -122,14 +84,12 @@ export default function EasySched({ triggerRender })
             id: parseInt(params.id)
         }));
     }
-
     const handleScheduleTimes = e => {
         setSchedule({
             ...schedule,
             [e.target.name]: parseInt(e.target.value)
         })
     }
-
 
     const handleSubmit = async () => {
         console.log('preSubmittedData: ', {...timeData, ...schedule});
@@ -149,6 +109,7 @@ export default function EasySched({ triggerRender })
                 console.log('submitData \t', submitData);
 
                 reFetch();
+                triggerRender();
             } else if (submitData.status === 422) {
                 // const badResults = await submitData.json();
                 // console.log('subdata message ', badResults.message)
@@ -161,50 +122,7 @@ export default function EasySched({ triggerRender })
             console.error(error);
         }
     }
-    const handleDeleteschedule = async e => {
-        // submitButtonRef.current.disabled = true
-        console.log(e?.target.dataset.id);
-        const parseId = parseInt(e.target.dataset.id);
-
-        try {
-            const deleteschedule = await fetch("/deleteschedule", {
-                method: "DELETE",
-                mode: "cors",
-                headers: {
-                    "Content-Type" : "application/json"
-                },
-                body: JSON.stringify({ parseId })
-            });
-            if (deleteschedule.ok) {
-                const deleteReply = await deleteschedule.json();
-                console.log("Deleted Data: ", deleteReply);
-                reFetch();
-            }
-        } catch (error) {
-            // submitButtonRef.current.disabled = false
-            if (error) throw error;
-        }
-    }
-
-    useEffect(() => { // get current device info (name)
-        const p = parseInt(params.id);
-        const getDeviceData = async () => {
-            const getDeviceName = await fetch('/getspecificdevice', {
-                method: 'POST',
-                mode: 'cors',
-                headers: {
-                    'Content-Type' : 'application/json'
-                },
-                body: JSON.stringify({ id: p })
-            });
-            if (getDeviceName.ok) {
-                const devInfo = await getDeviceName.json();
-                setDeviceInfo(devInfo);
-            }
-        }
-        getDeviceData();
-    }, []);
-
+    
     const handlePickedSchedule = e => {
         if (e.target.dataset.onetime === 'onetime') {
             setOneTimeSchedule(true);

@@ -246,6 +246,8 @@ async function addEasySchedule(deviceId, dateTime, blockAllow, scheduleData) {
         const deviceToSchedule = await prisma.device.findUnique({ where: { id: deviceId } }); // deviceToSchedule.macAddress
         const startNewJob = schedule.scheduleJob(dateTime, () => jobFunction(blockAllow, deviceToSchedule.macAddress));
         console.log('startNewJob \t', startNewJob);
+        // console.log('modifiedHour \t', modifiedHour, typeof modifiedHour);
+        console.log('scheduleData \t', scheduleData);
 
         if (startNewJob) {
             const addEasySchedule = await prisma.easySchedule.create({ // create easySched
@@ -272,7 +274,7 @@ async function addEasySchedule(deviceId, dateTime, blockAllow, scheduleData) {
 }
 
 
-function nodeOneTimeScheduleRule(data) { // 04 22 2024 - scheduleJob not firing console.log, pick up here, check for timezones??
+function nodeOneTimeScheduleRule(data) { // 04 22 2024 - scheduleJob not firing console.log, pick up here, check for timezones?? - yes, timezone is tunnel time zone 06/01/2024
     // console.log('data from nodeOneTimeSchedule: ', data);
 
     const { date, hour, minute, ampm, modifiedDaysOfTheWeek, deviceId, scheduletype } = data;
@@ -282,6 +284,8 @@ function nodeOneTimeScheduleRule(data) { // 04 22 2024 - scheduleJob not firing 
     const day = parseInt(breakDownDate[2]);
 
     const modifiedHour = convertToMilitaryTime(ampm, hour);
+    console.log('modifiedHour \t', modifiedHour, typeof modifiedHour);
+    
 
     const scheduleData = {
         year,
@@ -1014,25 +1018,20 @@ app.post('/addeasyschedule', async (req, res) => {
             // rule.hour = data.hour;
             // rule.minute = data.minute;
 
-            function FactoryData(daysOfTheWeek, hour, minute) {
+            function FactoryData(daysOfTheWeek, hour, minute, jobName) {
                 this.daysOfTheWeek = daysOfTheWeek;
                 this.hour = hour;
                 this.minute = minute;
                 this.jobName = '';
             }
-            // console.log('typeof convertToMilitaryTime \t', typeof convertToMilitaryTime);
 
             const modifiedHour = convertToMilitaryTime(ampm, hour);
-            const recurrenceData = new FactoryData(modifiedDaysOfTheWeek, modifiedHour, minute);
-
-
-
-            // @data -
             const jName = nodeScheduleRecurrenceRule(recurrenceData);
             console.log('jName from nodeScheduleRecurrenceRule:\t', jName);
+            const recurrenceData = new FactoryData(modifiedDaysOfTheWeek, modifiedHour, minute, jName);
+
+            // @data -
             // handle jobName in DB
-
-
 
 
         }

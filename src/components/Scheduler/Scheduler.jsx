@@ -15,7 +15,6 @@ export default function Scheduler() {
     const triggerRender = () => {
         setChanged(prev => !prev);
     }
-
     const reRender = () => {
         setRender(prev => !prev);
     };
