@@ -5,7 +5,7 @@ import { GoInfo, GoTrash } from "react-icons/go";
 
 // todo: toggle on off does not reflect the actual current status on page change....and upon returning to page & toggling, scheduled jobs are not reflected properly //05/29/2024 - look into this
 
-export default function CronManager()
+export default function CronManager({ triggerRender })
 {
     const params = useParams();
     const [cron, setCron] = useState({
@@ -14,6 +14,8 @@ export default function CronManager()
         toggleCron: true,
         jobName: ''
     });
+
+    
    
     const inputRef = useRef();
     
@@ -40,7 +42,6 @@ export default function CronManager()
         // console.log(cron);
     }
 
-    
     const handleSubmit = async () => {
         try {
             const submitData = await fetch('/addschedule', {
@@ -71,7 +72,6 @@ export default function CronManager()
         }
     }
     
-
     return (
         <>
             <div className="flex mt-8">

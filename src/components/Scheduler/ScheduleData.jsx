@@ -1,20 +1,28 @@
 import { useEffect, useState, useRef } from "react";
 import { GoInfo, GoTrash } from "react-icons/go";
+import { useParams } from "react-router-dom";
 
-export default function ScheduleData()
+export default function ScheduleData({ changed })
 {
     const [returnData, setReturnData] = useState(null);
-    const [changed, setChanged] = useState(false);
     // const [checked, setChecked] = useState(true);
     const submitButtonRef = useRef();
+    const [changed2, setChanged2] = useState(false);
+    const params = useParams();
 
-
-    const triggerRender = () => {
-        setChanged(prev => !prev);
+    const triggerRender2 = () => {
+        setChanged2(prev => !prev);
     }
+    const [cron] = useState({
+        crontype: 'allow',
+        id: parseInt(params.id),
+        toggleCron: true,
+        jobName: ''
+    });
+    
 
     const handleChecked = e => { // /togglecron
-        setChecked(prev => !prev)
+        setChecked(prev => !prev);
         console.log(e.target.checked);
 
         const id = parseInt(e.target.dataset.crontimeid);
@@ -37,7 +45,7 @@ export default function ScheduleData()
                 if (toggleCronOnOff.ok) {
                     const result = await toggleCronOnOff.json();
                     console.log('result', result);
-                    triggerRender(); // refetch get cron data
+                    triggerRender2(); // refetch get cron data
                 }
             } catch (error) {
                 if (error) throw error;
@@ -63,11 +71,12 @@ export default function ScheduleData()
                     console.log('returned data: ', returnedData);
                 }
             } catch (error) {
+                console.error('Error on initial fetch...');
                 if (error) throw error;
             }
         }
         getCronData();
-    }, [changed])
+    }, [changed, changed2])
 
     const handleDeleteCron = async e => {
         // submitButtonRef.current.disabled = true
@@ -89,7 +98,7 @@ export default function ScheduleData()
             if (deleteCron.ok) {
                 const deleteReply = await deleteCron.json();
                 console.log("Deleted Data: ", deleteReply);
-                triggerRender();
+                triggerRender2();
             }
         } catch (error) {
             // submitButtonRef.current.disabled = false

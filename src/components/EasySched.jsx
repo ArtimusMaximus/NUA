@@ -4,7 +4,7 @@ import { GoInfo, GoTrash } from "react-icons/go";
 import TimeClock from './TimeClock/TimeClock';
 
 
-export default function EasySched()
+export default function EasySched({ triggerRender })
 {
     const params = useParams();
     const [schedule, setSchedule] = useState({
@@ -35,6 +35,8 @@ export default function EasySched()
     const [deviceId] = useState({ deviceId: parseInt(params.id) });
     const [dayOfTheWeekSelected, setDayOfTheWeekSelected] = useState(false);
     const [selectAllow, setSelectAllow] = useState(true);
+
+    
 
     const handleTimeData = (data) => {
         setTimeData(data);

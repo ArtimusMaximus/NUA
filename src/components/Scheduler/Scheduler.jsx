@@ -11,6 +11,11 @@ export default function Scheduler() {
     const [scheduleMode, setScheduleMode] = useState("standard");
     const [render, setRender] = useState(false);
 
+    const [changed, setChanged] = useState(false);
+    const triggerRender = () => {
+        setChanged(prev => !prev);
+    }
+
     const reRender = () => {
         setRender(prev => !prev);
     };
@@ -63,10 +68,10 @@ export default function Scheduler() {
                             </select>
                         <div className="divider"></div>
                         {scheduleMode === "standard" ? (
-                            <EasySched />
-                        ) : (<CronManager />)}
+                            <EasySched triggerRender={triggerRender} />
+                        ) : (<CronManager triggerRender={triggerRender} />)}
                         <div className="divider"></div>
-                        <ScheduleData />
+                        <ScheduleData changed={changed} />
                     </div>
                 </div>
             </div>
