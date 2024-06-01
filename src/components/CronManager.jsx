@@ -14,50 +14,11 @@ export default function CronManager()
         toggleCron: true,
         jobName: ''
     });
-    const submitButtonRef = useRef();
+   
     const inputRef = useRef();
-    const [checked, setChecked] = useState(true);
-    const [returnData, setReturnData] = useState(null);
-    const [changed, setChanged] = useState(false);
+    
     const [invalidCronMessage, setInvalidCronMessage] = useState({});
-    const [deviceInfo, setDeviceInfo] = useState({});
-
-
-    const triggerRender = () => {
-        setChanged(prev => !prev);
-    }
-    const handleChecked = e => { // /togglecron
-        setChecked(prev => !prev)
-        console.log(e.target.checked);
-
-        const id = parseInt(e.target.dataset.crontimeid);
-        const toggleCron = e.target.checked;
-        const jobName = e.target.dataset.jobname;
-        const crontime = e.target.dataset.crontime;
-        const crontype = e.target.dataset.crontype;
-        const deviceId = parseInt(e.target.dataset.deviceid);
-        async function toggleCronUpdate() {
-            try {
-
-                const toggleCronOnOff = await fetch('/togglecron', {
-                    method: 'PUT',
-                    mode: 'cors',
-                    headers: {
-                        "Content-Type" : "application/json"
-                    },
-                    body: JSON.stringify({ id, toggleCron, jobName, crontime, crontype, deviceId })
-                });
-                if (toggleCronOnOff.ok) {
-                    const result = await toggleCronOnOff.json();
-                    console.log('result', result);
-                    triggerRender(); // refetch get cron data
-                }
-            } catch (error) {
-                if (error) throw error;
-            }
-        }
-        toggleCronUpdate();
-    }
+    
     const handleAllow = e => {
         setCron({
             ...cron,
@@ -79,31 +40,7 @@ export default function CronManager()
         // console.log(cron);
     }
 
-    useEffect(() => { // fetch existing cron data
-        const getCronData = async () => {
-        try {
-                const cronData = await fetch('/getcrondata', {
-                    method: "POST",
-                    mode: "cors",
-                    headers: {
-                        "Content-Type" : "application/json"
-                    },
-                    body: JSON.stringify(cron)
-                });
-                if(cronData.ok) {
-                    const returnedData = await cronData.json();
-                    setReturnData(returnedData);
-                    console.log('returned data: ', returnedData);
-                }
-            } catch (error) {
-                if (error) throw error;
-            }
-        }
-        getCronData();
-    }, [changed])
-
-
-
+    
     const handleSubmit = async () => {
         try {
             const submitData = await fetch('/addschedule', {
@@ -133,33 +70,7 @@ export default function CronManager()
             console.log('e: ', e)
         }
     }
-    const handleDeleteCron = async e => {
-        // submitButtonRef.current.disabled = true
-        console.log(e.target.dataset.id);
-        console.log(e.target.dataset.jobname);
-        let jobName = e.target.dataset.jobname
-        console.log('jobName: \t', jobName);
-        const parseId = parseInt(e.target.dataset.id);
-
-        try {
-            const deleteCron = await fetch("/deletecron", {
-                method: "DELETE",
-                mode: "cors",
-                headers: {
-                    "Content-Type" : "application/json"
-                },
-                body: JSON.stringify({ parseId, jobName })
-            });
-            if (deleteCron.ok) {
-                const deleteReply = await deleteCron.json();
-                console.log("Deleted Data: ", deleteReply);
-                triggerRender();
-            }
-        } catch (error) {
-            // submitButtonRef.current.disabled = false
-            if (error) throw error;
-        }
-    }
+    
 
     return (
         <>
