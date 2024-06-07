@@ -34,7 +34,7 @@ export default function EasySched({ triggerRender })
     const [dayOfTheWeekSelected, setDayOfTheWeekSelected] = useState(false);
     const [selectAllow, setSelectAllow] = useState(true);
 
-    
+
     const handleTimeData = (data) => {
         setTimeData(data);
     };
@@ -122,7 +122,7 @@ export default function EasySched({ triggerRender })
             console.error(error);
         }
     }
-    
+
     const handlePickedSchedule = e => {
         if (e.target.dataset.onetime === 'onetime') {
             setOneTimeSchedule(true);
@@ -229,7 +229,7 @@ export default function EasySched({ triggerRender })
                     <div className={`btn mb-8 ${oneTimeSchedule ? '' : dayOfTheWeekSelected ? '' : 'btn-disabled'}`} onClick={handleSubmit}>Submit</div>
                 </div>
             </div>
-                    
+
         </>
     )
 }

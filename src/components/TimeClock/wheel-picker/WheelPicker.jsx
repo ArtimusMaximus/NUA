@@ -46,6 +46,7 @@ const WheelPickerComponent = ({
     [hourItems]
   );
   const currentHourValue = useRef(hourItemsMap.get(hourValue) ?? 0);
+  // console.log('currentHourValue \t', currentHourValue);
   const minuteItemsMap = useMemo(
     () =>
       minuteItems.reduce(
@@ -55,6 +56,7 @@ const WheelPickerComponent = ({
     [minuteItems]
   );
   const currentMinuteValue = useRef(minuteItemsMap.get(minuteValue) ?? 0);
+  // console.log('currentMinuteValue \t', currentMinuteValue);
   const ampmItemsMap = useMemo(
     () =>
       ampmItems.reduce(
