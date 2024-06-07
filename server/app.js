@@ -244,7 +244,8 @@ async function addEasySchedule(deviceId, dateTime, blockAllow, scheduleData) {
     //   }
     try {
         const deviceToSchedule = await prisma.device.findUnique({ where: { id: deviceId } }); // deviceToSchedule.macAddress
-        const startNewJob = schedule.scheduleJob(dateTime, () => jobFunction(blockAllow, deviceToSchedule.macAddress));
+        console.log("deviceToSchedule.macAddress \t", deviceToSchedule.macAddress);
+        const startNewJob = schedule.scheduleJob(dateTime, () => jobFunction(blockAllow, deviceToSchedule?.macAddress));
         console.log('startNewJob \t', startNewJob);
         // console.log('modifiedHour \t', modifiedHour, typeof modifiedHour);
         console.log('scheduleData \t', scheduleData);
@@ -267,6 +268,8 @@ async function addEasySchedule(deviceId, dateTime, blockAllow, scheduleData) {
                     },
                 }
             });
+        } else {
+            throw new Error("startNewJob false")
         }
     } catch (error) {
         console.error(error);
@@ -283,9 +286,10 @@ function nodeOneTimeScheduleRule(data) { // 04 22 2024 - scheduleJob not firing 
     const month = parseInt(breakDownDate[1]);
     const day = parseInt(breakDownDate[2]);
 
+    console.log('hour in nodeOneTimeSchedule: \t', hour);
     const modifiedHour = convertToMilitaryTime(ampm, hour);
     console.log('modifiedHour \t', modifiedHour, typeof modifiedHour);
-    
+
 
     const scheduleData = {
         year,
@@ -330,7 +334,6 @@ function nodeScheduleRecurrenceRule(data) {
     const jobName = job.name;
     console.log('jobName: \t', jobName);
     return jobName;
-
 }
 
 
@@ -944,13 +947,13 @@ app.post('/getcrondata', async (req, res) => { // fetches cron data specific to 
         const { macAddress } = getMacAddress;
         const { scheduledJobs } = schedule;
 
-        for (const data of cronData) {
-            console.log('data.jobName ', data.jobName)
-            console.log('data.jobName === undefined ', scheduledJobs[data.jobName] === undefined) // jobs not re initiated
-            if (scheduledJobs[data.jobName] === undefined) {
-                // update many and also make async ?
-            }
-        }
+        // for (const data of cronData) { // 06 06 2024 - not sure the intention of this in hindsight, but also consider "undefined" vs undefined.
+        //     console.log('#974: data.jobName ', data.jobName)
+        //     console.log('data.jobName === undefined ', scheduledJobs[data.jobName] === undefined) // jobs not re initiated
+        //     if (scheduledJobs[data.jobName] === undefined) {
+        //         // update many and also make async ?
+        //     }
+        // }
         // console.log('jobs ', scheduledJobs[cronData[0].jobName] === undefined);
      } catch (error) {
         if (error) throw error;
@@ -991,6 +994,7 @@ app.post('/getcrondata', async (req, res) => { // fetches cron data specific to 
 
 app.post('/addeasyschedule', async (req, res) => {
     const { date, hour, minute, oneTime, scheduletype, daysOfTheWeek, ampm, deviceId } = req.body;
+    console.log('oneTime \t', oneTime);
     let daysOfTheWeekNumerals = [...Object.values(daysOfTheWeek)];
     let modifiedDaysOfTheWeek = daysOfTheWeekNumerals;
     if (daysOfTheWeek === undefined) {
@@ -1018,17 +1022,23 @@ app.post('/addeasyschedule', async (req, res) => {
             // rule.hour = data.hour;
             // rule.minute = data.minute;
 
-            function FactoryData(daysOfTheWeek, hour, minute, jobName) {
+            function FactoryData(daysOfTheWeek, hour, minute) {
                 this.daysOfTheWeek = daysOfTheWeek;
                 this.hour = hour;
                 this.minute = minute;
-                this.jobName = '';
+                // this.jobName = '';
             }
-
             const modifiedHour = convertToMilitaryTime(ampm, hour);
+            const recurrenceData = new FactoryData(modifiedDaysOfTheWeek, modifiedHour, minute);
             const jName = nodeScheduleRecurrenceRule(recurrenceData);
             console.log('jName from nodeScheduleRecurrenceRule:\t', jName);
-            const recurrenceData = new FactoryData(modifiedDaysOfTheWeek, modifiedHour, minute, jName);
+            console.log('recurrenceData\t',
+                recurrenceData.daysOfTheWeek,
+                recurrenceData.hour,
+                recurrenceData.minute,
+                "\x1b[36m", recurrenceData.jobName
+            );
+
 
             // @data -
             // handle jobName in DB

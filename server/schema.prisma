@@ -45,8 +45,8 @@ model Cron {
 model EasySchedule {
   id            Int      @id @default(autoincrement())
   createdAt     DateTime @default(now())
-  month         Int
-  day           Int
+  month         Int?
+  day           Int?
   minute        Int
   hour          Int
   ampm          String
