@@ -45,34 +45,36 @@ export default function EasySched({ triggerRender })
 
     const resetToInitialState = () => {
         console.log('Reset Called!');
-        // setSchedule(prev => ({
-        //     ...prev,
-        //     daysOfTheWeek: {
-        //         sun: undefined,
-        //         mon: undefined,
-        //         tue: undefined,
-        //         wed: undefined,
-        //         thu: undefined,
-        //         fri: undefined,
-        //         sat: undefined,
-        //     },
-        // }));
+        setSchedule((prev) => ({
+            ...prev,
+            daysOfTheWeek: {
+                sun: undefined,
+                mon: undefined,
+                tue: undefined,
+                wed: undefined,
+                thu: undefined,
+                fri: undefined,
+                sat: undefined,
+            },
+        }));
         setChanged(false);
         setInvalidscheduleMessage({});
         // oneTimeScheduleRef.current = null;
         // recurringScheduleRef.current = null;
         // setOneTimeSchedule(false);
-        setTimeData(null);
+        // setTimeData(null);
         setDeviceId({ deviceId: parseInt(params.id) });
         setDayOfTheWeekSelected(false);
-        setSelectAllow(true);
-        d1.current.checked = false;
-        d2.current.checked = false;
-        d3.current.checked = false;
-        d4.current.checked = false;
-        d5.current.checked = false;
-        d6.current.checked = false;
-        d7.current.checked = false;
+        // setSelectAllow(true);
+        if (!oneTimeSchedule) {
+            d1.current.checked = false;
+            d2.current.checked = false;
+            d3.current.checked = false;
+            d4.current.checked = false;
+            d5.current.checked = false;
+            d6.current.checked = false;
+            d7.current.checked = false;
+        }
     };
 
 
@@ -151,9 +153,9 @@ export default function EasySched({ triggerRender })
                 // console.log(`message: ${res.message} timeData: ${res.timeData}`)
                 console.log('submitData \t', submitData);
 
-                reFetch();
+                // reFetch();
                 triggerRender();
-                // resetToInitialState();
+                resetToInitialState();
             } else if (submitData.status === 422) {
                 // const badResults = await submitData.json();
                 // console.log('subdata message ', badResults.message)
