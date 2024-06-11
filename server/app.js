@@ -715,9 +715,10 @@ app.delete('/removedevice', async (req, res) => { // Devices.jsx device delete
 
 app.get('/checkjobreinitiation', async (req, res) => {
     try {
-        // @todo - also pull from prisma.easyschedule.findMany(); for job re-initiation - 05 16 2024
+        // @todo - also pull from prisma.easyschedule.findMany(); for job re-initiation - 05 16 2024 // working on 06/10/2024
         const previousJobData = await prisma.cron.findMany();
         const getMacAddress = await prisma.device.findMany();
+        const previousEzScheduleData = await prisma.easySchedule.findMany();
 
         const { scheduledJobs } = schedule; // node-schedule
 
@@ -985,6 +986,7 @@ app.post('/getcrondata', async (req, res) => { // fetches cron data specific to 
 
 app.post('/addeasyschedule', async (req, res) => {
     const { date, hour, minute, oneTime, scheduletype, daysOfTheWeek, ampm, deviceId } = req.body;
+    console.log('daysOfTheWeek\t', daysOfTheWeek);
     let daysOfTheWeekNumerals = [...Object.values(daysOfTheWeek)];
     let modifiedDaysOfTheWeek = daysOfTheWeekNumerals;
     if (daysOfTheWeek === undefined) {

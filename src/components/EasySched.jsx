@@ -30,9 +30,50 @@ export default function EasySched({ triggerRender })
     const recurringScheduleRef = useRef(null);
     const [oneTimeSchedule, setOneTimeSchedule] = useState(false);
     const [timeData, setTimeData] = useState(null);
-    const [deviceId] = useState({ deviceId: parseInt(params.id) });
+    const [deviceId, setDeviceId] = useState({ deviceId: parseInt(params.id) });
     const [dayOfTheWeekSelected, setDayOfTheWeekSelected] = useState(false);
     const [selectAllow, setSelectAllow] = useState(true);
+
+    const d1 = useRef();
+    const d2 = useRef();
+    const d3 = useRef();
+    const d4 = useRef();
+    const d5 = useRef();
+    const d6 = useRef();
+    const d7 = useRef();
+
+
+    const resetToInitialState = () => {
+        console.log('Reset Called!');
+        // setSchedule(prev => ({
+        //     ...prev,
+        //     daysOfTheWeek: {
+        //         sun: undefined,
+        //         mon: undefined,
+        //         tue: undefined,
+        //         wed: undefined,
+        //         thu: undefined,
+        //         fri: undefined,
+        //         sat: undefined,
+        //     },
+        // }));
+        setChanged(false);
+        setInvalidscheduleMessage({});
+        // oneTimeScheduleRef.current = null;
+        // recurringScheduleRef.current = null;
+        // setOneTimeSchedule(false);
+        setTimeData(null);
+        setDeviceId({ deviceId: parseInt(params.id) });
+        setDayOfTheWeekSelected(false);
+        setSelectAllow(true);
+        d1.current.checked = false;
+        d2.current.checked = false;
+        d3.current.checked = false;
+        d4.current.checked = false;
+        d5.current.checked = false;
+        d6.current.checked = false;
+        d7.current.checked = false;
+    };
 
 
     const handleTimeData = (data) => {
@@ -40,6 +81,8 @@ export default function EasySched({ triggerRender })
     };
     const checkDaysOfWeekNotChosen = () => {
         const chosenDaysOfWeek = Object.values(schedule.daysOfTheWeek);
+        console.log('chosenDaysOfWeek \t', chosenDaysOfWeek);
+
         let mapChosen = chosenDaysOfWeek.map((i) => {
             if (typeof i === "number") {
                 return true;
@@ -110,6 +153,7 @@ export default function EasySched({ triggerRender })
 
                 reFetch();
                 triggerRender();
+                // resetToInitialState();
             } else if (submitData.status === 422) {
                 // const badResults = await submitData.json();
                 // console.log('subdata message ', badResults.message)
@@ -214,13 +258,13 @@ export default function EasySched({ triggerRender })
                     <div className="flex justify-center items-center gap-4">
                         <div className="flex flex-row my-4">
                             <div className="join">
-                                <input onChange={handleScheduleDayOfWeek} name="sun" value="0" type="checkbox" className="btn join-item rounded-l-full" aria-label="Sun"/>
-                                <input onChange={handleScheduleDayOfWeek} name="mon" value="1" type="checkbox" className={`btn join-item`} aria-label="M"/>
-                                <input onChange={handleScheduleDayOfWeek} name="tue" value="2" type="checkbox" className="btn join-item" aria-label="T"/>
-                                <input onChange={handleScheduleDayOfWeek} name="wed" value="3" type="checkbox" className="btn join-item" aria-label="W"/>
-                                <input onChange={handleScheduleDayOfWeek} name="thu" value="4" type="checkbox" className="btn join-item" aria-label="Th"/>
-                                <input onChange={handleScheduleDayOfWeek} name="fri" value="5" type="checkbox" className="btn join-item" aria-label="F"/>
-                                <input onChange={handleScheduleDayOfWeek} name="sat" value="6" type="checkbox" className="btn join-item rounded-r-full" aria-label="Sat"/>
+                                <input ref={d1} onChange={handleScheduleDayOfWeek} name="sun" value="0" type="checkbox" className="btn join-item rounded-l-full" aria-label="Sun"/>
+                                <input ref={d2} onChange={handleScheduleDayOfWeek} name="mon" value="1" type="checkbox" className={`btn join-item`} aria-label="M"/>
+                                <input ref={d3} onChange={handleScheduleDayOfWeek} name="tue" value="2" type="checkbox" className="btn join-item" aria-label="T"/>
+                                <input ref={d4} onChange={handleScheduleDayOfWeek} name="wed" value="3" type="checkbox" className="btn join-item" aria-label="W"/>
+                                <input ref={d5} onChange={handleScheduleDayOfWeek} name="thu" value="4" type="checkbox" className="btn join-item" aria-label="Th"/>
+                                <input ref={d6} onChange={handleScheduleDayOfWeek} name="fri" value="5" type="checkbox" className="btn join-item" aria-label="F"/>
+                                <input ref={d7} onChange={handleScheduleDayOfWeek} name="sat" value="6" type="checkbox" className="btn join-item rounded-r-full" aria-label="Sat"/>
                             </div>
                         </div>
                     </div>
