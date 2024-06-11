@@ -10,6 +10,8 @@ const cronValidate = require('node-cron');
 const customPORT = require('./globalSettings');
 const fs = require('fs');
 const { convertToMilitaryTime } = require('./server_util_funcs/convert_to_military_time');
+const { convertDOWtoString } = require('./server_util_funcs/ez_sched_utils/convertDOWtoString');
+const { dateFromDateString } = require('./server_util_funcs/ez_sched_utils/dateFromDateString');
 
 
 
@@ -214,13 +216,7 @@ const jobFunction = async (crontype, macAddress) => { // for crons
     }
 }
 
-function dateFromDateString(date) {
-    const breakDownDate = date.split("-");
-    const y = parseInt(breakDownDate[0]);
-    const m = parseInt(breakDownDate[1]);
-    const d = parseInt(breakDownDate[2]);
-    return { y, m, d };
-}
+
 
 // (async function() {
 //     // const path = '/v2/api/site/default/trafficrules';
@@ -234,47 +230,48 @@ function dateFromDateString(date) {
 // })()
 
 async function addEasySchedule(deviceId, dateTime, blockAllow, scheduleData, startNewJobTrue) {
-    const { month, day, minute, modifiedHour, ampm, date, modifiedDaysOfTheWeek } = scheduleData;
-    // model EasySchedule {
-    //     id            Int      @id @default(autoincrement())
-    //     createdAt     DateTime @default(now())
-    //     month         Int
-    //     day           Int
-    //     minute        Int
-    //     hour          Int
-    //     ampm          String
-    //     date          String
-    //     blockAllow    String
-    //     jobName       String?
-    //     device        Device?  @relation(fields: [deviceId], references: [id])
-    //     deviceId      Int?
-    //     toggleSched   Boolean?
-    //   }
+    const { month, day, minute, modifiedHour, ampm, date, oneTime, modifiedDaysOfTheWeek } = scheduleData;
     const deviceToSchedule = await prisma.device.findUnique({ where: { id: deviceId } }); // deviceToSchedule.macAddress
-        // console.log("deviceToSchedule.macAddress \t", deviceToSchedule.macAddress);
     try {
-
-        if (startNewJobTrue) {
-            console.log('job started even if null?');
+        if (oneTime && startNewJobTrue) {
             const addToDB = await prisma.easySchedule.create({ // create easySched
                 data: {
                     month: month,
-                    day: day,
+                    // days: day,
                     minute: parseInt(minute),
                     hour: modifiedHour,
                     ampm: ampm,
                     date: date,
                     blockAllow: blockAllow,
                     jobName: startNewJobTrue.name,
-                    // deviceId: deviceId,
                     toggleSched: true,
+                    oneTime: oneTime,
+                    device: {
+                        connect: { id: deviceToSchedule.id }
+                    },
+                }
+            });
+        } else if (!oneTime && startNewJobTrue) {
+            const stringDays = convertDOWtoString(modifiedDaysOfTheWeek);
+            const addToDB = await prisma.easySchedule.create({ // create easySched
+                data: {
+                    month: month,
+                    days: stringDays,
+                    minute: parseInt(minute),
+                    hour: modifiedHour,
+                    ampm: ampm,
+                    date: date,
+                    blockAllow: blockAllow,
+                    jobName: startNewJobTrue.name,
+                    toggleSched: true,
+                    oneTime: oneTime,
                     device: {
                         connect: { id: deviceToSchedule.id }
                     },
                 }
             });
         } else {
-            throw new Error("startNewJob false...")
+            throw new Error("startNewJob false...");
         }
     } catch (error) {
         console.error(error);
@@ -282,20 +279,11 @@ async function addEasySchedule(deviceId, dateTime, blockAllow, scheduleData, sta
 }
 
 
-function nodeOneTimeScheduleRule(data) { // 04 22 2024 - scheduleJob not firing console.log, pick up here, check for timezones?? - yes, timezone is tunnel time zone 06/01/2024
-    // console.log('data from nodeOneTimeSchedule: ', data);
-
-    const { date, hour, minute, ampm, modifiedDaysOfTheWeek, deviceId, scheduletype } = data;
-
-    const breakDownDate = date.split("-");
-    const year = parseInt(breakDownDate[0]);
-    const month = parseInt(breakDownDate[1]);
-    const day = parseInt(breakDownDate[2]);
+function nodeOneTimeScheduleRule(data) {
+    const { date, hour, minute, ampm, modifiedDaysOfTheWeek, oneTime, deviceId, scheduletype } = data;
+    const { year, month, day } = dateFromDateString(date);
     const blockAllow = scheduletype;
-
-    // console.log('hour in nodeOneTimeSchedule: \t', hour);
     const modifiedHour = convertToMilitaryTime(ampm, hour);
-    // console.log('modifiedHour \t', modifiedHour, typeof modifiedHour);
 
     const scheduleData = {
         year,
@@ -304,28 +292,20 @@ function nodeOneTimeScheduleRule(data) { // 04 22 2024 - scheduleJob not firing 
         date,
         minute,
         ampm,
-        modifiedHour
+        modifiedHour,
+        oneTime
     };
 
-    console.log('Data for scheduleJob', year, month-1, day, modifiedHour, parseInt(minute));
-
-    // y m d h min s
     const dateTime = new Date(year, month-1, day, modifiedHour, parseInt(minute), 0);
-    console.log('dateTime\t', dateTime);
-
     const startNewJobTrue = schedule.scheduleJob(dateTime, () => jobFunction(blockAllow, deviceToSchedule?.macAddress));
-    addEasySchedule(deviceId, dateTime, scheduletype, scheduleData, startNewJobTrue); // -- do easy schedule in end point, not in function
-    console.log('startNewJob \t', startNewJobTrue);
-    const jobName = startNewJobTrue.name;
-
-    return { jobName, startNewJobTrue, scheduleData };
-
+    addEasySchedule(deviceId, dateTime, scheduletype, scheduleData, startNewJobTrue); // -- do easy schedule in end point, not in function?
 }
 
 function nodeScheduleRecurrenceRule(data) {
-    const { date, hour, minute, ampm, modifiedDaysOfTheWeek, deviceId, scheduletype } = data;
+    const { date, hour, minute, ampm, modifiedDaysOfTheWeek, deviceId, oneTime, scheduletype } = data;
     const { year, month, day } = dateFromDateString(date);
     const modifiedHour = convertToMilitaryTime(ampm, parseInt(hour));
+    const blockAllow = scheduletype;
     const scheduleData = {
         year,
         month,
@@ -333,33 +313,18 @@ function nodeScheduleRecurrenceRule(data) {
         date,
         minute,
         ampm,
-        modifiedHour
+        modifiedHour,
+        modifiedDaysOfTheWeek,
+        oneTime
     }
-    // const rule = new schedule.RecurrenceRule();
-    // rule.dayOfWeek = [0, new schedule.Range(4, 6)];
-    // rule.hour = 17;
-    // rule.minute = 0;
-
-    // const job = schedule.scheduleJob(rule, function(){
-    // console.log('Today is recognized by Rebecca Black!');
-    // });
-
     const rule = new schedule.RecurrenceRule();
-    const daysOfTheWeek = data.daysOfTheWeek;
+    const dateTime = new Date(year, month-1, day, modifiedHour, parseInt(minute), 0);
+    const daysOfTheWeek = modifiedDaysOfTheWeek;
     rule.dayOfWeek = [...daysOfTheWeek];
     rule.hour = hour;
     rule.minute = minute;
-
-    function recurringJob() {
-        console.log('Recurring job works & is recurring!');
-    }
-
-    const job = schedule.scheduleJob(rule, () => recurringJob());
-    const jobName = job?.name;
-    console.log('jobName: \t', jobName);
-    console.log('job: \t', job);
-    const startNewJobTrue = job;
-    return { jobName, startNewJobTrue, scheduleData };
+    const startNewJobTrue = schedule.scheduleJob(rule, () => jobFunction(blockAllow, deviceToSchedule?.macAddress));
+    addEasySchedule(deviceId, dateTime, scheduletype, scheduleData, startNewJobTrue);
 }
 
 
@@ -1020,77 +985,16 @@ app.post('/getcrondata', async (req, res) => { // fetches cron data specific to 
 
 app.post('/addeasyschedule', async (req, res) => {
     const { date, hour, minute, oneTime, scheduletype, daysOfTheWeek, ampm, deviceId } = req.body;
-    // console.log('oneTime \t', oneTime);
     let daysOfTheWeekNumerals = [...Object.values(daysOfTheWeek)];
     let modifiedDaysOfTheWeek = daysOfTheWeekNumerals;
     if (daysOfTheWeek === undefined) {
         modifiedDaysOfTheWeek = [0, 1, 2, 3, 4, 5, 6];
     }
-    console.log(
-        'date          \t', date,    '\n',
-        'hour          \t', hour,    '\n',
-        'minute        \t', minute,  '\n',
-        'oneTime       \t', oneTime, '\n',
-        'scheduletype  \t', scheduletype, '\n',
-        'daysOfTheWeek \t', modifiedDaysOfTheWeek, '\n',
-        'ampm          \t', ampm,     '\n',
-        'deviceId      \t', deviceId, '\n'
-    );
     try {
         if (oneTime) {
-            const jNameJobTrue = nodeOneTimeScheduleRule({ date, hour, minute, ampm, modifiedDaysOfTheWeek, deviceId, scheduletype });
-
-            // addEasySchedule(deviceId, dateTime, scheduletype, scheduleData); // -- do easy schedule in end point, not in function
-
+            nodeOneTimeScheduleRule({ date, hour, minute, ampm, modifiedDaysOfTheWeek, deviceId, oneTime, scheduletype });
         } else { // recurrence
-            // const jobScheduleData = new Object();
-            // jobScheduleData.jobName = '';
-            // const rule = new schedule.RecurrenceRule();
-            // const daysOfTheWeek = data.daysOfTheWeek;
-            // rule.dayOfWeek = [...daysOfTheWeek];
-            // rule.hour = data.hour;
-            // rule.minute = data.minute;
-            const { y, m, d } = dateFromDateString(date);
-
-            function FactoryData(
-                daysOfTheWeek, modifiedHour, minute, month, day, ampm, date, modifiedDaysOfTheWeek
-            ) {
-                this.daysOfTheWeek = daysOfTheWeek;
-                this.modifiedHour = modifiedHour;
-                this.minute = minute;
-                this.month = month;
-                this.day = day;
-                this.ampm = ampm;
-                this.date = date;
-                this.modifiedDaysOfTheWeek = modifiedDaysOfTheWeek;
-            }
-            const modifiedHour = convertToMilitaryTime(ampm, hour);
-            const recurrenceData = new FactoryData(
-                modifiedDaysOfTheWeek, modifiedHour, minute, m, d, ampm, date, modifiedDaysOfTheWeek
-            );
-            const { jobName, startNewJobTrue } = nodeScheduleRecurrenceRule(recurrenceData); // create new job
-
-            console.log('jName from nodeScheduleRecurrenceRule:\t', jobName, startNewJobTrue);
-            console.log('recurrenceData\t',
-                recurrenceData.daysOfTheWeek,
-                recurrenceData.hour,
-                recurrenceData.minute,
-                // "\x1b[36m", recurrenceData.jobName
-            );
-            const month = recurrenceData.month;
-            const day = recurrenceData.day;
-            const year = recurrenceData.year;
-
-            const sData = { month, day, minute, modifiedHour, ampm, date, modifiedDaysOfTheWeek };
-
-            const dateTime = new Date(year, month-1, day, modifiedHour, parseInt(minute), 0);
-            // @data -
-            // handle jobName in DB
-            // addEasySchedule(deviceId, dateTime, blockAllow, scheduleData, startNewJobTrue)
-            // const { month, day, minute, modifiedHour, ampm, date, modifiedDaysOfTheWeek } = scheduleData;
-            addEasySchedule(deviceId, dateTime, scheduletype, recurrenceData, startNewJobTrue);
-
-
+            nodeScheduleRecurrenceRule({ date, hour, minute, ampm, modifiedDaysOfTheWeek, deviceId, oneTime, scheduletype });
         }
     } catch (error) {
         console.error(error);
