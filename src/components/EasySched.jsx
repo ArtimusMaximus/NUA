@@ -4,6 +4,7 @@ import TimeClock from './TimeClock/TimeClock';
 import { dateIsInPast } from "./utility_functions/date_in_past_checker";
 import { convertSelectedDateForComparison } from "./utility_functions/convertSelectedDate";
 
+
 export default function EasySched({ triggerRender })
 {
     const params = useParams();
@@ -34,6 +35,7 @@ export default function EasySched({ triggerRender })
     const [deviceId, setDeviceId] = useState({ deviceId: parseInt(params.id) });
     const [dayOfTheWeekSelected, setDayOfTheWeekSelected] = useState(false);
     const [selectAllow, setSelectAllow] = useState(true);
+    const badDateModalRef = useRef();
 
     const d1 = useRef();
     const d2 = useRef();
@@ -76,7 +78,6 @@ export default function EasySched({ triggerRender })
             d7.current.checked = false;
         }
     };
-
 
     const handleTimeData = (data) => {
         setTimeData(data);
@@ -136,52 +137,50 @@ export default function EasySched({ triggerRender })
         })
     }
 
+    const handleBadDateErrorModal = ((message) => {
+
+    });
+
     const handleSubmit = async () => {
-        // console.log('preSubmittedData: ', {...timeData, ...schedule});
-
-
-
-
-
         const selectedDateTime = convertSelectedDateForComparison(timeData);
         const isPastDate = dateIsInPast(selectedDateTime);
 
         if (isPastDate && oneTimeSchedule) {
-            console.log('isnt in past and onetimeschedule');
+            setInvalidscheduleMessage({ error: true, message: "Cannot schedule a specific date that is in the past!" });
+            badDateModalRef.current.showModal();
             return;
         }
         console.log('isnt in past and onetimeschedule');
 
+        try {
+            const submitData = await fetch('/addeasyschedule', {
+                method: "POST",
+                mode: "cors",
+                headers: {
+                    "Content-Type" : "application/json"
+                },
+                body: JSON.stringify({ ...timeData, ...schedule, ...deviceId })
+            });
+            if (submitData.ok) {
+                setInvalidscheduleMessage({ error: false });
+                // const res = submitData.json();
+                // console.log(`message: ${res.message} timeData: ${res.timeData}`)
+                console.log('submitData \t', submitData);
 
-        // try {
-        //     const submitData = await fetch('/addeasyschedule', {
-        //         method: "POST",
-        //         mode: "cors",
-        //         headers: {
-        //             "Content-Type" : "application/json"
-        //         },
-        //         body: JSON.stringify({ ...timeData, ...schedule, ...deviceId })
-        //     });
-        //     if (submitData.ok) {
-        //         setInvalidscheduleMessage({ error: false });
-        //         // const res = submitData.json();
-        //         // console.log(`message: ${res.message} timeData: ${res.timeData}`)
-        //         console.log('submitData \t', submitData);
-
-        //         // reFetch();
-        //         triggerRender();
-        //         resetToInitialState();
-        //     } else if (submitData.status === 422) {
-        //         // const badResults = await submitData.json();
-        //         // console.log('subdata message ', badResults.message)
-        //         setInvalidscheduleMessage({
-        //             // message: badResults.message,
-        //             error: true,
-        //         });
-        //     }
-        // } catch (error) {
-        //     console.error(error);
-        // }
+                // reFetch();
+                triggerRender();
+                resetToInitialState();
+            } else if (submitData.status === 422) {
+                // const badResults = await submitData.json();
+                // console.log('subdata message ', badResults.message)
+                setInvalidscheduleMessage({
+                    // message: badResults.message,
+                    error: true,
+                });
+            }
+        } catch (error) {
+            console.error(error);
+        }
     }
 
     const handlePickedSchedule = e => {
@@ -290,6 +289,17 @@ export default function EasySched({ triggerRender })
                     <div className={`btn mb-8 ${oneTimeSchedule ? '' : dayOfTheWeekSelected ? '' : 'btn-disabled'}`} onClick={handleSubmit}>Submit</div>
                 </div>
             </div>
+            <dialog ref={badDateModalRef} className="modal">
+                <div className="modal-box">
+                    <h3 className="font-bold text-lg text-error">Error!</h3>
+                    <p className="py-4 italic text-xl">{invalidscheduleMessage.message}</p>
+                    <div className="modal-action">
+                    <form method="dialog">
+                        <button className="btn">Close</button>
+                    </form>
+                    </div>
+                </div>
+            </dialog>
         </>
     )
 }
