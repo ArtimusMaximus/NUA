@@ -4,23 +4,19 @@ import "./wheel-picker/styles.css";
 
 import { WheelPicker } from "./wheel-picker/WheelPicker";
 
-// const hourItems = Array.from({ length: 12 }, (_, index) => ({
-//   value: index + 1,
-//   label: index + 1
-// }));
 
+// original code - see modified below
 // const minuteItems = Array.from({ length: 4 }, (_, index) => ({
 //   value: `${(index * 15).toString().padStart(2, "0")}`,
 //   label: `${(index * 15).toString().padStart(2, "0")}`
 // }));
 
-// temporary test
+
 const hourItems = Array.from({ length: 12 }, (_, index) => ({
   value: index + 1,
   label: index + 1
 }));
 
-// temporary test
 const minuteItems = Array.from({ length: 60, }, (_, index) => ({
     value: `${(index * 1).toString().padStart(2, "0")}`,
     label: `${(index * 1).toString().padStart(2, "0")}`
@@ -60,9 +56,9 @@ export default function TimeClock({ oneTime, handleTimeData }) {
       }
     ));
 
-    setTimeout(() => {
-      console.log('date \t', date, '\n', 'hour \t', hour, '\n', 'minute \t', minute, '\n', 'ampm \t', ampm, '\n', 'oneTime \t', oneTime);
-    }, 250);
+    // setTimeout(() => {
+    //   console.log('date \t', date, '\n', 'hour \t', hour, '\n', 'minute \t', minute, '\n', 'ampm \t', ampm, '\n', 'oneTime \t', oneTime);
+    // }, 250);
 
   }, [date, hour, minute, oneTime, ampm])
 
