@@ -12,6 +12,7 @@ const fs = require('fs');
 const { convertToMilitaryTime } = require('./server_util_funcs/convert_to_military_time');
 const { convertDOWtoString } = require('./server_util_funcs/ez_sched_utils/convertDOWtoString');
 const { dateFromDateString } = require('./server_util_funcs/ez_sched_utils/dateFromDateString');
+const { deleteCompletedJobs } = require('./server_util_funcs/ez_sched_utils/deleteCompletedJobs');
 
 
 
@@ -140,7 +141,7 @@ const fetchLoginInfo = async () => {
 const info = fetchLoginInfo();
 info
     .then(() => logIntoUnifi(loginData?.hostname, loginData?.port, loginData?.sslverify, loginData?.username, loginData?.password))
-    .then(() => console.log('.then() => unifi \t', unifi))
+    .then(() => console.log('.then() => unifi \t'))
     .catch((error) => console.error(error))
 
 async function getBlockedUsers() {
@@ -200,21 +201,52 @@ function validateCron(crontype) { // return true/false
     console.log('validation func: ', validation)
     return validation;
 }
-const jobFunction = async (crontype, macAddress) => { // for crons
+
+const jobFunction = async (crontype, macAddress, oneTime) => { // for crons
     try {
         if (crontype === 'allow') {
             console.log('unifi === undefined \t', unifi === undefined);
             const confirmAllow = await unifi.unblockClient(macAddress);
             console.log(`${macAddress} has been unblocked: ${confirmAllow}`);
+            if (oneTime) {
+                deleteCompletedJobs(prisma);
+            }
         } else if (crontype === 'block') {
             const confirmBlocked = await unifi.blockClient(macAddress);
             console.log(`${macAddress} has been blocked: ${confirmBlocked}`);
+            if (oneTime) {
+                deleteCompletedJobs(prisma);
+            }
         }
     } catch (error) {
         red('~~~~~~CATCH BLOCK IN JOB FUNCITON~~~~~~', 'red');
         console.error(error);
     }
 }
+
+(async () => {
+    const easySchedList = await prisma.easySchedule.findMany();
+    console.log('easySchedList.length\t', easySchedList.length);
+    // const oneTimeSchedulesOnly = easySchedList.filter((sched) => sched.oneTime);
+    // let currentDate = new Date();
+    // let aux = [];
+    // oneTimeSchedulesOnly.forEach((s) => {
+    //     const { year, month, day } = dateFromDateString(s.date);
+    //     let scheduledDate = new Date(year, month-1, day, s.hour, s.minute);
+    //     s.scheduledDate = scheduledDate;
+    //     if (s.scheduledDate < currentDate) {
+    //         aux.push({ ...s });
+    //     }
+    // });
+    // const lessThanDates = oneTimeSchedulesOnly.filter((s) => {
+    //     const { year, month, day } = dateFromDateString(s.date);
+    //     let scheduledDate = new Date(year, month-1, day, s.hour, s.minute);
+    //     // console.log('scheduledDate\t', scheduledDate);
+    //     // console.log(scheduledDate < currentDate);
+    //     return scheduledDate < currentDate;
+    // });
+    // console.log('lessThanDates\t', lessThanDates);
+})();
 
 
 
@@ -279,8 +311,9 @@ async function addEasySchedule(deviceId, dateTime, blockAllow, scheduleData, sta
 }
 
 
-function nodeOneTimeScheduleRule(data) {
+async function nodeOneTimeScheduleRule(data) {
     const { date, hour, minute, ampm, modifiedDaysOfTheWeek, oneTime, deviceId, scheduletype } = data;
+    const deviceToSchedule = await prisma.device.findUnique({ where: { id: deviceId } });
     const { year, month, day } = dateFromDateString(date);
     const blockAllow = scheduletype;
     const modifiedHour = convertToMilitaryTime(ampm, hour);
@@ -297,12 +330,13 @@ function nodeOneTimeScheduleRule(data) {
     };
 
     const dateTime = new Date(year, month-1, day, modifiedHour, parseInt(minute), 0);
-    const startNewJobTrue = schedule.scheduleJob(dateTime, () => jobFunction(blockAllow, deviceToSchedule?.macAddress));
+    const startNewJobTrue = schedule.scheduleJob(dateTime, () => jobFunction(blockAllow, deviceToSchedule?.macAddress, oneTime));
     addEasySchedule(deviceId, dateTime, scheduletype, scheduleData, startNewJobTrue); // -- do easy schedule in end point, not in function?
 }
 
-function nodeScheduleRecurrenceRule(data) {
+async function nodeScheduleRecurrenceRule(data) {
     const { date, hour, minute, ampm, modifiedDaysOfTheWeek, deviceId, oneTime, scheduletype } = data;
+    const deviceToSchedule = await prisma.device.findUnique({ where: { id: deviceId } });
     const { year, month, day } = dateFromDateString(date);
     const modifiedHour = convertToMilitaryTime(ampm, parseInt(hour));
     const blockAllow = scheduletype;
@@ -1108,7 +1142,7 @@ app.get('/testconnection', async (req, res) => {
             const info = fetchLoginInfo();
             info
                 .then(() => logIntoUnifi(loginData?.hostname, loginData?.port, loginData?.sslverify, loginData?.username, loginData?.password))
-                .then(() => console.log('.then() => unifi \t', unifi))
+                .then(() => console.log('.then() => unifi \t'))
                 .catch((error) => console.error(error))
             const setInitialSetupFalse = await prisma.credentials.update({ where: { id: 1 }, data: { initialSetup: false } }); // setup complete
             res.sendStatus(200);
@@ -1521,7 +1555,7 @@ app.delete('/deletecustomapi', async (req, res) => { // deletes unifi rule, not 
                     await trule.appIds.deleteMany({ where: { trafficRulesId: trafficRuleId }});
                     await trule.targetDevice.deleteMany({ where: { trafficRulesId: trafficRuleId }});
                     await trule.trafficRuleDevices.deleteMany({ where: { trafficRulesId: trafficRuleId }});
-                    await trule.trafficRules.delete({ where: { id: trafficRuleId }})
+                    await trule.trafficRules.delete({ where: { id: trafficRuleId }});
                 });
                 console.log('Traffic Rule and associated entries deleted successfully!')
             } catch (error) {

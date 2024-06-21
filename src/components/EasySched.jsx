@@ -137,10 +137,6 @@ export default function EasySched({ triggerRender })
         })
     }
 
-    const handleBadDateErrorModal = ((message) => {
-
-    });
-
     const handleSubmit = async () => {
         const selectedDateTime = convertSelectedDateForComparison(timeData);
         const isPastDate = dateIsInPast(selectedDateTime);
