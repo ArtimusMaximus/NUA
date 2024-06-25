@@ -1,7 +1,7 @@
 import { useEffect, useState, useRef } from "react";
 import { GoInfo, GoTrash } from "react-icons/go";
 import { useParams } from "react-router-dom";
-import { convertDigitsToDOW } from "../utility_functions/convertDigitsToDOTW";
+import { DisplayOneTimeOrRecurringSchedule } from "./SchedulerComponents/DisplayOneTimeOrRecurringSchedule";
 
 
 export default function ScheduleData({ changed })
@@ -142,40 +142,63 @@ export default function ScheduleData({ changed })
         }
     }
 
-    // {ezData.oneTime ? ezData.date.slice(5) : ezData.hour + ":" + ezData.minute}
-    const DisplayOneTimeOrRecurringSchedule = ({ oneTime, ezData }) => {
-        let daysOfTheWeek = null;
-        if (ezData.days) {
-            daysOfTheWeek = convertDigitsToDOW(ezData.days);
-        }
-        if (oneTime) {
-            return (
-                <>
-                    <div>{ezData.date.slice(5)}</div>
-                    <div>{ezData.hour}:{ezData.minute}</div>
-                </>
-            )
-        } else {
-            return (
-                <>
-                    <div>{ezData.hour}:{ezData.minute}</div>
-                    <div>{daysOfTheWeek.length < 7
-                        ? daysOfTheWeek.map((day) => {
-                            return (
-                                <>
-                                    {day}{day === daysOfTheWeek[daysOfTheWeek.length - 1] ? "" : ","}
-                                </>
-                            )
-                        }) : <>All</>}
-                    </div>
-                </>
-            )
-        }
-    }
-
-
     return (
         <>
+            {returnData?.ezScheduleData?.length ?
+            <table className="table table-zebra border rounded-lg shadow overflow-hidden dark:border-gray-700 dark:shadow-gray-900 mb-8">
+            <tbody>
+                <tr className="font-bold sm:text-xl" align="center">
+                    <td>Time</td>
+                    <td>Action</td>
+                    <td>Off/On</td>
+                    <td>Delete</td>
+                </tr>
+                    {
+                        returnData.ezScheduleData.length ? returnData?.ezScheduleData?.map((ezData) => {
+                            return (
+                                <>
+                                    <tr key={ezData.id} align="center">
+                                        <td className="uppercase"><DisplayOneTimeOrRecurringSchedule oneTime={ezData.oneTime} ezData={ezData} /></td>
+                                        <td className={`uppercase ${ezData.blockAllow === 'block' ? 'text-red-500' : 'text-green-500'}`}>
+                                            {ezData.blockAllow}
+                                        </td>
+                                        <td>
+                                            <input
+                                                type="checkbox"
+                                                className="toggle toggle-success"
+                                                data-crontimeid={ezData?.date}
+                                                data-deviceid={ezData?.deviceId}
+                                                data-jobname={ezData?.jobName}
+                                                data-crontime={ezData?.date}
+                                                data-crontype={ezData?.blockAllow}
+                                                checked={ezData?.date}
+                                                // data-macaddress={ezData?.macAddress}
+                                                onClick={e => handleCronToggle(e)}
+                                            />
+                                        </td>
+                                        <td className="w-3 h-3">
+                                            <div
+                                            // className="bg-red-500 hover:bg-red-200 btn btn-circle animate-pulse"
+                                            className="w-fit hover:cursor-pointer"
+                                            onClick={e => handleDeleteCron(e)}
+                                            data-id={ezData?.id}
+                                            data-jobname={ezData?.jobName}
+                                            >
+                                                <GoTrash
+                                                    className="flex items-center justify-center z-10 w-6 h-6 pointer-events-none"
+                                                    ref={submitButtonRef}
+                                                />
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </>
+                            )
+                        }) : <></>
+                    }
+            </tbody>
+        </table> : <></>
+        }
+        {returnData?.cronData?.length ?
             <table className="table table-zebra border rounded-lg shadow overflow-hidden dark:border-gray-700 dark:shadow-gray-900 mb-8">
                 <tbody>
                     <tr className="font-bold sm:text-xl" align="center">
@@ -185,7 +208,7 @@ export default function ScheduleData({ changed })
                         <td>Delete</td>
                     </tr>
                         {
-                            returnData && returnData?.cronData?.map((cronData) => {
+                            returnData.cronData.length ? returnData?.cronData?.map((cronData) => {
                                 return (
                                     <>
                                         <tr key={cronData.id} align="center">
@@ -202,7 +225,7 @@ export default function ScheduleData({ changed })
                                                     data-jobname={cronData?.jobName}
                                                     data-crontime={cronData?.crontime}
                                                     data-crontype={cronData?.crontype}
-                                                    checked={cronData?.toggleSchedule}
+                                                    checked={cronData?.toggleCron}
                                                     // data-macaddress={cronData?.macAddress}
                                                     onClick={e => handleCronToggle(e)}
                                                 />
@@ -224,62 +247,12 @@ export default function ScheduleData({ changed })
                                         </tr>
                                     </>
                                 )
-                            })
+                            }) : <></>
                         }
                 </tbody>
-            </table>
-            <table className="table table-zebra border rounded-lg shadow overflow-hidden dark:border-gray-700 dark:shadow-gray-900 mb-8">
-                <tbody>
-                    <tr className="font-bold sm:text-xl" align="center">
-                        <td>Time</td>
-                        <td>Action</td>
-                        <td>Off/On</td>
-                        <td>Delete</td>
-                    </tr>
-                        {
-                            returnData && returnData?.ezScheduleData?.map((ezData) => {
-                                return (
-                                    <>
-                                        <tr key={ezData.id} align="center">
-                                            <td className="uppercase"><DisplayOneTimeOrRecurringSchedule oneTime={ezData.oneTime} ezData={ezData} /></td>
-                                            <td className={`uppercase ${ezData.blockAllow === 'block' ? 'text-red-500' : 'text-green-500'}`}>
-                                                {ezData.blockAllow}
-                                            </td>
-                                            <td>
-                                                <input
-                                                    type="checkbox"
-                                                    className="toggle toggle-success"
-                                                    data-crontimeid={ezData?.date}
-                                                    data-deviceid={ezData?.deviceId}
-                                                    data-jobname={ezData?.jobName}
-                                                    data-crontime={ezData?.date}
-                                                    data-crontype={ezData?.blockAllow}
-                                                    checked={ezData?.date}
-                                                    // data-macaddress={ezData?.macAddress}
-                                                    onClick={e => handleCronToggle(e)}
-                                                />
-                                            </td>
-                                            <td className="w-3 h-3">
-                                                <div
-                                                // className="bg-red-500 hover:bg-red-200 btn btn-circle animate-pulse"
-                                                className="w-fit hover:cursor-pointer"
-                                                onClick={e => handleDeleteCron(e)}
-                                                data-id={ezData?.id}
-                                                data-jobname={ezData?.jobName}
-                                                >
-                                                    <GoTrash
-                                                        className="flex items-center justify-center z-10 w-6 h-6 pointer-events-none"
-                                                        ref={submitButtonRef}
-                                                    />
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    </>
-                                )
-                            })
-                        }
-                </tbody>
-            </table>
+            </table> : <></>
+        }
+
         </>
     );
 }
