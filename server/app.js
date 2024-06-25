@@ -957,7 +957,7 @@ app.put('/togglecron', async (req, res) => { // soon to be deprecated
     }
 });
 
-app.post('/getcrondata', async (req, res) => { // fetches cron data specific to front end device
+app.post('/getscheduledata', async (req, res) => { // fetches cron data specific to front end device
     const { id } = req.body;
     // console.log('id from getcrondata req.body ', id);
     // console.log('req.body from /getcrondata ', req.body);
@@ -966,8 +966,13 @@ app.post('/getcrondata', async (req, res) => { // fetches cron data specific to 
             where: {
                 deviceId: id
             }
-        })
-        res.json({ cronData: cronData });
+        });
+        const ezScheduleData = await prisma.easySchedule.findMany({
+            where: {
+                deviceId: id
+            }
+        });
+        res.json({ cronData, ezScheduleData });
 
         const getMacAddress = await prisma.device.findUnique({ where: { id: id } });
         const { macAddress } = getMacAddress;
