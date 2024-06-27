@@ -1,7 +1,5 @@
 function convertToMilitaryTime(ampm, hour) {
-    if (typeof hour !== "number") {
-        throw new Error("Hour must be converted to number first!");
-    }
+    hour = parseInt(hour);
     let modifiedHour;
     if (ampm === "AM" && hour === 12) {
         modifiedHour = hour - 12;

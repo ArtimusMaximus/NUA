@@ -1,13 +1,14 @@
 import { useEffect, useState, useRef } from "react";
 import { GoInfo, GoTrash } from "react-icons/go";
 import { useParams } from "react-router-dom";
-import { DisplayOneTimeOrRecurringSchedule } from "./SchedulerComponents/DisplayOneTimeOrRecurringSchedule";
+import { EZScheduleTable } from "./SchedulerComponents/EZScheduleTable";
+import { CronScheduleTable } from "./SchedulerComponents/CronScheduleTable";
 
 
 export default function ScheduleData({ changed })
 {
     const [returnData, setReturnData] = useState(null);
-    // const [checked, setChecked] = useState(true);
+    const [checked, setChecked] = useState(true);
     const submitButtonRef = useRef();
     const [toggledOrDeletedSchedule, setToggledOrDeletedSchedule] = useState(false);
     const params = useParams();
@@ -55,25 +56,33 @@ export default function ScheduleData({ changed })
         }
         toggleCronUpdate();
     }
-    const handleEZToggle = e => { // /togglecron
+    const handleEZToggle = e => { // /toggleEZ
         setChecked(prev => !prev);
         console.log(e.target.checked);
 
-        const id = parseInt(e.target.dataset.crontimeid);
-        const toggleCron = e.target.checked;
-        const jobName = e.target.dataset.jobname;
-        const crontime = e.target.dataset.crontime;
-        const crontype = e.target.dataset.crontype;
+        const id = parseInt(e.target.dataset.id);
         const deviceId = parseInt(e.target.dataset.deviceid);
-        async function toggleCronUpdate() {
+        const jobName = e.target.dataset.jobname;
+        const date = e.target.dataset.date;
+        const scheduletype = e.target.dataset.blockallow;
+        const oneTime = e.target.dataset.onetime;
+        const ampm = e.target.dataset.ampm;
+        const hour = e.target.dataset.hour;
+        const minute = e.target.dataset.minute;
+        const days = e.target.dataset.days;
+        const toggleSched = e.target.checked;
+        console.log('e.target.checked', e.target.checked);
+        async function toggleEZUpdate() {
             try {
-                const toggleCronOnOff = await fetch('/togglecron', {
+                const toggleCronOnOff = await fetch('/toggleezschedule', {
                     method: 'PUT',
                     mode: 'cors',
                     headers: {
                         "Content-Type" : "application/json"
                     },
-                    body: JSON.stringify({ id, toggleCron, jobName, crontime, crontype, deviceId })
+                    // body: JSON.stringify({ id, deviceId, jobName, scheduletype, date,date oneTime, ampm, hour, minute, toggleEZSched })
+                    // backend needs: const { id, deviceId, jobName, date, scheduletype, oneTime, ampm, hour, minute } = req.body
+                    body: JSON.stringify({ id, deviceId, jobName, date, scheduletype, oneTime, ampm, hour, minute, days, toggleSched })
                 });
                 if (toggleCronOnOff.ok) {
                     const result = await toggleCronOnOff.json();
@@ -84,7 +93,7 @@ export default function ScheduleData({ changed })
                 if (error) throw error;
             }
         }
-        toggleCronUpdate();
+        toggleEZUpdate();
     }
 
     useEffect(() => { // fetch existing cron data && EZ schedule data 06 24 2024
@@ -142,117 +151,33 @@ export default function ScheduleData({ changed })
         }
     }
 
+
     return (
         <>
-            {returnData?.ezScheduleData?.length ?
-            <table className="table table-zebra border rounded-lg shadow overflow-hidden dark:border-gray-700 dark:shadow-gray-900 mb-8">
-            <tbody>
-                <tr className="font-bold sm:text-xl" align="center">
-                    <td>Time</td>
-                    <td>Action</td>
-                    <td>Off/On</td>
-                    <td>Delete</td>
-                </tr>
-                    {
-                        returnData.ezScheduleData.length ? returnData?.ezScheduleData?.map((ezData) => {
-                            return (
-                                <>
-                                    <tr key={ezData.id} align="center">
-                                        <td className="uppercase"><DisplayOneTimeOrRecurringSchedule oneTime={ezData.oneTime} ezData={ezData} /></td>
-                                        <td className={`uppercase ${ezData.blockAllow === 'block' ? 'text-red-500' : 'text-green-500'}`}>
-                                            {ezData.blockAllow}
-                                        </td>
-                                        <td>
-                                            <input
-                                                type="checkbox"
-                                                className="toggle toggle-success"
-                                                data-crontimeid={ezData?.date}
-                                                data-deviceid={ezData?.deviceId}
-                                                data-jobname={ezData?.jobName}
-                                                data-crontime={ezData?.date}
-                                                data-crontype={ezData?.blockAllow}
-                                                checked={ezData?.date}
-                                                // data-macaddress={ezData?.macAddress}
-                                                onClick={e => handleCronToggle(e)}
-                                            />
-                                        </td>
-                                        <td className="w-3 h-3">
-                                            <div
-                                            // className="bg-red-500 hover:bg-red-200 btn btn-circle animate-pulse"
-                                            className="w-fit hover:cursor-pointer"
-                                            onClick={e => handleDeleteCron(e)}
-                                            data-id={ezData?.id}
-                                            data-jobname={ezData?.jobName}
-                                            >
-                                                <GoTrash
-                                                    className="flex items-center justify-center z-10 w-6 h-6 pointer-events-none"
-                                                    ref={submitButtonRef}
-                                                />
-                                            </div>
-                                        </td>
-                                    </tr>
-                                </>
-                            )
-                        }) : <></>
-                    }
-            </tbody>
-        </table> : <></>
-        }
-        {returnData?.cronData?.length ?
-            <table className="table table-zebra border rounded-lg shadow overflow-hidden dark:border-gray-700 dark:shadow-gray-900 mb-8">
-                <tbody>
-                    <tr className="font-bold sm:text-xl" align="center">
-                        <td>Cron</td>
-                        <td>Action</td>
-                        <td>Off/On</td>
-                        <td>Delete</td>
-                    </tr>
-                        {
-                            returnData.cronData.length ? returnData?.cronData?.map((cronData) => {
-                                return (
-                                    <>
-                                        <tr key={cronData.id} align="center">
-                                            <td className="uppercase">{cronData.crontime}</td>
-                                            <td className={`uppercase ${cronData.crontype === 'block' ? 'text-red-500' : 'text-green-500'}`}>
-                                                {cronData.crontype}
-                                            </td>
-                                            <td>
-                                                <input
-                                                    type="checkbox"
-                                                    className="toggle toggle-success"
-                                                    data-crontimeid={cronData?.id}
-                                                    data-deviceid={cronData?.deviceId}
-                                                    data-jobname={cronData?.jobName}
-                                                    data-crontime={cronData?.crontime}
-                                                    data-crontype={cronData?.crontype}
-                                                    checked={cronData?.toggleCron}
-                                                    // data-macaddress={cronData?.macAddress}
-                                                    onClick={e => handleCronToggle(e)}
-                                                />
-                                            </td>
-                                            <td className="w-3 h-3">
-                                                <div
-                                                // className="bg-red-500 hover:bg-red-200 btn btn-circle animate-pulse"
-                                                className="w-fit hover:cursor-pointer"
-                                                onClick={e => handleDeleteCron(e)}
-                                                data-id={cronData?.id}
-                                                data-jobname={cronData?.jobName}
-                                                >
-                                                    <GoTrash
-                                                        className="flex items-center justify-center z-10 w-6 h-6 pointer-events-none"
-                                                        ref={submitButtonRef}
-                                                    />
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    </>
-                                )
-                            }) : <></>
-                        }
-                </tbody>
-            </table> : <></>
-        }
-
+            {
+                returnData?.ezScheduleData?.length
+                ?
+                <EZScheduleTable
+                    returnData={returnData}
+                    submitButtonRef={submitButtonRef}
+                    handleDeleteCron={handleDeleteCron}
+                    handleEZToggle={handleEZToggle}
+                />
+                :
+                <></>
+            }
+            {
+                returnData?.cronData?.length
+                ?
+                <CronScheduleTable
+                    returnData={returnData}
+                    submitButtonRef={submitButtonRef}
+                    handleDeleteCron={handleDeleteCron}
+                    handleCronToggle={handleCronToggle}
+                />
+                :
+                <></>
+            }
         </>
     );
 }
