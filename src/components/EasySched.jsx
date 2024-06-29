@@ -147,6 +147,8 @@ export default function EasySched({ triggerRender })
             return;
         }
         console.log('isnt in past and onetimeschedule');
+        let daysOfTheWeekNumerals = [...Object.values(daysOfTheWeek)];
+        let modifiedDaysOfTheWeek = daysOfTheWeekNumerals;
 
         try {
             const submitData = await fetch('/addeasyschedule', {
@@ -155,7 +157,8 @@ export default function EasySched({ triggerRender })
                 headers: {
                     "Content-Type" : "application/json"
                 },
-                body: JSON.stringify({ ...timeData, ...schedule, ...deviceId })
+                body: JSON.stringify({ ...modifiedDaysOfTheWeek, ...schedule, ...deviceId })
+                // body: JSON.stringify({ ...timeData, ...schedule, ...deviceId })
             });
             if (submitData.ok) {
                 setInvalidscheduleMessage({ error: false });

@@ -28,9 +28,9 @@ async function addEasySchedule(deviceId, dateTime, blockAllow, scheduleData, sta
             } else if (updateRule) {
                 const updateDB = await prisma.easySchedule.updateOne({ where: { id: id }})
             }
-
         } else if (!boolOneTime && startNewJobTrue) {
-            const stringDays = convertDOWtoString(modifiedDaysOfTheWeek);
+            console.log('modifiedDaysOfTheWeek\t', modifiedDaysOfTheWeek);
+            const stringDays = convertDOWtoString(modifiedDaysOfTheWeek.join());
             const addToDB = await prisma.easySchedule.create({ // create easySched
                 data: {
                     month: month,

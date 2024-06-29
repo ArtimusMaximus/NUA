@@ -62,7 +62,7 @@ export default function ScheduleData({ changed })
         const deviceId = parseInt(e.target.dataset.deviceid);
         const jobName = e.target.dataset.jobname;
         const date = e.target.dataset.date;
-        const scheduletype = e.target.dataset.blockallow;
+        const blockAllow = e.target.dataset.blockallow;
         const oneTime = e.target.dataset.onetime;
         const ampm = e.target.dataset.ampm;
         const hour = e.target.dataset.hour;
@@ -80,7 +80,7 @@ export default function ScheduleData({ changed })
                     },
                     // body: JSON.stringify({ id, deviceId, jobName, scheduletype, date,date oneTime, ampm, hour, minute, toggleEZSched });
                     // backend needs: const { id, deviceId, jobName, date, scheduletype, oneTime, ampm, hour, minute } = req.body;
-                    body: JSON.stringify({ id, deviceId, jobName, date, scheduletype, oneTime, ampm, hour, minute, days, toggleSched })
+                    body: JSON.stringify({ id, deviceId, jobName, date, blockAllow, oneTime, ampm, hour, minute, days, toggleSched })
                 });
                 if (toggleCronOnOff.ok) {
                     const result = await toggleCronOnOff.json();
