@@ -1,8 +1,43 @@
 const { convertStringToBool } = require("../../server_util_funcs/convert_string_to_bool");
 const { updateOneTimeSchedule } = require("../../ez_sched_funcs/update_ez_schedules/updateOneTimeSchedule");
 const { updateRecurringSchedule } = require("../../ez_sched_funcs/update_ez_schedules/updateRecurringSchedule");
+const { nodeOneTimeScheduleRule } = require("../../ez_sched_funcs/nodeOneTimeScheduleRule");
+const { nodeScheduleRecurrenceRule } = require("../../ez_sched_funcs/nodeRecurringScheduleRule");
+
 
 function ezScheduleRoutes(app, unifi, prisma, schedule, jobFunction) {
+
+    app.post('/addeasyschedule', async (req, res) => {
+        const { date, hour, minute, oneTime, scheduletype, daysOfTheWeek, ampm, deviceId } = req.body;
+        console.log('daysOfTheWeek\t', daysOfTheWeek);
+        let daysOfTheWeekNumerals = [...Object.values(daysOfTheWeek)];
+        let modifiedDaysOfTheWeek = daysOfTheWeekNumerals;
+        if (daysOfTheWeek === undefined) {
+            modifiedDaysOfTheWeek = [0, 1, 2, 3, 4, 5, 6];
+        }
+        try {
+            if (oneTime) {
+                nodeOneTimeScheduleRule(
+                    { date, hour, minute, ampm, modifiedDaysOfTheWeek, deviceId, oneTime, scheduletype },
+                    unifi,
+                    prisma,
+                    jobFunction,
+                    schedule
+                );
+            } else { // recurrence
+                nodeScheduleRecurrenceRule(
+                    { date, hour, minute, ampm, modifiedDaysOfTheWeek, deviceId, oneTime, scheduletype },
+                    unifi,
+                    prisma,
+                    jobFunction,
+                    schedule
+                );
+            }
+        } catch (error) {
+            console.error(error);
+        }
+        res.sendStatus(200);
+    });
 
     app.put('/toggleezschedule', async (req, res) => {
         const { id, deviceId, jobName, date, scheduletype, oneTime, ampm, hour, minute, toggleSched, days } = req.body;

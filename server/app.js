@@ -757,79 +757,82 @@ app.delete('/removedevice', async (req, res) => { // Devices.jsx device delete
 app.get('/checkjobreinitiation', async (req, res) => {
     try {
         // @todo - also pull from prisma.easyschedule.findMany(); for job re-initiation - 05 16 2024 // working on 06/10/2024
-        const previousJobData = await prisma.cron.findMany();
+        const previousCronJobData = await prisma.cron.findMany();
         const getMacAddress = await prisma.device.findMany();
         const previousEzScheduleData = await prisma.easySchedule.findMany();
 
         const { scheduledJobs } = schedule; // node-schedule
 
-        let matchingIds = [];
-        let newJobNames = [];
-        for (let i=0; i<previousJobData.length; i++) {
+        let matchingCronIds = [];
+        let newCronJobNames = [];
+        for (let i=0; i<previousCronJobData.length; i++) {
             const matchedMacAddress = getMacAddress.find(
-                (item) => item.id === previousJobData[i].deviceId
+                (item) => item.id === previousCronJobData[i].deviceId
             );
             if (matchedMacAddress) {
-                matchingIds.push({
-                    ...previousJobData[i],
+                matchingCronIds.push({
+                    ...previousCronJobData[i],
                     matchedMacAddress
                 });
             }
         }
-
-        // console.log('matchingIds ', matchingIds);
-
-        // let jb;
-        for (const data of matchingIds) {
-            // console.log('data.jobName ', data.jobName);
-            // console.log('data.jobName === undefined ', scheduledJobs[data.jobName] === undefined) // jobs not re initiated
-
-            // console.log('macToPreviousData ', matchingIds);
+        for (const data of matchingCronIds) {
             if (scheduledJobs[data.jobName] === undefined && data.toggleCron === true) { // reschedule jobs === undefined
-                // console.log(data.matchedMacAddress.macAddress);
-                // console.log('data.cron ', data.cron);
-
                 let reInitiatedJob = schedule.scheduleJob(data.crontime, () => jobFunction(data.crontype, data.matchedMacAddress.macAddress, false, unifi, prisma));
-                // console.log('reInitiatedJob', reInitiatedJob);
-                // jb = schedule.scheduleJob(data.cron, () => jobFunction(data.crontype, data.macAddress));
-                newJobNames.push({...data, jobName: reInitiatedJob.name})
+                newCronJobNames.push({...data, jobName: reInitiatedJob.name})
             }
         }
-        // console.log('newJobIds ', newJobNames);
-
-        let updated = [];
-        for (let i=0; i<newJobNames.length; i++) {
-            const updateNewJobNames = await prisma.cron.update({
+        let updatedCronJobs = [];
+        for (let i=0; i<newCronJobNames.length; i++) {
+            const updateNewCronJobNames = await prisma.cron.update({
                 where: {
-                    id: newJobNames[i].id
+                    id: newCronJobNames[i].id
                 },
                 data: {
-                    jobName: newJobNames[i].jobName,
+                    jobName: newCronJobNames[i].jobName,
 
                 }
             });
-            updated.push(updateNewJobNames)
+            updatedCronJobs.push(updateNewCronJobNames)
+        }
+ //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        let matchingEZIds = [];
+        let newEZJobNames = [];
+        for (let i=0; i<previousEzScheduleData.length; i++) {
+            const matchedMacAddress = getMacAddress.find(
+                (item) => item.id === previousEzScheduleData[i].deviceId
+            );
+            if (matchedMacAddress) {
+                matchingEZIds.push({
+                    ...previousEzScheduleData[i],
+                    matchedMacAddress
+                });
+            }
+        }
+        for (const data of matchingEZIds) {
+            if (scheduledJobs[data.jobName] === undefined && data.toggleCron === true) { // reschedule jobs === undefined
+                let reInitiatedJob = schedule.scheduleJob(data.toggleSched, () => jobFunction(data.blockAllow, data.matchedMacAddress.macAddress, false, unifi, prisma));
+                newEZJobNames.push({...data, jobName: reInitiatedJob.name})
+            }
+        }
+        let updatedEZJobs = [];
+        for (let i=0; i<newEZJobNames.length; i++) {
+            const updatenewEZJobNames = await prisma.cron.update({
+                where: {
+                    id: newEZJobNames[i].id
+                },
+                data: {
+                    jobName: newEZJobNames[i].jobName,
+
+                }
+            });
+            updatedEZJobs.push(updatenewEZJobNames)
         }
 
 
-        // const newJobNameIds = matchingIds.map(job => job.id)
-        // const newJobNameData = newJobNames.map(jobName => jobName.jobName);
-        // const updateNewJobNames = await prisma.cron.updateMany({
-        //     where: {
-        //         id: {
-        //             in: newJobNameIds
-        //         }
-        //     },
-        //     data: {
-        //         jobName: {
-        //             set: newJobNameData
-        //         }
-        //     }
-        // });
-        res.json({ previousJobData: previousJobData, getMacAddress: getMacAddress, updated: updated });
-        // res.json({ previousJobData: previousJobData, getMacAddress: getMacAddress, updateNewJobNames: updateNewJobNames });
-        // console.log('reInJob ', jb);
-        // console.log('jobs ', scheduledJobs[previousJobData[0].jobName] === undefined);
+
+
+        res.json({ previousCronJobData: previousCronJobData, getMacAddress: getMacAddress, updated: updated });
      } catch (error) {
         if (error) throw error;
      }
@@ -987,69 +990,6 @@ app.post('/getscheduledata', async (req, res) => { // fetches cron data specific
 });
 
 // ~~~~~~~schedules~~~~~~~~~~
-// app.put('/toggleschedule', async (req, res) => {
-//     const { id, toggleCron, jobName, crontime, crontype, deviceId } = req.body;
-//     // I believe the issue here is that you are not getting the job name from the front end, try node-schedule again -TRUE & Successful....
-//     let jb = jobName;
-//     try {
-//         const getMacAddress = await prisma.device.findUnique({ where: { id: deviceId } });
-//         console.log('getMacAddress.macAddress: ', getMacAddress.macAddress);
-
-//         if (toggleCron === false && jobName !== '') {
-//             const cancelled = schedule?.cancelJob(jobName);
-//             console.log('Cancelled Job?: ', cancelled);
-//         } else if (toggleCron === true) {
-//             console.log('continue');
-//             const reInitiatedJob = schedule.scheduleJob(crontime, () => jobFunctio(n)(crontype, getMacAddress.macAddress));
-//             jb = reInitiatedJob.name
-//             console.log('jb.name: ', jb.name);
-//         }
-//         const updateCronToggle = await prisma.cron.update({
-//             where: { id: id },
-//             data: {
-//                 toggleCron: toggleCron,
-//                 jobName: jb
-//                 // jobName: toggleCron ? jb.name : jobName
-//             }
-//         });
-//         res.json(updateCronToggle);
-//     } catch (error) {
-//         console.error(error);
-//     }
-// });
-
-app.post('/addeasyschedule', async (req, res) => {
-    const { date, hour, minute, oneTime, scheduletype, daysOfTheWeek, ampm, deviceId } = req.body;
-    console.log('daysOfTheWeek\t', daysOfTheWeek);
-    let daysOfTheWeekNumerals = [...Object.values(daysOfTheWeek)];
-    let modifiedDaysOfTheWeek = daysOfTheWeekNumerals;
-    if (daysOfTheWeek === undefined) {
-        modifiedDaysOfTheWeek = [0, 1, 2, 3, 4, 5, 6];
-    }
-    try {
-        if (oneTime) {
-            nodeOneTimeScheduleRule(
-                { date, hour, minute, ampm, modifiedDaysOfTheWeek, deviceId, oneTime, scheduletype },
-                unifi,
-                prisma,
-                jobFunction,
-                schedule
-            );
-        } else { // recurrence
-            nodeScheduleRecurrenceRule(
-                { date, hour, minute, ampm, modifiedDaysOfTheWeek, deviceId, oneTime, scheduletype },
-                unifi,
-                prisma,
-                jobFunction,
-                schedule
-            );
-        }
-    } catch (error) {
-        console.error(error);
-    }
-    res.sendStatus(200);
-    // res.sendStatus(200).json({ message: 'Time Data received', timeData: timeData });
-});
 
 // ~~~~~~
 app.post('/savesitesettings', async (req, res) => {
