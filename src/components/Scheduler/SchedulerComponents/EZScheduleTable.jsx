@@ -1,7 +1,7 @@
 import { DisplayOneTimeOrRecurringSchedule } from "./DisplayOneTimeOrRecurringSchedule";
 import { GoTrash } from "react-icons/go";
 
-export function EZScheduleTable({ returnData, handleDeleteCron, handleEZToggle, submitButtonRef }) {
+export function EZScheduleTable({ returnData, handleDeleteEZSched, handleEZToggle, submitButtonRef }) {
     return (
         <table className="table table-zebra border rounded-lg shadow overflow-hidden dark:border-gray-700 dark:shadow-gray-900 mb-8">
             <tbody>
@@ -43,7 +43,7 @@ export function EZScheduleTable({ returnData, handleDeleteCron, handleEZToggle, 
                                             <div
                                                 // className="bg-red-500 hover:bg-red-200 btn btn-circle animate-pulse"
                                                 className="w-fit hover:cursor-pointer"
-                                                onClick={e => handleDeleteCron(e)}
+                                                onClick={e => handleDeleteEZSched(e)}
                                                 data-id={ezData?.id}
                                                 data-jobname={ezData?.jobName}
                                             >

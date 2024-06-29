@@ -30,8 +30,6 @@ function ezScheduleRoutes(app, unifi, prisma, schedule, jobFunction) {
                     reInitiatedJob = await updateRecurringSchedule(data, unifi, prisma, jobFunction, schedule);
                 }
 
-
-
                 jb = reInitiatedJob?.name;
                 console.log('jb.name: ', jb?.name);
             }
@@ -45,6 +43,24 @@ function ezScheduleRoutes(app, unifi, prisma, schedule, jobFunction) {
             res.json(updateEZToggle);
         } catch (error) {
             console.error(error);
+        }
+    });
+
+    app.delete('/deleteezschedule', async (req, res) => {
+        const { parseId, jobName } = req.body;
+        try {
+            const deleteEZSchedule = await prisma.easySchedule.delete({
+                where: {
+                    id: parseId
+                }
+            });
+            console.log('jobName: \t', jobName);
+            const jobToCancel = schedule.scheduledJobs[jobName]
+            console.log('Job Name cancelled: ', jobToCancel?.name);
+            jobToCancel?.cancel();
+            res.json({ message: "Data Deleted Succesfully.", dataDeleted: deleteEZSchedule });
+        } catch (error) {
+            if (error) throw error;
         }
     });
 }

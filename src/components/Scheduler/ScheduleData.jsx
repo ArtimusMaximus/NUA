@@ -1,5 +1,4 @@
 import { useEffect, useState, useRef } from "react";
-import { GoInfo, GoTrash } from "react-icons/go";
 import { useParams } from "react-router-dom";
 import { EZScheduleTable } from "./SchedulerComponents/EZScheduleTable";
 import { CronScheduleTable } from "./SchedulerComponents/CronScheduleTable";
@@ -36,7 +35,6 @@ export default function ScheduleData({ changed })
         const deviceId = parseInt(e.target.dataset.deviceid);
         async function toggleCronUpdate() {
             try {
-
                 const toggleCronOnOff = await fetch('/togglecron', {
                     method: 'PUT',
                     mode: 'cors',
@@ -80,8 +78,8 @@ export default function ScheduleData({ changed })
                     headers: {
                         "Content-Type" : "application/json"
                     },
-                    // body: JSON.stringify({ id, deviceId, jobName, scheduletype, date,date oneTime, ampm, hour, minute, toggleEZSched })
-                    // backend needs: const { id, deviceId, jobName, date, scheduletype, oneTime, ampm, hour, minute } = req.body
+                    // body: JSON.stringify({ id, deviceId, jobName, scheduletype, date,date oneTime, ampm, hour, minute, toggleEZSched });
+                    // backend needs: const { id, deviceId, jobName, date, scheduletype, oneTime, ampm, hour, minute } = req.body;
                     body: JSON.stringify({ id, deviceId, jobName, date, scheduletype, oneTime, ampm, hour, minute, days, toggleSched })
                 });
                 if (toggleCronOnOff.ok) {
@@ -150,6 +148,32 @@ export default function ScheduleData({ changed })
             if (error) throw error;
         }
     }
+    const handleDeleteEZSched = async e => {
+        // submitButtonRef.current.disabled = true
+        console.log(e.target.dataset.id);
+        console.log(e.target.dataset.jobname);
+        let jobName = e.target.dataset.jobname
+        console.log('jobName: \t', jobName);
+        const parseId = parseInt(e.target.dataset.id);
+        try {
+            const deleteEZSchedule = await fetch("/deleteezschedule", {
+                method: "DELETE",
+                mode: "cors",
+                headers: {
+                    "Content-Type" : "application/json"
+                },
+                body: JSON.stringify({ parseId, jobName })
+            });
+            if (deleteEZSchedule.ok) {
+                const deleteReply = await deleteEZSchedule.json();
+                console.log("Deleted Data: ", deleteReply);
+                triggerRender2();
+            }
+        } catch (error) {
+            // submitButtonRef.current.disabled = false
+            if (error) throw error;
+        }
+    }
 
 
     return (
@@ -160,7 +184,7 @@ export default function ScheduleData({ changed })
                 <EZScheduleTable
                     returnData={returnData}
                     submitButtonRef={submitButtonRef}
-                    handleDeleteCron={handleDeleteCron}
+                    handleDeleteEZSched={handleDeleteEZSched}
                     handleEZToggle={handleEZToggle}
                 />
                 :
@@ -178,6 +202,7 @@ export default function ScheduleData({ changed })
                 :
                 <></>
             }
+            {!returnData?.ezScheduleData.length && !returnData?.cronData.length && <div className="mx-auto text-center pb-4">There is no data to display...</div>}
         </>
     );
 }
