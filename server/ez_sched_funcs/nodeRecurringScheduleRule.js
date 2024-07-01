@@ -35,7 +35,7 @@ async function nodeScheduleRecurrenceRule(data, unifi, prisma, jobFunction, sche
     // rule.hour = hour;
     rule.minute = parseInt(minute);
     const startNewJobTrue = schedule.scheduleJob(rule, () => jobFunction(blockAllow, deviceToSchedule?.macAddress, oneTime, unifi, prisma));
-    await addEasySchedule(deviceId, blockAllow, scheduleData, startNewJobTrue, prisma);
+    addEasySchedule(deviceId, blockAllow, scheduleData, startNewJobTrue, prisma);
     return startNewJobTrue;
 }
 

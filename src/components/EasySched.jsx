@@ -84,7 +84,7 @@ export default function EasySched({ triggerRender })
     };
     const checkDaysOfWeekNotChosen = () => {
         const chosenDaysOfWeek = Object.values(schedule.daysOfTheWeek);
-        console.log('chosenDaysOfWeek \t', chosenDaysOfWeek);
+        // console.log('chosenDaysOfWeek \t', chosenDaysOfWeek);
 
         let mapChosen = chosenDaysOfWeek.map((i) => {
             if (typeof i === "number") {
@@ -94,7 +94,7 @@ export default function EasySched({ triggerRender })
             }
         });
         let chosen = mapChosen.includes(true);
-        console.log('chosen \t', chosen);
+        // console.log('chosen \t', chosen);
         return chosen;
     }
 
@@ -138,9 +138,13 @@ export default function EasySched({ triggerRender })
     }
 
     const handleSubmit = async () => {
-        console.log('schedule\t', schedule);
+
         const selectedDateTime = convertSelectedDateForComparison(timeData);
         const isPastDate = dateIsInPast(selectedDateTime);
+
+        console.log('timeData\t', timeData);
+        console.log('selectedDateTime\t', selectedDateTime);
+        console.log('new Date()\t', new Date());
 
         if (isPastDate && oneTimeSchedule) {
             setInvalidscheduleMessage({ error: true, message: "Cannot schedule a specific date that is in the past!" });

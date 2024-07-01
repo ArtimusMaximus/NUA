@@ -9,7 +9,7 @@ export const DisplayOneTimeOrRecurringSchedule = ({ oneTime, ezData }) => {
         return (
             <>
                 <div>{ezData.date.slice(5)}</div>
-                <div>{ezData.hour}:{ezData.minute}</div>
+                <div>{ezData.hour}:{ezData.minute === 0 ? ezData.minute + "0": ezData.minute}</div>
             </>
         )
     } else {

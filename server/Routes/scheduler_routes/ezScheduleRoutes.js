@@ -9,7 +9,6 @@ function ezScheduleRoutes(app, unifi, prisma, schedule, jobFunction) {
     // console.log("unifi from /addezsched\t", unifi);
     app.post('/addeasyschedule', async (req, res) => {
         const { date, hour, minute, oneTime, blockAllow, modifiedDaysOfTheWeek, ampm, deviceId } = req.body;
-        console.log('date from ezschedroutes\t', date);
         // const { date, hour, minute, oneTime, blockAllow, daysOfTheWeek, ampm, deviceId } = req.body;
         // console.log('daysOfTheWeek\t', daysOfTheWeek);
         // let daysOfTheWeekNumerals = [...Object.values(daysOfTheWeek)];
@@ -35,10 +34,10 @@ function ezScheduleRoutes(app, unifi, prisma, schedule, jobFunction) {
                     schedule
                 );
             }
+            res.sendStatus(200);
         } catch (error) {
             console.error(error);
         }
-        res.sendStatus(200);
     });
 
     app.put('/toggleezschedule', async (req, res) => {
@@ -63,12 +62,13 @@ function ezScheduleRoutes(app, unifi, prisma, schedule, jobFunction) {
                 let reInitiatedJob;
                 if (boolOneTime) {
                     reInitiatedJob = await updateOneTimeSchedule(data, unifi, prisma, jobFunction, schedule);
+                    console.log('reInitiatedJob.name\t', reInitiatedJob.name);
                 } else if (!boolOneTime) {
                     reInitiatedJob = await updateRecurringSchedule(data, unifi, prisma, jobFunction, schedule);
+                    console.log('reInitiatedJob.name\t', reInitiatedJob.name);
                 }
 
                 jb = reInitiatedJob?.name;
-                console.log('jb.name: ', jb?.name);
             }
             const updateEZToggle = await prisma.easySchedule.update({
                 where: { id: id },

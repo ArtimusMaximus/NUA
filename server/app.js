@@ -267,7 +267,7 @@ function validateCron(crontype) { // return true/false
     for (const data of matchingEZIds) {
         const { date, hour, minute, ampm, oneTime, deviceId, blockAllow } = data;
 
-        console.log(date, hour, minute, ampm, oneTime, deviceId, blockAllow);
+        console.log('data fetch checker\t', date, hour, minute, ampm, oneTime, deviceId, blockAllow);
         // nodeOneTimeScheduleRule(data, unifi, prisma, jobFunction, schedule)
         // let reInitiatedJob = schedule.scheduleJob(data.toggleSched, () => jobFunction(data.blockAllow, data.matchedMacAddress.macAddress, false, unifi, prisma));
         // newEZJobNames.push({...data, jobName: reInitiatedJob.name})

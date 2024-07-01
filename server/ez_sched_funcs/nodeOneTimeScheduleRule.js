@@ -22,7 +22,7 @@ async function nodeOneTimeScheduleRule(data, unifi, prisma, jobFunction, schedul
 
     const dateTime = new Date(year, month-1, day, modifiedHour, parseInt(minute), 0);
     const startNewJobTrue = schedule.scheduleJob(dateTime, () => jobFunction(blockAllow, deviceToSchedule?.macAddress, oneTime, unifi, prisma));
-    await addEasySchedule(deviceId, blockAllow, scheduleData, startNewJobTrue, prisma); // -- do easy schedule in end point, not in function?
+    addEasySchedule(deviceId, blockAllow, scheduleData, startNewJobTrue, prisma); // -- do easy schedule in end point, not in function?
     return startNewJobTrue;
 }
 
