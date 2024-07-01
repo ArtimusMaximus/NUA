@@ -149,7 +149,7 @@ export default function EasySched({ triggerRender })
         }
         let daysOfTheWeekNumerals;
         if (!oneTimeSchedule) {
-            daysOfTheWeekNumerals = [...Object.values(schedule.daysOfTheWeek).filter(i => i)]; // filter out undefined
+            daysOfTheWeekNumerals = [...Object.values(schedule.daysOfTheWeek).filter(i => i !== undefined)]; // filter out undefined
             console.log('daysOfTheWeekNumerals\t', daysOfTheWeekNumerals);
         }
         let modifiedDaysOfTheWeek = daysOfTheWeekNumerals;
