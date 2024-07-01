@@ -9,7 +9,7 @@ export default function EasySched({ triggerRender })
 {
     const params = useParams();
     const [schedule, setSchedule] = useState({
-        scheduletype: 'allow',
+        blockAllow: 'allow',
         id: parseInt(params.id),
         daysOfTheWeek: {
             sun: undefined,
@@ -107,14 +107,14 @@ export default function EasySched({ triggerRender })
     const handleAllow = e => {
         setSchedule({
             ...schedule,
-            scheduletype: e.target.value
+            blockAllow: e.target.value
         });
         setSelectAllow(true);
     }
     const handleBlock = e => {
         setSchedule({
             ...schedule,
-            scheduletype: e.target.value
+            blockAllow: e.target.value
         });
         setSelectAllow(false);
     }
@@ -138,6 +138,7 @@ export default function EasySched({ triggerRender })
     }
 
     const handleSubmit = async () => {
+        console.log('schedule\t', schedule);
         const selectedDateTime = convertSelectedDateForComparison(timeData);
         const isPastDate = dateIsInPast(selectedDateTime);
 
@@ -146,9 +147,14 @@ export default function EasySched({ triggerRender })
             badDateModalRef.current.showModal();
             return;
         }
-        console.log('isnt in past and onetimeschedule');
-        let daysOfTheWeekNumerals = [...Object.values(daysOfTheWeek)];
+        let daysOfTheWeekNumerals;
+        if (!oneTimeSchedule) {
+            daysOfTheWeekNumerals = [...Object.values(schedule.daysOfTheWeek).filter(i => i)]; // filter out undefined
+            console.log('daysOfTheWeekNumerals\t', daysOfTheWeekNumerals);
+        }
         let modifiedDaysOfTheWeek = daysOfTheWeekNumerals;
+        const oneTime = oneTimeSchedule;
+
 
         try {
             const submitData = await fetch('/addeasyschedule', {
@@ -157,7 +163,7 @@ export default function EasySched({ triggerRender })
                 headers: {
                     "Content-Type" : "application/json"
                 },
-                body: JSON.stringify({ ...modifiedDaysOfTheWeek, ...schedule, ...deviceId })
+                body: JSON.stringify({ ...timeData, modifiedDaysOfTheWeek, ...schedule, ...deviceId })
                 // body: JSON.stringify({ ...timeData, ...schedule, ...deviceId })
             });
             if (submitData.ok) {

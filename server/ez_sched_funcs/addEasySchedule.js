@@ -1,8 +1,11 @@
 const { convertDOWtoString } = require("../server_util_funcs/ez_sched_utils/convertDOWtoString");
 const { convertStringToBool } = require("../server_util_funcs/convert_string_to_bool");
 
-async function addEasySchedule(deviceId, dateTime, blockAllow, scheduleData, startNewJobTrue, prisma, updateRule) {
+
+async function addEasySchedule(deviceId, blockAllow, scheduleData, startNewJobTrue, prisma) {
+// async function addEasySchedule(deviceId, dateTime, blockAllow, scheduleData, startNewJobTrue, prisma) {
     const { month, day, minute, modifiedHour, ampm, date, oneTime, modifiedDaysOfTheWeek } = scheduleData;
+    console.log('oneTime from addEasySchedule\t', oneTime);
     const deviceToSchedule = await prisma.device.findUnique({ where: { id: deviceId } }); // deviceToSchedule.macAddress
     let boolOneTime = convertStringToBool(oneTime);
     try {
@@ -25,8 +28,6 @@ async function addEasySchedule(deviceId, dateTime, blockAllow, scheduleData, sta
                         },
                     }
                 });
-            } else if (updateRule) {
-                const updateDB = await prisma.easySchedule.updateOne({ where: { id: id }})
             }
         } else if (!boolOneTime && startNewJobTrue) {
             console.log('modifiedDaysOfTheWeek\t', modifiedDaysOfTheWeek);
@@ -38,7 +39,7 @@ async function addEasySchedule(deviceId, dateTime, blockAllow, scheduleData, sta
                     minute: parseInt(minute),
                     hour: modifiedHour,
                     ampm: ampm,
-                    date: date,
+                    date: null,
                     blockAllow: blockAllow,
                     jobName: startNewJobTrue.name,
                     toggleSched: true,
