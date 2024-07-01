@@ -1,5 +1,6 @@
 import { DisplayOneTimeOrRecurringSchedule } from "./DisplayOneTimeOrRecurringSchedule";
 import { GoTrash } from "react-icons/go";
+import { TbRepeat, TbRepeatOff } from "react-icons/tb";
 
 export function EZScheduleTable({ returnData, handleDeleteEZSched, handleEZToggle, submitButtonRef }) {
     return (
