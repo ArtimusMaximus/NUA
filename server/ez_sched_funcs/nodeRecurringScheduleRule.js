@@ -6,7 +6,8 @@ const { dateFromDateString } = require("../server_util_funcs/ez_sched_utils/date
 async function nodeScheduleRecurrenceRule(data, unifi, prisma, jobFunction, schedule) {
     const { date, hour, minute, ampm, modifiedDaysOfTheWeek, deviceId, oneTime, blockAllow, days } = data;
     const deviceToSchedule = await prisma.device.findUnique({ where: { id: deviceId } });
-    console.log('modifiedDaysOfTheWeek in recur rule\t', modifiedDaysOfTheWeek);
+
+
     // const { year, month, day } = dateFromDateString(date);
     const modifiedHour = convertToMilitaryTime(ampm, parseInt(hour));
     const scheduleData = {
@@ -20,17 +21,21 @@ async function nodeScheduleRecurrenceRule(data, unifi, prisma, jobFunction, sche
         modifiedDaysOfTheWeek,
         oneTime
     }
+    console.log('modifiedHour\t', modifiedHour);
     console.log('hour\t', hour, typeof hour);
+    console.log('minute\t', minute, typeof minute);
     // const daysToInt = days.split("").map((day) => parseInt(day));
     const rule = new schedule.RecurrenceRule();
     // const dateTime = new Date(year, month-1, day, modifiedHour, parseInt(minute), 0);
     const daysOfTheWeek = modifiedDaysOfTheWeek;
     // rule.dayOfWeek = [...daysToInt];
-    rule.dayOfWeek = [...daysOfTheWeek];
-    rule.hour = hour;
-    rule.minute = minute;
+    rule.dayOfWeek = [...modifiedDaysOfTheWeek];
+    // rule.dayOfWeek = [...daysOfTheWeek];
+    rule.hour = modifiedHour;
+    // rule.hour = hour;
+    rule.minute = parseInt(minute);
     const startNewJobTrue = schedule.scheduleJob(rule, () => jobFunction(blockAllow, deviceToSchedule?.macAddress, oneTime, unifi, prisma));
-    addEasySchedule(deviceId, blockAllow, scheduleData, startNewJobTrue, prisma);
+    await addEasySchedule(deviceId, blockAllow, scheduleData, startNewJobTrue, prisma);
     return startNewJobTrue;
 }
 

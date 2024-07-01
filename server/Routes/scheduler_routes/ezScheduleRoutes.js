@@ -6,9 +6,10 @@ const { nodeScheduleRecurrenceRule } = require("../../ez_sched_funcs/nodeRecurri
 
 
 function ezScheduleRoutes(app, unifi, prisma, schedule, jobFunction) {
-
+    // console.log("unifi from /addezsched\t", unifi);
     app.post('/addeasyschedule', async (req, res) => {
         const { date, hour, minute, oneTime, blockAllow, modifiedDaysOfTheWeek, ampm, deviceId } = req.body;
+        console.log('date from ezschedroutes\t', date);
         // const { date, hour, minute, oneTime, blockAllow, daysOfTheWeek, ampm, deviceId } = req.body;
         // console.log('daysOfTheWeek\t', daysOfTheWeek);
         // let daysOfTheWeekNumerals = [...Object.values(daysOfTheWeek)];
@@ -18,7 +19,7 @@ function ezScheduleRoutes(app, unifi, prisma, schedule, jobFunction) {
         // }
         try {
             if (oneTime) {
-                nodeOneTimeScheduleRule(
+                await nodeOneTimeScheduleRule(
                     { date, hour, minute, ampm, deviceId, oneTime, blockAllow },
                     unifi,
                     prisma,
@@ -26,7 +27,7 @@ function ezScheduleRoutes(app, unifi, prisma, schedule, jobFunction) {
                     schedule
                 );
             } else { // recurrence
-                nodeScheduleRecurrenceRule(
+                await nodeScheduleRecurrenceRule(
                     { date, hour, minute, ampm, modifiedDaysOfTheWeek, deviceId, oneTime, blockAllow },
                     unifi,
                     prisma,

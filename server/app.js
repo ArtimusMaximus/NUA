@@ -111,8 +111,19 @@ const checkForCredentials = async () => {
 }
 checkForCredentials();
 
-// unifi connection instance
-let unifi;
+// unifi connection instance // original
+// let unifi;
+// async function logIntoUnifi(hostname, port, sslverify, username, password) {
+//     unifi = new Unifi.Controller({hostname: hostname, port: port, sslverify: sslverify});
+//     const loginData = await unifi.login(username, password);
+//     if (loginData) {
+//         return { unifi, validCredentials: true };
+//     } else {
+//         return { validCredentials: false };
+//     }
+// }
+
+// new
 async function logIntoUnifi(hostname, port, sslverify, username, password) {
     unifi = new Unifi.Controller({hostname: hostname, port: port, sslverify: sslverify});
     const loginData = await unifi.login(username, password);
@@ -123,32 +134,60 @@ async function logIntoUnifi(hostname, port, sslverify, username, password) {
     }
 }
 
-console.log('schedule.scheduledJobs\t', schedule.scheduledJobs)
-// fetch login arguments
-let loginData;
+// fetch login arguments // original
+// let loginData;
+// const fetchLoginInfo = async () => {
+//     const getAdminLoginInfo = async () => {
+//         try {
+//           const adminLogin = await prisma.credentials.findUnique({ where: { id: 1 }});
+//         //   console.log('adminLogin \t', adminLogin);
+//         //   loginData = adminLogin.pop();
+//           loginData = adminLogin;
+//           return loginData;
+//         } catch (error) {
+//             if (error) {
+//                 console.error('getAdminLoginInfo error in fetchLoginInfo: ', error);
+//                 throw new Error('No credentials were found');
+//             }
+//         }
+//     }
+//     return getAdminLoginInfo();
+// }
+
+// new
 const fetchLoginInfo = async () => {
-    const getAdminLoginInfo = async () => {
-        try {
-          const adminLogin = await prisma.credentials.findUnique({ where: { id: 1 }});
-        //   console.log('adminLogin \t', adminLogin);
-        //   loginData = adminLogin.pop();
-          loginData = adminLogin;
-          return loginData;
-        } catch (error) {
-            if (error) {
-                console.error('getAdminLoginInfo error in fetchLoginInfo: ', error);
-                throw new Error('No credentials were found');
-            }
+    try {
+        const loginData = await prisma.credentials.findUnique({ where: { id: 1 }});
+        if (loginData) {
+            return loginData;
+        } else {
+            throw Error("Could NOT FETCH LOGIN DATA.");
+        }
+    } catch (error) {
+        if (error) {
+            console.error('getAdminLoginInfo error in fetchLoginInfo: ', error);
+            throw new Error('No credentials were found');
         }
     }
-    return getAdminLoginInfo();
 }
 
-const info = fetchLoginInfo();
-info
-    .then(() => logIntoUnifi(loginData?.hostname, loginData?.port, loginData?.sslverify, loginData?.username, loginData?.password))
-    .then(() => console.log('.then() => unifi \t'))
-    .catch((error) => console.error(error))
+let unifi;
+const init = async () => {
+    try {
+        const loginData = await fetchLoginInfo();
+        await logIntoUnifi(loginData?.hostname, loginData?.port, loginData?.sslverify, loginData?.username, loginData?.password);
+        ezScheduleRoutes(app, unifi, prisma, schedule, jobFunction);
+    } catch (error) {
+        throw Error("Could not establish UNIFI INSTANCE.");
+    }
+}
+init();
+console.log('unifi\t', unifi);
+
+// info
+//     .then(() => logIntoUnifi(loginData?.hostname, loginData?.port, loginData?.sslverify, loginData?.username, loginData?.password))
+//     .then(() => console.log('.then() => unifi \t'))
+//     .catch((error) => console.error(error))
 
 async function getBlockedUsers() {
     const blockedUsers = await unifi.getBlockedUsers();
@@ -350,7 +389,7 @@ async function addEasySchedule(deviceId, dateTime, blockAllow, scheduleData, sta
 // }
 
 
-ezScheduleRoutes(app, unifi, prisma, schedule, jobFunction);
+
 
 
 app.get('/getmacaddresses', async (req, res) => {

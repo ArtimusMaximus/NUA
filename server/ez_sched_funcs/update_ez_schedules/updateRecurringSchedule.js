@@ -7,9 +7,10 @@ async function updateRecurringSchedule(data, unifi, prisma, jobFunction, schedul
     // const modifiedHour = convertToMilitaryTime(ampm, parseInt(hour));
     const blockAllow = scheduletype;
 
-    const daysToInt = days.split("").map((day) => parseInt(day));
+    // const daysToInt = days.split("").map((day) => parseInt(day));
     const rule = new schedule.RecurrenceRule();
-    rule.dayOfWeek = [...daysToInt];
+    rule.dayOfWeek = [...modifiedDaysOfTheWeek];
+    // rule.dayOfWeek = [...daysToInt];
     // rule.dayOfWeek = [...daysOfTheWeek];
     rule.hour = hour;
     rule.minute = minute;
