@@ -123,7 +123,7 @@ async function logIntoUnifi(hostname, port, sslverify, username, password) {
     }
 }
 
-
+console.log('schedule.scheduledJobs\t', schedule.scheduledJobs)
 // fetch login arguments
 let loginData;
 const fetchLoginInfo = async () => {
