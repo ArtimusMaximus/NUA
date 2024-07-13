@@ -850,9 +850,7 @@ app.get('/checkjobreinitiation', async (req, res) => {
                             console.log('reInitiatedJob OneTime Success! name:\t', reInitiatedJob?.name);
                             newEZJobNames.push({ ...data, jobName: reInitiatedJob?.name });
                         }
-
                     }
-
                 } else if (!oneTime) {
                     const reInitiatedJob = await updateRecurringSchedule(data, unifi, prisma, jobFunction, schedule);
                     console.log('reInitiatedJob Recurring Success! name:\t', reInitiatedJob?.name);
