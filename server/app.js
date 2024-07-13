@@ -247,32 +247,36 @@ function validateCron(crontype) { // return true/false
     return validation;
 }
 
-(async function() {
-    const getMacAddress = await prisma.device.findMany();
-    const previousEzScheduleData = await prisma.easySchedule.findMany();
+// (async function() {
+//     try {
+//         const getMacAddress = await prisma.device.findMany();
+//         const previousEzScheduleData = await prisma.easySchedule.findMany();
 
-    let matchingEZIds = [];
-    let newEZJobNames = [];
-    for (let i=0; i<previousEzScheduleData.length; i++) {
-        const matchedMacAddress = getMacAddress.find(
-            (item) => item.id === previousEzScheduleData[i].deviceId
-        );
-        if (matchedMacAddress) {
-            matchingEZIds.push({
-                ...previousEzScheduleData[i],
-                matchedMacAddress
-            });
-        }
-    }
-    for (const data of matchingEZIds) {
-        const { date, hour, minute, ampm, oneTime, deviceId, blockAllow } = data;
+//         let matchingEZIds = [];
+//         let newEZJobNames = [];
+//         for (let i=0; i<previousEzScheduleData.length; i++) {
+//             const matchedMacAddress = getMacAddress.find(
+//                 (item) => item.id === previousEzScheduleData[i].deviceId
+//             );
+//             if (matchedMacAddress) {
+//                 matchingEZIds.push({
+//                     ...previousEzScheduleData[i],
+//                     matchedMacAddress
+//                 });
+//             }
+//         }
+//         for (const data of matchingEZIds) {
+//             const { date, hour, minute, ampm, oneTime, deviceId, blockAllow } = data;
 
-        console.log('data fetch checker\t', date, hour, minute, ampm, oneTime, deviceId, blockAllow);
-        // nodeOneTimeScheduleRule(data, unifi, prisma, jobFunction, schedule)
-        // let reInitiatedJob = schedule.scheduleJob(data.toggleSched, () => jobFunction(data.blockAllow, data.matchedMacAddress.macAddress, false, unifi, prisma));
-        // newEZJobNames.push({...data, jobName: reInitiatedJob.name})
-    }
-})();
+//             console.log('data fetch checker\t', date, hour, minute, ampm, oneTime, deviceId, blockAllow);
+//             // nodeOneTimeScheduleRule(data, unifi, prisma, jobFunction, schedule)
+//             // let reInitiatedJob = schedule.scheduleJob(data.toggleSched, () => jobFunction(data.blockAllow, data.matchedMacAddress.macAddress, false, unifi, prisma));
+//             // newEZJobNames.push({...data, jobName: reInitiatedJob.name})
+//         }
+//     } catch (error) {
+//         console.error(error);
+//     }
+// })();
 
 
 
