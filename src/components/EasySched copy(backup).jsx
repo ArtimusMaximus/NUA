@@ -1,14 +1,24 @@
 import { useEffect, useRef, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { GoInfo, GoTrash } from "react-icons/go";
+import TimeClock from './TimeClock/TimeClock';
 
 
-export default function CronManager2()
+export default function EasySched()
 {
     const params = useParams();
     const [schedule, setSchedule] = useState({
         scheduletype: 'allow',
         id: parseInt(params.id),
+        daysOfTheWeek: {
+            sun: undefined,
+            mon: undefined,
+            tue: undefined,
+            wed: undefined,
+            thu: undefined,
+            fri: undefined,
+            sat: undefined,
+        },
         toggleschedule: null
     });
     const submitButtonRef = useRef();
@@ -18,8 +28,74 @@ export default function CronManager2()
     const [changed, setChanged] = useState(false);
     const [invalidscheduleMessage, setInvalidscheduleMessage] = useState({});
     const [deviceInfo, setDeviceInfo] = useState({});
-    const oneTimeScheduleRef = useRef();
-    const recurringScheduleRef = useRef();
+    const oneTimeScheduleRef = useRef(null);
+    const recurringScheduleRef = useRef(null);
+    const [oneTimeSchedule, setOneTimeSchedule] = useState(false);
+    const [timeData, setTimeData] = useState(null);
+    const [deviceId] = useState({ deviceId: parseInt(params.id) });
+    const [dayOfTheWeekSelected, setDayOfTheWeekSelected] = useState(false);
+    const [selectAllow, setSelectAllow] = useState(true);
+    const [scheduleMode, setScheduleMode] = useState("standard");
+
+
+    const handleSelectScheduleMode = e => {
+      e.target.value === "standard" 
+      ? setScheduleMode("standard") 
+      : e.target.value === "advanced" 
+      ? setScheduleMode("advanced") 
+      : null;
+    };
+    useEffect(() => {
+
+    }, [scheduleMode]);
+
+    const handleTimeData = (data) => {
+        setTimeData(data);
+    };
+    const checkDaysOfWeekNotChosen = () => {
+        const chosenDaysOfWeek = Object.values(schedule.daysOfTheWeek);
+        let mapChosen = chosenDaysOfWeek.map((i) => {
+            if (typeof i === "number") {
+                return true;
+            } else {
+                return false;
+            }
+        });
+        let chosen = mapChosen.includes(true);
+        console.log('chosen \t', chosen);
+        return chosen;
+    }
+
+    useEffect(() => {
+        setDayOfTheWeekSelected(checkDaysOfWeekNotChosen());
+    }, [schedule.daysOfTheWeek, oneTimeSchedule]);
+
+
+
+
+    // function PickerComponent() {
+    //     useEffect(() => {
+    //         import ('../../node_modules/pickerjs/src/css/picker.css');
+    //         const script = document.createElement('script');
+    //         script.src = '../../node_modules/pickerjs/src/js/picker.js';
+    //         script.async = true;
+
+    //         script.onload = () => {
+    //             let input = document.getElementById('pickerjs');
+    //             if (input) {
+    //                 new Picker(input, {
+    //                     format: 'MM/DD HH:mm'
+    //                 });
+    //             }
+    //         }
+    //         document.body.appendChild(script);
+    //         return () => {
+    //             document.body.removeChild(script);
+    //         }
+    //     }, []);
+    //     return <input type="text" id="pickerjs" />;
+    // }
+
 
     const reFetch = () => { setChanged(prev => !prev); }
 
@@ -35,7 +111,6 @@ export default function CronManager2()
             scheduletype : e.target.dataset.scheduletype,
             deviceId : parseInt(e.target.dataset.deviceid)
         }
-
 
         async function togglescheduleUpdate() {
             try {
@@ -63,13 +138,15 @@ export default function CronManager2()
         setSchedule({
             ...schedule,
             scheduletype: e.target.value
-        })
+        });
+        setSelectAllow(true);
     }
     const handleBlock = e => {
         setSchedule({
             ...schedule,
             scheduletype: e.target.value
         });
+        setSelectAllow(false);
     }
     const handleScheduleDayOfWeek = e => {
         const isChecked = e.target.checked;
@@ -82,8 +159,8 @@ export default function CronManager2()
             daysOfTheWeek: updatedDaysOfTheWeek,
             id: parseInt(params.id)
         }));
-        console.log(schedule)
     }
+
     const handleScheduleTimes = e => {
         setSchedule({
             ...schedule,
@@ -91,44 +168,47 @@ export default function CronManager2()
         })
     }
 
-    useEffect(() => { // fetch existing schedule data
-        const getscheduleData = async () => {
-        try {
-                const scheduleData = await fetch('/getscheduledata', {
-                    method: "POST",
-                    mode: "cors",
-                    headers: {
-                        "Content-Type" : "application/json"
-                    },
-                    body: JSON.stringify(schedule)
-                });
-                if(scheduleData.ok) {
-                    const returnedData = await scheduleData.json();
-                    setReturnData(returnedData);
-                    console.log('returned data: ', returnedData);
-                }
-            } catch (error) {
-                if (error) throw error;
-            }
-        }
-        getscheduleData();
-    }, [changed])
+
+    // useEffect(() => { // fetch existing schedule data
+    //     const getscheduleData = async () => {
+    //     try {
+    //             const scheduleData = await fetch('/getscheduledata', {
+    //                 method: "POST",
+    //                 mode: "cors",
+    //                 headers: {
+    //                     "Content-Type" : "application/json"
+    //                 },
+    //                 body: JSON.stringify(schedule)
+    //             });
+    //             if(scheduleData.ok) {
+    //                 const returnedData = await scheduleData.json();
+    //                 setReturnData(returnedData);
+    //                 console.log('returned data: ', returnedData);
+    //             }
+    //         } catch (error) {
+    //             if (error) throw error;
+    //         }
+    //     }
+    //     getscheduleData();
+    // }, [changed])
 
     const handleSubmit = async () => {
+        console.log('preSubmittedData: ', {...timeData, ...schedule});
         try {
-            const submitData = await fetch('/addschedule', {
+            const submitData = await fetch('/addeasyschedule', {
                 method: "POST",
                 mode: "cors",
                 headers: {
                     "Content-Type" : "application/json"
                 },
-                body: JSON.stringify(schedule)
+                body: JSON.stringify({ ...timeData, ...schedule, ...deviceId })
             });
             if (submitData.ok) {
                 setInvalidscheduleMessage({ error: false });
-                // const results = await submitData.json();
-                // console.log(results);
-                // inputRef.current.value = '';
+                // const res = submitData.json();
+                // console.log(`message: ${res.message} timeData: ${res.timeData}`)
+                console.log('submitData \t', submitData);
+
                 reFetch();
             } else if (submitData.status === 422) {
                 // const badResults = await submitData.json();
@@ -138,9 +218,8 @@ export default function CronManager2()
                     error: true,
                 });
             }
-        } catch (e) {
-            if (e) throw e;
-            console.log('e: ', e)
+        } catch (error) {
+            console.error(error);
         }
     }
     const handleDeleteschedule = async e => {
@@ -187,37 +266,126 @@ export default function CronManager2()
         getDeviceData();
     }, []);
 
+    const handlePickedSchedule = e => {
+        if (e.target.dataset.onetime === 'onetime') {
+            setOneTimeSchedule(true);
+            oneTimeScheduleRef.current.checked = true;
+            recurringScheduleRef.current.checked = false;
+            setSchedule((prev) => ({
+                ...prev,
+                daysOfTheWeek: {
+                    sun: undefined,
+                    mon: undefined,
+                    tue: undefined,
+                    wed: undefined,
+                    thu: undefined,
+                    fri: undefined,
+                    sat: undefined,
+                },
+            }));
+        } else if (e.target.dataset.recur === 'recur') {
+            setOneTimeSchedule(false);
+            oneTimeScheduleRef.current.checked = false;
+            recurringScheduleRef.current.checked = true;
+        }
+        console.log(oneTimeSchedule);
+        console.log('schedule \t', schedule);
+    }
 
 
 
 
     return (
         <>
-            <div className="flex items-center justify-center w-full h-full sm:w-3/4 lg:w-1/2 mx-auto pb-12 pt-12">
+            <div className="flex items-center justify-center w-full h-full sm:w-3/4 lg:w-1/2 mx-auto pb-12">
                 <div className="flex w-full mx-2">
                     <div className="flex flex-col items-center justify-center w-full h-full mx-auto border rounded-lg shadow overflow-hidden border-neutral shadow-base-300 m-8">
                         <div className="flex mt-8">
-                            <h1 className="italic text-3xl text-center my-2">Adjust schedule for device &quot;{deviceInfo?.name}&quot;</h1>
-                            <a href="https://schedule.help" target="_blank" rel="noreferrer" className="link hover:text-info" >
+                            <h1 className="italic text-3xl text-center my-2">New schedule for device &quot;{deviceInfo?.name}&quot;</h1>
+                            {/* <a href="https://schedule.help" target="_blank" rel="noreferrer" className="link hover:text-info" >
                                 <GoInfo />
-                            </a>
+                            </a> */}
                         </div>
                         <div className="divider"></div>
-
+                        <select className="select select-bordered w-full max-w-xs" onChange={handleSelectScheduleMode}>
+                            <option disabled selected>Scheduler Type...</option>
+                            <option value="standard">Standard</option>
+                            <option value="advanced">Cron</option>
+                        </select>
+                        
                         <div className="flex flex-row gap-4 my-4">
-                            <span>One Time Schedule:</span>
-                            <input type="radio" data-onetime="onetime" ref={oneTimeScheduleRef} name="radio-2" className="radio radio-primary" checked />
-                            <span>Recurring Schedule:</span>
-                            <input type="radio" data-recur="recur" ref={recurringScheduleRef} name="radio-2" className="radio radio-primary" />
+                            <span>Recurring:</span>
+                            <input
+                                type="radio"
+                                data-recur="recur"
+                                ref={recurringScheduleRef}
+                                onClick={handlePickedSchedule}
+                                name="radio-2"
+                                className="radio radio-primary"
+                                checked={!oneTimeSchedule}
+                            />
+                            <span>Single Event:</span>
+                            <input
+                                type="radio"
+                                data-onetime="onetime"
+                                ref={oneTimeScheduleRef}
+                                onClick={handlePickedSchedule}
+                                name="radio-2"
+                                className="radio radio-primary"
+                                checked={oneTimeSchedule}
+                            />
                         </div>
+
+                        <div class="divider">Action</div>
+
+                        <div className="flex items-center justify-center">
+                            <div className="join m-4">
+                                <input
+                                    onClick={handleAllow}
+                                    className={`btn join-item`}
+                                    value="allow"
+                                    type="radio"
+                                    aria-label="Allow"
+                                    name="options"
+                                    checked={selectAllow}
+                                />
+                                <input
+                                    onClick={handleBlock}
+                                    className={`btn join-item`}
+                                    value="block"
+                                    type="radio"
+                                    aria-label="Block"
+                                    name="options"
+                                    checked={!selectAllow}
+                                />
+                            </div>
+                        </div>
+
+
 
                         <div className={`flex items-center justify-center flex-col`}>
                             <div className="flex flex-col">
+
+                                {oneTimeSchedule
+                                ? <div class="divider">Date & Time</div>
+                                : <><div class="divider">Time</div>
+                                </>}
+                                <div className="flex flex-row gap-2 mt-2 items-center justify-center text-primary mx-auto">
+                                    {/* <input onChange={handleScheduleTimes} onFocus={handleFocusTime} onClick={handleTimeClick} name="hour" type="time" placeholder="Hour to recur" className="input italic input-bordered w-full max-w-xs" /> */}
+                                    {/* <input onChange={handleScheduleTimes} name="minute" type="number" placeholder="Minute to recur" className="input italic input-bordered w-full max-w-xs" /> */}
+                                    <TimeClock oneTime={oneTimeSchedule} handleTimeData={handleTimeData}  />
+
+                                </div>
+
+                                {oneTimeSchedule
+                                ? <div></div>
+                                : <><div class="divider">Repeat</div>
+
                                 <div className="flex justify-center items-center gap-4">
-                                    <div className="flex flex-row my-2">
+                                    <div className="flex flex-row my-4">
                                         <div className="join">
                                             <input onChange={handleScheduleDayOfWeek} name="sun" value="0" type="checkbox" className="btn join-item rounded-l-full" aria-label="Sun"/>
-                                            <input onChange={handleScheduleDayOfWeek} name="mon" value="1" type="checkbox" className="btn join-item" aria-label="M"/>
+                                            <input onChange={handleScheduleDayOfWeek} name="mon" value="1" type="checkbox" className={`btn join-item`} aria-label="M"/>
                                             <input onChange={handleScheduleDayOfWeek} name="tue" value="2" type="checkbox" className="btn join-item" aria-label="T"/>
                                             <input onChange={handleScheduleDayOfWeek} name="wed" value="3" type="checkbox" className="btn join-item" aria-label="W"/>
                                             <input onChange={handleScheduleDayOfWeek} name="thu" value="4" type="checkbox" className="btn join-item" aria-label="Th"/>
@@ -225,33 +393,14 @@ export default function CronManager2()
                                             <input onChange={handleScheduleDayOfWeek} name="sat" value="6" type="checkbox" className="btn join-item rounded-r-full" aria-label="Sat"/>
                                         </div>
                                     </div>
+                                </div>
+                                </>}
 
-                                </div>
-                                <div className="flex flex-row gap-2 mt-2">
-                                    <input onChange={handleScheduleTimes} name="hour" type="number" placeholder="Hour to recur" className="input italic input-bordered w-full max-w-xs" />
-                                    <input onChange={handleScheduleTimes} name="minute" type="number" placeholder="Minute to recur" className="input italic input-bordered w-full max-w-xs" />
-                                </div>
-                                <div className="flex items-center justify-center">
-                                    <div className="join m-4">
-                                        <input
-                                            onClick={handleAllow}
-                                            className={`btn join-item`}
-                                            value="allow"
-                                            type="radio"
-                                            aria-label="Allow"
-                                            name="options"
-                                        />
-                                        <input
-                                            onClick={handleBlock}
-                                            className={`btn join-item`}
-                                            value="block"
-                                            type="radio"
-                                            aria-label="Block"
-                                            name="options"
-                                        />
-                                    </div>
-                                </div>
-                                <div className="btn mb-8" onClick={handleSubmit}>Submit</div>
+
+                                <div class="divider"></div>
+                                <div className={`btn mb-8 ${oneTimeSchedule ? '' : dayOfTheWeekSelected ? '' : 'btn-disabled'}`} onClick={handleSubmit}>Submit</div>
+
+                               
 
                                 <table className="table table-zebra border rounded-lg shadow overflow-hidden dark:border-gray-700 dark:shadow-gray-900 mb-8">
                                     <tbody>

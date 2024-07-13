@@ -10,8 +10,9 @@ import SeeAllApps from './components/see_all_apps/SeeAllApps.jsx'
 import BlockedDevices from './components/blocked_device/BlockedDevices.jsx';
 import AllDevices from './components/all_devices/AllDevices.jsx';
 import NotFound from './components/NotFound.jsx';
+import Scheduler from './components/Scheduler/Scheduler.jsx';
 import CronManager from './components/CronManager.jsx';
-import CronManager2 from './components/CronManager2.jsx';
+import EasySched from './components/EasySched.jsx';
 import SiteSettings from './components/SiteSettings.jsx';
 import { createRoot } from 'react-dom/client';
 import {
@@ -37,8 +38,9 @@ root.render(
             <Route path="/trafficrules/" element={<TrafficRules />} />
             <Route path="/manageapp/:cat/:id" element={<ManageApp />} />
             <Route path="/seeallapps" element={<SeeAllApps />} />
-            <Route path="/admin/:id/cronmanager" element={<CronManager />} />
-            <Route path="/admin/:id/cronmanager2" element={<CronManager2 />} />
+            <Route path="/admin/:id/scheduler" element={<Scheduler />} />
+            {/* <Route path="/admin/:id/cronmanager" element={<CronManager />} /> */}
+            {/* <Route path="/admin/:id/easysched" element={<EasySched />} /> */}
             <Route path="*" element={<NotFound />} />
             {/* <Route path="/adminconsole" element={<AdminConsole />} /> */}
           </Route>
