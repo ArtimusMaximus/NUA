@@ -43,8 +43,8 @@ model Cron {
 }
 
 model EasySchedule {
-  id            Int      @id @default(autoincrement())
-  createdAt     DateTime @default(now())
+  id            Int       @id @default(autoincrement())
+  createdAt     DateTime? @default(now())
   month         Int?
   days          String?
   minute        Int
@@ -54,7 +54,7 @@ model EasySchedule {
   blockAllow    String
   oneTime       Boolean
   jobName       String?
-  device        Device?  @relation(fields: [deviceId], references: [id])
+  device        Device?   @relation(fields: [deviceId], references: [id])
   deviceId      Int?
   toggleSched   Boolean?
 }

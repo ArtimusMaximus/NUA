@@ -831,15 +831,28 @@ app.get('/checkjobreinitiation', async (req, res) => {
                 });
             }
         }
-        console.log("matchingEZIds #834\t", matchingEZIds);
+        // console.log("matchingEZIds #834\t", matchingEZIds);
         for (const data of matchingEZIds) {
             const { jobName, oneTime, toggleSched } = data;
 
             if (scheduledJobs[jobName] === undefined && toggleSched === true) { // reschedule jobs === undefined
                 if (oneTime) {
-                    const reInitiatedJob = await updateOneTimeSchedule(data, unifi, prisma, jobFunction, schedule);
-                    console.log('reInitiatedJob OneTime Success! name:\t', reInitiatedJob?.name);
-                    newEZJobNames.push({ ...data, jobName: reInitiatedJob?.name });
+                    if (data.date) { // job was in past, delete
+                        let oneTimeScheduleDate = new Date(`${data.date} ${data.hour}:${data.minute}:00`);
+                        let currentDate = new Date();
+                        console.log('oneTimeScheduleDate\t', oneTimeScheduleDate);
+                        if (oneTimeScheduleDate < currentDate) {
+                            console.log('Date was less than current date');
+                            const deleteOldPrismaDate = await prisma.easySchedule.delete({ where: { id: data.id } });
+                            console.log("deleteOldPrismaDate\t", deleteOldPrismaDate);
+                        } else {
+                            const reInitiatedJob = await updateOneTimeSchedule(data, unifi, prisma, jobFunction, schedule);
+                            console.log('reInitiatedJob OneTime Success! name:\t', reInitiatedJob?.name);
+                            newEZJobNames.push({ ...data, jobName: reInitiatedJob?.name });
+                        }
+
+                    }
+
                 } else if (!oneTime) {
                     const reInitiatedJob = await updateRecurringSchedule(data, unifi, prisma, jobFunction, schedule);
                     console.log('reInitiatedJob Recurring Success! name:\t', reInitiatedJob?.name);
