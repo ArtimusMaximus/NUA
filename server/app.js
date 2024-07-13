@@ -831,17 +831,19 @@ app.get('/checkjobreinitiation', async (req, res) => {
                 });
             }
         }
+        console.log("matchingEZIds #834\t", matchingEZIds);
         for (const data of matchingEZIds) {
             const { jobName, oneTime, toggleSched } = data;
+
             if (scheduledJobs[jobName] === undefined && toggleSched === true) { // reschedule jobs === undefined
                 if (oneTime) {
                     const reInitiatedJob = await updateOneTimeSchedule(data, unifi, prisma, jobFunction, schedule);
-                    console.log('reInitiatedJob OT Success! name:\t', reInitiatedJob.name);
-                    newEZJobNames.push({ ...data, jobName: reInitiatedJob.name });
+                    console.log('reInitiatedJob OneTime Success! name:\t', reInitiatedJob?.name);
+                    newEZJobNames.push({ ...data, jobName: reInitiatedJob?.name });
                 } else if (!oneTime) {
                     const reInitiatedJob = await updateRecurringSchedule(data, unifi, prisma, jobFunction, schedule);
-                    console.log('reInitiatedJob RR Success! name:\t', reInitiatedJob.name);
-                    newEZJobNames.push({ ...data, jobName: reInitiatedJob.name });
+                    console.log('reInitiatedJob Recurring Success! name:\t', reInitiatedJob?.name);
+                    newEZJobNames.push({ ...data, jobName: reInitiatedJob?.name });
                 }
                 // let reInitiatedJob = schedule.scheduleJob(data.toggleSched, () => jobFunction(data.blockAllow, data.matchedMacAddress.macAddress, false, unifi, prisma));
                 // newEZJobNames.push({...data, jobName: reInitiatedJob.name});
