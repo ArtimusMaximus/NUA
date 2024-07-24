@@ -837,7 +837,14 @@ app.get('/checkjobreinitiation', async (req, res) => {
         }
         // console.log("matchingEZIds #834\t", matchingEZIds);
         for (const data of matchingEZIds) {
+            console.log('data\t', data)
+            console.log('data.modifiedDaysOfTheWeek\t', data.modifiedDaysOfTheWeek)
             const { jobName, oneTime, toggleSched } = data;
+
+            if (data.days) { // added 07 24 2024: modifiedDaysOfTheWeek was undefined on job re-initiation, we are manually adding it to the data obj from days
+                let d = data.days.split("").map(day => parseInt(day));
+                data.modifiedDaysOfTheWeek = d;
+            }
 
             if (scheduledJobs[jobName] === undefined && toggleSched === true) { // reschedule jobs === undefined
                 if (oneTime) {
