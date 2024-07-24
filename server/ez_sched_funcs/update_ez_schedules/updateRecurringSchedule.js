@@ -2,8 +2,8 @@
 
 async function updateRecurringSchedule(data, unifi, prisma, jobFunction, schedule) {
     const { date, hour, minute, ampm, modifiedDaysOfTheWeek, deviceId, oneTime, scheduletype, days } = data; // gets data from
-    // console.log('modifiedDaysOfTheWeek\t', modifiedDaysOfTheWeek);
-    // console.log('modifiedDaysOfTheWeek\t', modifiedDaysOfTheWeek, typeof modifiedDaysOfTheWeek);
+    console.log('modifiedDaysOfTheWeek\t', modifiedDaysOfTheWeek);
+    console.log('Array.isArray modifiedDaysOfTheWeek\t', Array.isArray(modifiedDaysOfTheWeek));
     // console.log("days from updaterecurringsched\t", days);
     const deviceToSchedule = await prisma.device.findUnique({ where: { id: deviceId } });
     // const { year, month, day } = dateFromDateString(date);
