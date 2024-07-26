@@ -73,6 +73,7 @@ const handleSearchByNameMac = e => {
         return i?.name?.toLowerCase().includes(e.target.value)
         || i?.oui?.toLowerCase().includes(e.target.value)
         || i?.mac?.toLowerCase().includes(e.target.value)
+        || i?.name?.toLowerCase().includes(e.target.value)
         || i?.hostname?.toLowerCase().includes(e.target.value);
     });
     setFilteredArray(newArr)
