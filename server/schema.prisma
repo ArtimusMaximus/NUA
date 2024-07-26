@@ -1,5 +1,5 @@
 datasource db {
-  url      = "file:nodeunifi.db"
+  url      = "file:config/nodeunifi.db"
   provider = "sqlite"
 }
 
