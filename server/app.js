@@ -25,7 +25,7 @@ const { updateRecurringSchedule } = require('./ez_sched_funcs/update_ez_schedule
 // Init sqlite db
 (async () => {
     const db = await open({
-        filename: './nodeunifi.db',
+        filename: './config/nodeunifi.db', // changed 07/25/2024
         driver: sqlite3.Database
     })
 })();
