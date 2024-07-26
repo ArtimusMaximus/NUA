@@ -30,7 +30,7 @@ const { updateRecurringSchedule } = require('./ez_sched_funcs/update_ez_schedule
     })
 })();
 const prisma = new PrismaClient();
-
+// commented line to test docker build
 // create server & add middleware
 const app = express();
 app.use(cors());
