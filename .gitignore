@@ -30,3 +30,6 @@ server/ nodeunifi.db-journal
 
 # Ignore global settings
 server/globalSettings.js
+
+server/config/*
+*.db

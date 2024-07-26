@@ -7,12 +7,39 @@ on:
     branches: [ "master" ]
 
 jobs:
-
   build:
-
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v4
-    - name: Build the Docker image
-      run: docker build . --file Dockerfile --tag my-image-name:$(date +%s)
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+
+    - name: Login to Docker Hub
+      uses: docker/login-action@v3
+      with:
+        username: ${{ secrets.DOCKER_USERNAME }}
+        password: ${{ secrets.DOCKER_PASSWORD }}
+
+    - name: Extract version from date
+      id: version
+      run: echo "VERSION=$(date +'%Y%m%d%H%M%S')" >> $GITHUB_ENV
+
+    # DEBUG
+    # - name: Output environment variables
+    #   run: printenv
+
+    - name: Build and push the Docker image
+      uses: docker/build-push-action@v5
+      with:
+        context: .
+        push: true
+        tags: |
+          ${{ secrets.DOCKER_REPO }}:latest
+          ${{ secrets.DOCKER_REPO }}:${{ env.VERSION }}
+
+    # - name: Output image version tag
+    #   run: |
+    #     echo "Docker image version: $VERSION"
