@@ -143,6 +143,8 @@ export default function Devices({ data, toggleReRender, handleRenderToggle, load
     }
     const handleClose = () => {
         editRef.current.close();
+        newDeviceNameRef.current.value = '';
+        newMacAddressRef.current.value = '';
     }
     const handleEditInput = e => {
         setUpdatedDeviceData({

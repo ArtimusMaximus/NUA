@@ -4,7 +4,6 @@ import { IoCheckmarkSharp } from "react-icons/io5";
 
 export default function AllDevicesCard({ props, length, handleAddToDevices })
 {
-    console.log('props\t', props)
     const [nameInput, setNameInput] = useState("");
     const [submittedName, setSubmittedName] = useState("");
     const [modalIdState, setModalIdState] = useState("");
