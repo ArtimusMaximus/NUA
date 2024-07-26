@@ -143,6 +143,8 @@ export default function Devices({ data, toggleReRender, handleRenderToggle, load
     }
     const handleClose = () => {
         editRef.current.close();
+        newDeviceNameRef.current.value = '';
+        newMacAddressRef.current.value = '';
     }
     const handleEditInput = e => {
         setUpdatedDeviceData({
@@ -310,7 +312,7 @@ export default function Devices({ data, toggleReRender, handleRenderToggle, load
 
             <dialog ref={toggleLoadingDialogRef} className="modal">
                 <div className="flex items-center justify-center w-full h-full">
-                    <span className="loading loading-spinner w-1/2 h-1/2"></span>
+                    <span className="loading loading-spinner w-32 h-32"></span>
                 </div>
             </dialog>
         </>

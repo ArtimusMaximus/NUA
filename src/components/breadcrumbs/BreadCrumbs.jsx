@@ -35,6 +35,9 @@ export default function BreadCrumbs()
             } else if (path === 'admin') {
                 path = 'Admin'
                 pathNames[i] = ''
+            } else if (path === 'scheduler') {
+                path = 'Scheduler'
+                pathNames[i] = ''
             } else if (Number(path)) {
                 path = null
             }
