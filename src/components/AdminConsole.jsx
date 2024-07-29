@@ -163,7 +163,7 @@ export default function AdminConsole()
                     if (cronData.ok) {
                         const cronJobCheckData = await cronData.json();
                         setCronJobChecked(cronJobCheckData);
-                        // console.log('Cron Job Check Data: ', cronJobCheckData);
+                        console.log('Cron Job Check Data: ', cronJobCheckData);
                     }
                 } catch (error) {
                     // if (error) throw error; // prev 03/4/2024

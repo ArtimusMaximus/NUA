@@ -21,14 +21,8 @@ async function nodeScheduleRecurrenceRule(data, unifi, prisma, jobFunction, sche
         modifiedDaysOfTheWeek,
         oneTime
     }
-    console.log('modifiedHour\t', modifiedHour);
-    console.log('hour\t', hour, typeof hour);
-    console.log('minute\t', minute, typeof minute);
-    // const daysToInt = days.split("").map((day) => parseInt(day));
     const rule = new schedule.RecurrenceRule();
-    // const dateTime = new Date(year, month-1, day, modifiedHour, parseInt(minute), 0);
-    const daysOfTheWeek = modifiedDaysOfTheWeek;
-    // rule.dayOfWeek = [...daysToInt];
+
     rule.dayOfWeek = [...modifiedDaysOfTheWeek];
     // rule.dayOfWeek = [...daysOfTheWeek];
     rule.hour = modifiedHour;

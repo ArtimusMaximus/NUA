@@ -20,6 +20,8 @@ const { nodeOneTimeScheduleRule } = require('./ez_sched_funcs/nodeOneTimeSchedul
 const { nodeScheduleRecurrenceRule } = require('./ez_sched_funcs/nodeRecurringScheduleRule');
 const { updateOneTimeSchedule } = require('./ez_sched_funcs/update_ez_schedules/updateOneTimeSchedule');
 const { updateRecurringSchedule } = require('./ez_sched_funcs/update_ez_schedules/updateRecurringSchedule');
+const { addEasySchedule } = require("./ez_sched_funcs/addEasySchedule");
+
 
 
 // Init sqlite db
@@ -291,54 +293,54 @@ function validateCron(crontype) { // return true/false
 //         .then(() => console.log(result))
 // })();
 
-async function addEasySchedule(deviceId, dateTime, blockAllow, scheduleData, startNewJobTrue, prisma) {
-    const { month, day, minute, modifiedHour, ampm, date, oneTime, modifiedDaysOfTheWeek } = scheduleData;
-    const deviceToSchedule = await prisma.device.findUnique({ where: { id: deviceId } }); // deviceToSchedule.macAddress
-    try {
-        if (oneTime && startNewJobTrue) {
-            const addToDB = await prisma.easySchedule.create({ // create easySched
-                data: {
-                    month: month,
-                    // days: day,
-                    minute: parseInt(minute),
-                    hour: modifiedHour,
-                    ampm: ampm,
-                    date: date,
-                    blockAllow: blockAllow,
-                    jobName: startNewJobTrue.name,
-                    toggleSched: true,
-                    oneTime: oneTime,
-                    device: {
-                        connect: { id: deviceToSchedule.id }
-                    },
-                }
-            });
-        } else if (!oneTime && startNewJobTrue) {
-            const stringDays = convertDOWtoString(modifiedDaysOfTheWeek);
-            const addToDB = await prisma.easySchedule.create({ // create easySched
-                data: {
-                    month: month,
-                    days: stringDays,
-                    minute: parseInt(minute),
-                    hour: modifiedHour,
-                    ampm: ampm,
-                    date: date,
-                    blockAllow: blockAllow,
-                    jobName: startNewJobTrue.name,
-                    toggleSched: true,
-                    oneTime: oneTime,
-                    device: {
-                        connect: { id: deviceToSchedule.id }
-                    },
-                }
-            });
-        } else {
-            throw new Error("startNewJob false...");
-        }
-    } catch (error) {
-        console.error(error);
-    }
-}
+// async function addEasySchedule(deviceId, dateTime, blockAllow, scheduleData, startNewJobTrue, prisma) {
+//     const { month, day, minute, modifiedHour, ampm, date, oneTime, modifiedDaysOfTheWeek } = scheduleData;
+//     const deviceToSchedule = await prisma.device.findUnique({ where: { id: deviceId } }); // deviceToSchedule.macAddress
+//     try {
+//         if (oneTime && startNewJobTrue) {
+//             const addToDB = await prisma.easySchedule.create({ // create easySched
+//                 data: {
+//                     month: month,
+//                     // days: day,
+//                     minute: parseInt(minute),
+//                     hour: modifiedHour,
+//                     ampm: ampm,
+//                     date: date,
+//                     blockAllow: blockAllow,
+//                     jobName: startNewJobTrue.name,
+//                     toggleSched: true,
+//                     oneTime: oneTime,
+//                     device: {
+//                         connect: { id: deviceToSchedule.id }
+//                     },
+//                 }
+//             });
+//         } else if (!oneTime && startNewJobTrue) {
+//             const stringDays = convertDOWtoString(modifiedDaysOfTheWeek);
+//             const addToDB = await prisma.easySchedule.create({ // create easySched
+//                 data: {
+//                     month: month,
+//                     days: stringDays,
+//                     minute: parseInt(minute),
+//                     hour: modifiedHour,
+//                     ampm: ampm,
+//                     date: date,
+//                     blockAllow: blockAllow,
+//                     jobName: startNewJobTrue.name,
+//                     toggleSched: true,
+//                     oneTime: oneTime,
+//                     device: {
+//                         connect: { id: deviceToSchedule.id }
+//                     },
+//                 }
+//             });
+//         } else {
+//             throw new Error("startNewJob false...");
+//         }
+//     } catch (error) {
+//         console.error(error);
+//     }
+// }
 
 // async function nodeOneTimeScheduleRule(data, unifi, prisma, jobFunction, schedule) {
 //     const { date, hour, minute, ampm, modifiedDaysOfTheWeek, oneTime, deviceId, scheduletype } = data;
@@ -649,7 +651,7 @@ app.put('/updatemacaddressstatus', async (req, res) => { // toggler
         const filterBlockedUsers = blockedUsers.filter((device) => {
             return device.mac === macAddress
         });
-        console.log('Filtered only blocked users from db: ', filterBlockedUsers);
+        // console.log('Filtered only blocked users from db: ', filterBlockedUsers);
         // console.log(blockedUsers);
     ///////////////////////////////////// bash block device command here///////////////
     //////////////////////////////////// to toggle we need to be able to unblock as well
@@ -790,6 +792,9 @@ app.get('/checkjobreinitiation', async (req, res) => {
 
         const { scheduledJobs } = schedule; // node-schedule
 
+
+        // console.log("scheduledJobs\t", scheduledJobs);
+
         let matchingCronIds = [];
         let newCronJobNames = [];
         for (let i=0; i<previousCronJobData.length; i++) {
@@ -803,12 +808,14 @@ app.get('/checkjobreinitiation', async (req, res) => {
                 });
             }
         }
+        // RESCHEDULE JOBS
         for (const data of matchingCronIds) {
             if (scheduledJobs[data.jobName] === undefined && data.toggleCron === true) { // reschedule jobs === undefined
                 let reInitiatedJob = schedule.scheduleJob(data.crontime, () => jobFunction(data.crontype, data.matchedMacAddress.macAddress, false, unifi, prisma));
                 newCronJobNames.push({...data, jobName: reInitiatedJob.name});
             }
         }
+        // DATABASE
         let updatedCronJobs = [];
         for (let i=0; i<newCronJobNames.length; i++) {
             const updateNewCronJobNames = await prisma.cron.update({
@@ -835,19 +842,14 @@ app.get('/checkjobreinitiation', async (req, res) => {
                 });
             }
         }
-        // console.log("matchingEZIds #834\t", matchingEZIds);
-        for (const data of matchingEZIds) {
-            console.log('data\t', data)
-            console.log('data.modifiedDaysOfTheWeek\t', data.modifiedDaysOfTheWeek)
-            const { jobName, oneTime, toggleSched } = data;
 
+        for (const data of matchingEZIds) {
             if (data.days) { // added 07 24 2024: modifiedDaysOfTheWeek was undefined on job re-initiation, we are manually adding it to the data obj from days
                 let d = data.days.split("").map(day => parseInt(day));
                 data.modifiedDaysOfTheWeek = d;
             }
-
-            if (scheduledJobs[jobName] === undefined && toggleSched === true) { // reschedule jobs === undefined
-                if (oneTime) {
+            if (scheduledJobs[data.jobName] === undefined && data.toggleSched) { // reschedule jobs === undefined
+                if (data.oneTime) {
                     if (data.date) { // job was in past, delete
                         let oneTimeScheduleDate = new Date(`${data.date} ${data.hour}:${data.minute}:00`);
                         let currentDate = new Date();
@@ -862,13 +864,10 @@ app.get('/checkjobreinitiation', async (req, res) => {
                             newEZJobNames.push({ ...data, jobName: reInitiatedJob?.name });
                         }
                     }
-                } else if (!oneTime) {
-                    const reInitiatedJob = await updateRecurringSchedule(data, unifi, prisma, jobFunction, schedule);
-                    console.log('reInitiatedJob Recurring Success! name:\t', reInitiatedJob?.name);
-                    newEZJobNames.push({ ...data, jobName: reInitiatedJob?.name });
+                } else if (!data.oneTime) {
+                    const reInitiatedJob = await updateRecurringSchedule(data, unifi, prisma, jobFunction, schedule); // ORIGINAL
+                    newEZJobNames.push({ ...data, jobName: reInitiatedJob?.name }); // ORIGINAL
                 }
-                // let reInitiatedJob = schedule.scheduleJob(data.toggleSched, () => jobFunction(data.blockAllow, data.matchedMacAddress.macAddress, false, unifi, prisma));
-                // newEZJobNames.push({...data, jobName: reInitiatedJob.name});
             }
         }
         let updatedEZJobs = [];
@@ -883,9 +882,15 @@ app.get('/checkjobreinitiation', async (req, res) => {
             });
             updatedEZJobs.push(updatenewEZJobNames)
         }
-        res.json({ previousCronJobData: previousCronJobData, getMacAddress: getMacAddress, updatedEZJobs: updatedEZJobs, updatedCronJobs: updatedCronJobs });
+        res.json({
+            previousCronJobData,
+            previousEzScheduleData,
+            getMacAddress,
+            updatedEZJobs,
+            updatedCronJobs
+        });
      } catch (error) {
-        if (error) throw error;
+        if (error) console.error(error);
      }
 });
 
@@ -1831,4 +1836,10 @@ app.get('**', async (req, res) => {
 const PORT = process.env.PORT || customPORT; // portSettings.js
 app.listen(PORT, () => {
     console.log(`Server listening on ${PORT}....`)
+});
+
+process.on('SIGINT', function () {
+    console.log('~SIGINT FIRED~');
+    schedule.gracefulShutdown()
+    .then(() => process.exit(0))
 });

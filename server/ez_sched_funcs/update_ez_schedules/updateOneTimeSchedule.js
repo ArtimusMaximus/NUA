@@ -3,9 +3,9 @@ const { dateFromDateString } = require("../../server_util_funcs/ez_sched_utils/d
 
 
 async function updateOneTimeSchedule(data, unifi, prisma, jobFunction, schedule) {
-    const { date, hour, minute, ampm, oneTime, deviceId, scheduletype } = data;
+    const { date, hour, minute, ampm, oneTime, deviceId, blockAllow } = data;
     const deviceToSchedule = await prisma.device.findUnique({ where: { id: deviceId } });
-    const blockAllow = scheduletype;
+    console.log('scheduletype from one time\t', scheduletype)
 
     const { year, month, day } = dateFromDateString(date);
     const modifiedHour = convertToMilitaryTime(ampm, hour);

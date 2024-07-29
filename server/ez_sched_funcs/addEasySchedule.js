@@ -3,14 +3,13 @@ const { convertStringToBool } = require("../server_util_funcs/convert_string_to_
 
 
 async function addEasySchedule(deviceId, blockAllow, scheduleData, startNewJobTrue, prisma) {
-// async function addEasySchedule(deviceId, dateTime, blockAllow, scheduleData, startNewJobTrue, prisma) {
     const { month, day, minute, modifiedHour, ampm, date, oneTime, modifiedDaysOfTheWeek } = scheduleData;
 
     const deviceToSchedule = await prisma.device.findUnique({ where: { id: deviceId } }); // deviceToSchedule.macAddress
+    console.log("deviceToSchedule in addEZ\t", deviceToSchedule);
     let boolOneTime = convertStringToBool(oneTime);
     try {
         if (boolOneTime && startNewJobTrue) {
-            console.log("boolOneTime && startNewJobTrue from addEasy");
                 const addToDB = await prisma.easySchedule.create({ // create easySched
                     data: {
                         month: month,
@@ -20,7 +19,7 @@ async function addEasySchedule(deviceId, blockAllow, scheduleData, startNewJobTr
                         ampm: ampm,
                         date: date,
                         blockAllow: blockAllow,
-                        jobName: startNewJobTrue.name,
+                        jobName: startNewJobTrue?.name,
                         toggleSched: true,
                         oneTime: boolOneTime,
                         device: {
@@ -30,7 +29,6 @@ async function addEasySchedule(deviceId, blockAllow, scheduleData, startNewJobTr
                 });
 
         } else if (!boolOneTime && startNewJobTrue) {
-            console.log("!boolOneTime && startNewJobTrue from addEasy");
             const stringDays = convertDOWtoString(modifiedDaysOfTheWeek.join(""));
             const addToDB = await prisma.easySchedule.create({ // create easySched
                 data: {
