@@ -850,10 +850,11 @@ app.get('/checkjobreinitiation', async (req, res) => {
             }
             if (scheduledJobs[data.jobName] === undefined && data.toggleSched) { // reschedule jobs === undefined
                 if (data.oneTime) {
-                    if (data.date) { // job was in past, delete
+                    if (data.date) { // job was in past, delete or reschedule
                         let oneTimeScheduleDate = new Date(`${data.date} ${data.hour}:${data.minute}:00`);
                         let currentDate = new Date();
-                        console.log('oneTimeScheduleDate\t', oneTimeScheduleDate);
+                        // console.log('oneTimeScheduleDate\t', oneTimeScheduleDate);
+                        // console.log('currentDate\t', currentDate);
                         if (oneTimeScheduleDate < currentDate) {
                             console.log('Date was less than current date');
                             const deleteOldPrismaDate = await prisma.easySchedule.delete({ where: { id: data.id } });

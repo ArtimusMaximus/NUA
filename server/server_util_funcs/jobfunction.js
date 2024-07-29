@@ -2,8 +2,8 @@ const { deleteCompletedJobs } = require("./ez_sched_utils/deleteCompletedJobs");
 const { red } = require("./red");
 
 const jobFunction = async (crontype, macAddress, oneTime, unifi, prisma) => { // for crons
-
     try {
+        if (crontype === undefined) throw new Error("**block/allow must be specified for jobFunction, undefined was passed!**");
         if (crontype === 'allow') {
             console.log('unifi === undefined \t', unifi === undefined);
             const confirmAllow = await unifi?.unblockClient(macAddress);
