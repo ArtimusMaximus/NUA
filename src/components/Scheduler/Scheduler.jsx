@@ -1,8 +1,9 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import CronManager from "../CronManager";
 import EasySched from "../EasySched";
 import { useParams } from "react-router-dom";
 import ScheduleData from "./ScheduleData";
+
 
 
 export default function Scheduler() {
@@ -10,6 +11,22 @@ export default function Scheduler() {
     const params = useParams();
     const [scheduleMode, setScheduleMode] = useState("standard");
     const [render, setRender] = useState(false);
+    const easyBtnRef = useRef(null);
+    const advancedBtnRef = useRef(null);
+    // const [selectChoice, setSelectChoice] = useState(null);
+
+    const handleEasyBtnClick = e => {
+        advancedBtnRef.current.className = "btn w-28 bg-neutral border-none";
+        easyBtnRef.current.className = "btn w-28 bg-primary text-black font-bold";
+        setScheduleMode("standard");
+        reRender();
+    }
+    const handleAdvancedBtnClick = e => {
+        easyBtnRef.current.className = "btn w-28 bg-neutral border-none";
+        advancedBtnRef.current.className = "btn w-28 bg-primary text-black font-bold";
+        setScheduleMode("advanced");
+        reRender();
+    }
 
     const [changed, setChanged] = useState(false);
     const triggerRender = () => {
@@ -18,16 +35,16 @@ export default function Scheduler() {
     const reRender = () => {
         setRender(prev => !prev);
     };
-    const handleSelectScheduleMode = e => {
-        console.log(e.target.value);
-      if (e.target.value === "standard") {
-        setScheduleMode("standard");
-        reRender();
-      } else if (e.target.value === "advanced") {
-        setScheduleMode("advanced");
-        reRender();
-      }
-    };
+    // const handleSelectScheduleMode = e => {
+    //     console.log(e.target.value);
+    //   if (e.target.value === "standard") {
+    //     setScheduleMode("standard");
+    //     reRender();
+    //   } else if (e.target.value === "advanced") {
+    //     setScheduleMode("advanced");
+    //     reRender();
+    //   }
+    // };
     useEffect(() => {
         console.log('re render...')
     }, [scheduleMode, render]);
@@ -60,11 +77,18 @@ export default function Scheduler() {
                             <h1 className="text-3xl text-center my-2">Adjust schedule for device &quot;{deviceInfo?.name}&quot;</h1>
                         </div>
                         <div className="divider"></div>
-                            <select className="select select-bordered w-full max-w-xs" onChange={handleSelectScheduleMode}>
+                            {/* <select className="select select-bordered w-full max-w-xs" onChange={handleSelectScheduleMode}>
                                 <option disabled selected>Scheduler Type...</option>
                                 <option value="standard">Standard</option>
                                 <option value="advanced">Cron</option>
-                            </select>
+                            </select> */}
+                        <div className="divider"></div>
+                        <div className="bg-neutral flex flex-row rounded-md gap-2 p-2 justify-evenly">
+                            <div id="easyBtn" ref={easyBtnRef} className="btn w-28 bg-primary border-none text-black font-bold" onClick={handleEasyBtnClick}>Easy</div>
+                            <div id="advancedBtn" ref={advancedBtnRef} className="btn w-28 bg-neutral border-none" onClick={handleAdvancedBtnClick}>Advanced</div>
+                            {/* <input className="btn" type="radio" name="options" aria-label="Easy" />
+                            <input className="btn" type="radio" name="options" aria-label="Advanced" /> */}
+                        </div>
                         <div className="divider"></div>
                         {scheduleMode === "standard" ? (
                             <EasySched triggerRender={triggerRender} />
