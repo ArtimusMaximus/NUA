@@ -16,16 +16,20 @@ export default function Scheduler() {
     // const [selectChoice, setSelectChoice] = useState(null);
 
     const handleEasyBtnClick = e => {
-        advancedBtnRef.current.className = "btn w-28 bg-neutral border-none";
-        easyBtnRef.current.className = "btn w-28 bg-primary text-black font-bold";
+        e.preventDefault();
+        advancedBtnRef.current.className = "btn w-28 bg-base-200 border-none min-h-0 h-8";
+        easyBtnRef.current.className = "btn w-28 bg-primary font-bold min-h-0 h-8 text-accent-content hover:text-base-content";
         setScheduleMode("standard");
         reRender();
+
     }
     const handleAdvancedBtnClick = e => {
-        easyBtnRef.current.className = "btn w-28 bg-neutral border-none";
-        advancedBtnRef.current.className = "btn w-28 bg-primary text-black font-bold";
+        e.preventDefault();
+        easyBtnRef.current.className = "btn w-28 bg-base-200 border-none min-h-0 h-8";
+        advancedBtnRef.current.className = "btn w-28 bg-primary font-bold min-h-0 h-8 text-accent-content hover:text-base-content";
         setScheduleMode("advanced");
         reRender();
+
     }
 
     const [changed, setChanged] = useState(false);
@@ -74,18 +78,26 @@ export default function Scheduler() {
                 <div className="flex w-full mx-2">
                     <div className="flex flex-col items-center justify-center w-full h-full mx-auto border rounded-lg shadow overflow-hidden border-neutral shadow-base-300 m-8">
                         <div className="flex mt-8">
-                            <h1 className="text-3xl text-center my-2">Adjust schedule for device &quot;{deviceInfo?.name}&quot;</h1>
+                            <h1 className="text-3xl text-center my-2">&quot;{deviceInfo?.name}&quot; Schedule</h1>
                         </div>
-                        <div className="divider"></div>
+                        {/* <div className="divider"></div> */}
                             {/* <select className="select select-bordered w-full max-w-xs" onChange={handleSelectScheduleMode}>
                                 <option disabled selected>Scheduler Type...</option>
                                 <option value="standard">Standard</option>
                                 <option value="advanced">Cron</option>
                             </select> */}
                         <div className="divider"></div>
-                        <div className="bg-neutral flex flex-row rounded-md gap-2 p-2 justify-evenly">
-                            <div id="easyBtn" ref={easyBtnRef} className="btn w-28 bg-primary border-none text-black font-bold" onClick={handleEasyBtnClick}>Easy</div>
-                            <div id="advancedBtn" ref={advancedBtnRef} className="btn w-28 bg-neutral border-none" onClick={handleAdvancedBtnClick}>Advanced</div>
+                        <div className="bg-base-200 flex flex-row rounded-md p-2 justify-evenly">
+                            <div
+                                id="easyBtn"
+                                ref={easyBtnRef}
+                                className="btn w-28 bg-primary border-none text-accent-content font-bold min-h-0 h-8"
+                                onClick={handleEasyBtnClick}>Easy</div>
+                            <div
+                                id="advancedBtn"
+                                ref={advancedBtnRef}
+                                className="btn w-28 bg-base-200 border-none min-h-0 h-8"
+                                onClick={handleAdvancedBtnClick}>Advanced</div>
                             {/* <input className="btn" type="radio" name="options" aria-label="Easy" />
                             <input className="btn" type="radio" name="options" aria-label="Advanced" /> */}
                         </div>
