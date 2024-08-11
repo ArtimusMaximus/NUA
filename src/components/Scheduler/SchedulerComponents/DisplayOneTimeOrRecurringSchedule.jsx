@@ -9,13 +9,14 @@ export const DisplayOneTimeOrRecurringSchedule = ({ oneTime, ezData }) => {
         return (
             <>
                 <div>{ezData.date.slice(5)}</div>
-                <div>{ezData.hour}:{ezData.minute === 0 ? ezData.minute + "0": ezData.minute}</div>
+                {/* <div>{ezData.hour}:{ezData.minute === 0 ? ezData.minute + "0": ezData.minute}</div> */}
+                <div>{ezData.hour}:{ezData.minute === 0 ? ezData.minute + "0" : ezData.minute.toString().length === 1 ? "0" + ezData.minute : ezData.minute}</div>
             </>
         )
     } else {
         return (
             <>
-                <div>{ezData.hour}:{ezData.minute}</div>
+                <div>{ezData.hour}:{ezData.minute === 0 ? ezData.minute + "0" : ezData.minute.toString().length === 1 ? "0" + ezData.minute : ezData.minute}</div>
                 <div>{daysOfTheWeek.length < 7
                     ? daysOfTheWeek.map((day) => {
                         return (
