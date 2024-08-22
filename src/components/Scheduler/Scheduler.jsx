@@ -60,7 +60,7 @@ export default function Scheduler() {
                 method: 'POST',
                 mode: 'cors',
                 headers: {
-                    'Content-Type' : 'application/json'
+                    'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({ id: p })
             });
@@ -81,7 +81,7 @@ export default function Scheduler() {
                             <h1 className="text-3xl text-center my-2">&quot;{deviceInfo?.name}&quot; Schedule</h1>
                         </div>
                         {/* <div className="divider"></div> */}
-                            {/* <select className="select select-bordered w-full max-w-xs" onChange={handleSelectScheduleMode}>
+                        {/* <select className="select select-bordered w-full max-w-xs" onChange={handleSelectScheduleMode}>
                                 <option disabled selected>Scheduler Type...</option>
                                 <option value="standard">Standard</option>
                                 <option value="advanced">Cron</option>
@@ -91,13 +91,18 @@ export default function Scheduler() {
                             <div
                                 id="easyBtn"
                                 ref={easyBtnRef}
-                                className="btn w-28 bg-primary border-none text-accent-content font-bold min-h-0 h-8"
-                                onClick={handleEasyBtnClick}>Easy</div>
+                                className="btn w-28 bg-primary border-none text-base-content font-bold min-h-0 h-8"
+                                onClick={handleEasyBtnClick}>
+                                Easy
+                            </div>
                             <div
                                 id="advancedBtn"
                                 ref={advancedBtnRef}
-                                className="btn w-28 bg-base-200 border-none min-h-0 h-8"
-                                onClick={handleAdvancedBtnClick}>Advanced</div>
+                                className="btn w-28 bg-base-200 border-none text-base-content min-h-0 h-8"
+                                onClick={handleAdvancedBtnClick}>
+                                Advanced
+                            </div>
+
                             {/* <input className="btn" type="radio" name="options" aria-label="Easy" />
                             <input className="btn" type="radio" name="options" aria-label="Advanced" /> */}
                         </div>
