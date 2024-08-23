@@ -1,12 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 import { useParams } from "react-router-dom";
-
 import { GoInfo, GoTrash } from "react-icons/go";
 
-// todo: toggle on off does not reflect the actual current status on page change....and upon returning to page & toggling, scheduled jobs are not reflected properly //05/29/2024 - look into this
-
-export default function CronManager({ triggerRender })
-{
+export default function CronManager({ triggerRender }) {
     const params = useParams();
     const [cron, setCron] = useState({
         crontype: 'allow',
@@ -15,31 +11,31 @@ export default function CronManager({ triggerRender })
         jobName: ''
     });
 
-    
-   
     const inputRef = useRef();
-    
     const [invalidCronMessage, setInvalidCronMessage] = useState({});
-    
+    const [startDate, setStartDate] = useState(new Date()); // Assuming start date logic
+
+    // Handle the state for crontype (allow/block)
     const handleAllow = e => {
         setCron({
             ...cron,
             crontype: e.target.value
-        })
+        });
     }
+
     const handleBlock = e => {
         setCron({
             ...cron,
             crontype: e.target.value
         });
     }
+
     const handleCronData = e => {
         setCron({
             ...cron,
             id: parseInt(params.id),
             [e.target.name]: e.target.value
-        })
-        // console.log(cron);
+        });
     }
 
     const handleSubmit = async () => {
@@ -48,7 +44,7 @@ export default function CronManager({ triggerRender })
                 method: "POST",
                 mode: "cors",
                 headers: {
-                    "Content-Type" : "application/json"
+                    "Content-Type": "application/json"
                 },
                 body: JSON.stringify(cron)
             });
@@ -67,23 +63,31 @@ export default function CronManager({ triggerRender })
                 });
             }
         } catch (e) {
-            if (e) throw e;
-            console.log('e: ', e)
+            console.error('Error:', e);
         }
     }
-    
+
+    // useEffect to reset the start date or handle time initialization based on schedule type
+    useEffect(() => {
+        if (cron.crontype === 'allow') {
+            // Logic to reset the starting date for "allow" schedule
+            setStartDate(new Date()); // Set to the current date
+        } else if (cron.crontype === 'block') {
+            // Logic to reset the starting date for "block" schedule
+            setStartDate(new Date()); // Set to the current date or some other logic
+        }
+    }, [cron.crontype]);
+
     return (
         <>
             <div className="flex mt-8">
-                {/* <h1 className="text-3xl text-center my-2">Adjust Cron for device &quot;{deviceInfo?.name}&quot;</h1> */}
-                <a href="https://cron.help" target="_blank" rel="noreferrer" className="link hover:text-info" >
+                <a href="https://cron.help" target="_blank" rel="noreferrer" className="link hover:text-info">
                     <GoInfo />
                 </a>
             </div>
             <div className="flex items-center justify-center flex-col">
                 <div className="flex flex-col">
                     <div className="flex justify-center items-center gap-4">
-                        {/* <label htmlFor="croninput">Cron:</label> */}
                         <div className="flex flex-row my-2">
                             <input
                                 className={`input input-bordered italic ${invalidCronMessage.error ? 'border-error' : ''}`}
@@ -97,20 +101,22 @@ export default function CronManager({ triggerRender })
                     <div className="flex items-center justify-center">
                         <div className="join m-4">
                             <input
-                                onClick={handleAllow}
+                                onChange={handleAllow}
                                 className={`btn join-item`}
                                 value="allow"
                                 type="radio"
                                 aria-label="Allow"
                                 name="options"
+                                checked={cron.crontype === "allow"}
                             />
                             <input
-                                onClick={handleBlock}
+                                onChange={handleBlock}
                                 className={`btn join-item`}
                                 value="block"
                                 type="radio"
                                 aria-label="Block"
                                 name="options"
+                                checked={cron.crontype === "block"}
                             />
                         </div>
                     </div>
