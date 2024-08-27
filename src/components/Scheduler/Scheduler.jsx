@@ -6,6 +6,7 @@ import ScheduleData from "./ScheduleData";
 
 
 
+
 export default function Scheduler() {
     const [deviceInfo, setDeviceInfo] = useState({});
     const params = useParams();
