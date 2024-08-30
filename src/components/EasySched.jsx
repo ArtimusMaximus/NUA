@@ -5,6 +5,8 @@ import { dateIsInPast } from "./utility_functions/date_in_past_checker";
 import { convertSelectedDateForComparison } from "./utility_functions/convertSelectedDate";
 import LoadingDialog from "./utility_components/LoadingDialog";
 import { loadingDialogTimer } from "./utility_components/LoadingDialogTimer";
+import { SelectOptionsComponent } from "./Scheduler/SchedulerComponents/SelectOptionsComponent";
+
 
 export default function EasySched({ triggerRender })
 {
