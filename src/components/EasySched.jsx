@@ -254,7 +254,7 @@ export default function EasySched({ triggerRender })
             </div>
             <div class="divider">Action</div>
             <div className="flex items-center justify-center">
-                <div className="join m-4">
+                <div className="join m-4 bg-base-200 border-8 border-base-200 rounded-lg">
                     <input
                         onClick={handleAllow}
                         className={`btn join-item`}
