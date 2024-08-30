@@ -581,8 +581,8 @@ app.post('/addtodevicelist', async (req, res) => {
             name = customName;
         } else if (hostname) {
             name = hostname;
-        } else if (oui) {
-            name = oui;
+        } else if (mac) {
+            name = mac;
         } else {
             name = "Unnamed Device";
         }
