@@ -18,6 +18,8 @@ export default function Scheduler() {
     // const [selectChoice, setSelectChoice] = useState(null);
     const btnText = { btn1: "standard", btn2: "advanced"};
 
+
+
     const handleEasyBtnClick = e => {
         e.preventDefault();
         advancedBtnRef.current.className = "btn w-28 bg-base-200 border-none min-h-0 h-8";

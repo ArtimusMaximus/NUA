@@ -185,7 +185,7 @@ const init = async () => {
     }
 }
 init();
-console.log('unifi\t', unifi);
+// console.log('unifi\t', unifi);
 
 // info
 //     .then(() => logIntoUnifi(loginData?.hostname, loginData?.port, loginData?.sslverify, loginData?.username, loginData?.password))

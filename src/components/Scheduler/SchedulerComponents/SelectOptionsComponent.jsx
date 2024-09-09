@@ -1,7 +1,9 @@
 import { useRef } from "react";
+import useCurrentTheme from "../../utility_components/useCurrentTheme";
 
 export function SelectOptionsComponent({ btnText, setScheduleMode, reRender }) {
 
+    const { currentTheme, setChanged } = useCurrentTheme
     const btn1Ref = useRef(null);
     const btn2Ref = useRef(null);
 
