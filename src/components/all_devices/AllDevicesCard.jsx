@@ -61,8 +61,9 @@ export default function AllDevicesCard({ props, length, handleAddToDevices })
                         </button>
                         <button
                             data-btnid={props?._id}
-                            className={`${props.oui ? 'hidden' : 'btn'} ${props?.onList ? 'hidden' : ''}`}
-                            onClick={e => handleOpenDialog(e)}>Add Name to Device List
+                            // className={`${props.oui ? 'hidden' : 'btn'} ${props?.onList ? 'hidden' : ''}`}
+                            className={`hidden`}
+                            onClick={e => handleOpenDialog(e)}>Add Name To Device List
                         </button>
                     </div>
                 </div>

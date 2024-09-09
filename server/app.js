@@ -21,6 +21,7 @@ const { nodeScheduleRecurrenceRule } = require('./ez_sched_funcs/nodeRecurringSc
 const { updateOneTimeSchedule } = require('./ez_sched_funcs/update_ez_schedules/updateOneTimeSchedule');
 const { updateRecurringSchedule } = require('./ez_sched_funcs/update_ez_schedules/updateRecurringSchedule');
 const { addEasySchedule } = require("./ez_sched_funcs/addEasySchedule");
+const { serverLogger } = require('./server_util_funcs/server_log_utils/serverLogger');
 
 
 
@@ -184,7 +185,7 @@ const init = async () => {
     }
 }
 init();
-console.log('unifi\t', unifi);
+// console.log('unifi\t', unifi);
 
 // info
 //     .then(() => logIntoUnifi(loginData?.hostname, loginData?.port, loginData?.sslverify, loginData?.username, loginData?.password))
@@ -574,17 +575,17 @@ app.post('/addmacaddresses', async (req, res) => {
 
 app.post('/addtodevicelist', async (req, res) => {
     const { customName, hostname, oui, mac, blocked } = req.body; // blocked: true
-    let name;
-    if (customName !== "") {
-        name = customName;
-    } else if (hostname !== "") {
-        name = hostname;
-    } else if (oui !== "") {
-        name = oui;
-    } else {
-        name = "";
-    }
     try {
+        let name;
+        if (customName) {
+            name = customName;
+        } else if (hostname) {
+            name = hostname;
+        } else if (mac) {
+            name = mac;
+        } else {
+            name = "Unnamed Device";
+        }
         const deviceAddedToList = await prisma.device.create({
                 data: {
                     name: name,
@@ -898,6 +899,7 @@ app.get('/checkjobreinitiation', async (req, res) => {
 // ~~~~~~~~~crons~~~~~~~~~~~
 app.post('/addschedule', async (req, res) => { // adds cron data specific front end device && cron validator
     const { id, crontype, croninput, toggleCron, jobName } = req.body;
+    serverLogger(JSON.stringify(req.body), "nua.log");
     try {
         const deviceToSchedule = await prisma.device.findUnique({
             where: {
@@ -982,6 +984,7 @@ app.delete('/deletecron', async (req, res) => {
 
 app.put('/togglecron', async (req, res) => {
     const { id, toggleCron, jobName, crontime, crontype, deviceId } = req.body;
+    serverLogger(`Toggle on off ${toggleCron}`, "nua.log");
     // const { id, deviceId, jobName, ezBlockAllow, ezDate, toggleEZSched } = req.body
     // I believe the issue here is that you are not getting the job name from the front end, try node-schedule again -TRUE & Successful....
     let jb = jobName;

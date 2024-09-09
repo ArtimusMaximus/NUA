@@ -3,6 +3,8 @@ import CronManager from "../CronManager";
 import EasySched from "../EasySched";
 import { useParams } from "react-router-dom";
 import ScheduleData from "./ScheduleData";
+import { SelectOptionsComponent } from "./SchedulerComponents/SelectOptionsComponent";
+
 
 
 
@@ -14,22 +16,23 @@ export default function Scheduler() {
     const easyBtnRef = useRef(null);
     const advancedBtnRef = useRef(null);
     // const [selectChoice, setSelectChoice] = useState(null);
+    const btnText = { btn1: "standard", btn2: "advanced"};
+
+
 
     const handleEasyBtnClick = e => {
         e.preventDefault();
         advancedBtnRef.current.className = "btn w-28 bg-base-200 border-none min-h-0 h-8";
-        easyBtnRef.current.className = "btn w-28 bg-primary font-bold min-h-0 h-8 text-accent-content hover:text-base-content";
+        easyBtnRef.current.className = "btn w-28 bg-primary font-bold min-h-0 h-8 text-neutral-content ";
         setScheduleMode("standard");
         reRender();
-
     }
     const handleAdvancedBtnClick = e => {
         e.preventDefault();
         easyBtnRef.current.className = "btn w-28 bg-base-200 border-none min-h-0 h-8";
-        advancedBtnRef.current.className = "btn w-28 bg-primary font-bold min-h-0 h-8 text-accent-content hover:text-base-content";
+        advancedBtnRef.current.className = "btn w-28 bg-primary font-bold min-h-0 h-8 text-neutral-content ";
         setScheduleMode("advanced");
         reRender();
-
     }
 
     const [changed, setChanged] = useState(false);
@@ -87,20 +90,19 @@ export default function Scheduler() {
                                 <option value="advanced">Cron</option>
                             </select> */}
                         <div className="divider"></div>
-                        <div className="bg-base-200 flex flex-row rounded-md p-2 justify-evenly">
+                        {/* <div className="bg-base-200 flex flex-row rounded-md p-2 justify-evenly">
                             <div
                                 id="easyBtn"
                                 ref={easyBtnRef}
-                                className="btn w-28 bg-primary border-none text-accent-content font-bold min-h-0 h-8"
+                                className="btn w-28 bg-primary border-none text-neutral-content font-bold min-h-0 h-8"
                                 onClick={handleEasyBtnClick}>Easy</div>
                             <div
                                 id="advancedBtn"
                                 ref={advancedBtnRef}
                                 className="btn w-28 bg-base-200 border-none min-h-0 h-8"
                                 onClick={handleAdvancedBtnClick}>Advanced</div>
-                            {/* <input className="btn" type="radio" name="options" aria-label="Easy" />
-                            <input className="btn" type="radio" name="options" aria-label="Advanced" /> */}
-                        </div>
+                        </div> */}
+                        <SelectOptionsComponent btnText={btnText} setScheduleMode={setScheduleMode} reRender={reRender} />
                         <div className="divider"></div>
                         {scheduleMode === "standard" ? (
                             <EasySched triggerRender={triggerRender} />

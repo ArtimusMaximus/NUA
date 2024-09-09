@@ -26,7 +26,8 @@ dist-ssr
 .env
 server/*.db
 server/keepers.js
-server/ nodeunifi.db-journal
+server/nodeunifi.db-journal
+server/config/server_logs
 
 # Ignore global settings
 server/globalSettings.js

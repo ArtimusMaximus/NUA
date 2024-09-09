@@ -70,11 +70,11 @@ const handleSelect = e => {
 }
 const handleSearchByNameMac = e => {
     const newArr = filteredArray.filter(i => {
-        return i?.name?.toLowerCase().includes(e.target.value)
-        || i?.oui?.toLowerCase().includes(e.target.value)
-        || i?.mac?.toLowerCase().includes(e.target.value)
-        || i?.name?.toLowerCase().includes(e.target.value)
-        || i?.hostname?.toLowerCase().includes(e.target.value);
+        return i?.name?.toLowerCase().includes(e.target.value.toLowerCase())
+        || i?.oui?.toLowerCase().includes(e.target.value.toLowerCase())
+        || i?.mac?.toLowerCase().includes(e.target.value.toLowerCase())
+        || i?.name?.toLowerCase().includes(e.target.value.toLowerCase())
+        || i?.hostname?.toLowerCase().includes(e.target.value.toLowerCase());
     });
     setFilteredArray(newArr)
     if (e.target.value.length < 2) {

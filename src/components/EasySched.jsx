@@ -3,6 +3,9 @@ import { useParams } from "react-router-dom";
 import TimeClock from './TimeClock/TimeClock';
 import { dateIsInPast } from "./utility_functions/date_in_past_checker";
 import { convertSelectedDateForComparison } from "./utility_functions/convertSelectedDate";
+import LoadingDialog from "./utility_components/LoadingDialog";
+import { loadingDialogTimer } from "./utility_components/LoadingDialogTimer";
+import { SelectOptionsComponent } from "./Scheduler/SchedulerComponents/SelectOptionsComponent";
 
 
 export default function EasySched({ triggerRender })
@@ -36,6 +39,8 @@ export default function EasySched({ triggerRender })
     const [dayOfTheWeekSelected, setDayOfTheWeekSelected] = useState(false);
     const [selectAllow, setSelectAllow] = useState(true);
     const badDateModalRef = useRef();
+    const toggleLoadingDialogRef = useRef();
+
 
     const d1 = useRef();
     const d2 = useRef();
@@ -161,6 +166,7 @@ export default function EasySched({ triggerRender })
 
 
         try {
+            toggleLoadingDialogRef.current.showModal();
             const submitData = await fetch('/addeasyschedule', {
                 method: "POST",
                 mode: "cors",
@@ -172,6 +178,8 @@ export default function EasySched({ triggerRender })
             });
             if (submitData.ok) {
                 setInvalidscheduleMessage({ error: false });
+
+                loadingDialogTimer(toggleLoadingDialogRef);
                 // const res = submitData.json();
                 // console.log(`message: ${res.message} timeData: ${res.timeData}`)
                 console.log('submitData \t', submitData);
@@ -180,6 +188,7 @@ export default function EasySched({ triggerRender })
                 triggerRender();
                 resetToInitialState();
             } else if (submitData.status === 422) {
+                loadingDialogTimer(toggleLoadingDialogRef);
                 // const badResults = await submitData.json();
                 // console.log('subdata message ', badResults.message)
                 setInvalidscheduleMessage({
@@ -188,6 +197,7 @@ export default function EasySched({ triggerRender })
                 });
             }
         } catch (error) {
+            loadingDialogTimer(toggleLoadingDialogRef);
             console.error(error);
         }
     }
@@ -244,7 +254,7 @@ export default function EasySched({ triggerRender })
             </div>
             <div class="divider">Action</div>
             <div className="flex items-center justify-center">
-                <div className="join m-4">
+                <div className="join m-4 bg-base-200 border-8 border-base-200 rounded-lg">
                     <input
                         onClick={handleAllow}
                         className={`btn join-item`}
@@ -309,6 +319,7 @@ export default function EasySched({ triggerRender })
                     </div>
                 </div>
             </dialog>
+            <LoadingDialog toggleLoadingDialogRef={toggleLoadingDialogRef} />
         </>
     )
 }

@@ -2,6 +2,7 @@ import { useRef, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { HiMiniPencilSquare } from "react-icons/hi2";
 import DeviceSkeleton from "./skeletons/DevicesSkeleton";
+import LoadingDialog from "./utility_components/LoadingDialog";
 
 
 
@@ -310,11 +311,7 @@ export default function Devices({ data, toggleReRender, handleRenderToggle, load
                 </div>
             </dialog>
 
-            <dialog ref={toggleLoadingDialogRef} className="modal">
-                <div className="flex items-center justify-center w-full h-full">
-                    <span className="loading loading-spinner w-32 h-32"></span>
-                </div>
-            </dialog>
+            <LoadingDialog toggleLoadingDialogRef={toggleLoadingDialogRef} />
         </>
     )
 }
