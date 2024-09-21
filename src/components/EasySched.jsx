@@ -230,28 +230,30 @@ export default function EasySched({ triggerRender })
 
     return (
         <>
-            <div className="flex flex-row gap-4 my-4">
-                <span>Recurring:</span>
+        <div className="flex items-center justify-center">
+            <div className="join m-4 bg-base-200 border-8 border-base-200 rounded-lg">
                 <input
                     type="radio"
                     data-recur="recur"
                     ref={recurringScheduleRef}
                     onClick={handlePickedSchedule}
                     name="radio-2"
-                    className="radio radio-primary"
+                    className="btn join-item"
                     checked={!oneTimeSchedule}
+                    aria-label="Recurring"
                 />
-                <span>Single Event:</span>
                 <input
                     type="radio"
                     data-onetime="onetime"
                     ref={oneTimeScheduleRef}
                     onClick={handlePickedSchedule}
                     name="radio-2"
-                    className="radio radio-primary"
+                    className="btn join-item"
                     checked={oneTimeSchedule}
+                    aria-label="One Time"
                 />
             </div>
+        </div>
             <div class="divider">Action</div>
             <div className="flex items-center justify-center">
                 <div className="join m-4 bg-base-200 border-8 border-base-200 rounded-lg">

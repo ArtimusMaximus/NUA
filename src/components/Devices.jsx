@@ -231,9 +231,9 @@ export default function Devices({ data, toggleReRender, handleRenderToggle, load
                                                     </div>
                                                     <div className="collapse-content">
                                                             <div className="flex justify-between flex-wrap">
-                                                                <p><span className="font-thin italic">Name:</span> {device?.name}</p>
-                                                                <p><span className="font-thin italic">Mac:</span> {device?.macAddress}</p>
-                                                                <p><span className="font-thin italic">Status:</span> <span className={`${device?.active ? 'text-green-500' : 'text-red-500'}`}>{device?.active ? 'Allowed' : 'Blocked'}</span></p>
+                                                                <p><span className="font-bold italic">Name:</span> {device?.name}</p>
+                                                                <p><span className="font-bold italic">Mac:</span> {device?.macAddress}</p>
+                                                                <p><span className="font-bold italic">Status:</span> <span className={`${device?.active ? 'text-green-500' : 'text-red-500'}`}>{device?.active ? 'Allowed' : 'Blocked'}</span></p>
                                                                 <span className="flex items-center justify-center"
                                                                     onClick={openEditDialog}
                                                                     data-id={device?.id}
