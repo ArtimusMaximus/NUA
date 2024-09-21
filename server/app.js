@@ -1033,8 +1033,8 @@ app.post('/getscheduledata', async (req, res) => { // fetches cron data specific
         res.json({ cronData, ezScheduleData });
 
         const getMacAddress = await prisma.device.findUnique({ where: { id: id } });
-        const { macAddress } = getMacAddress;
-        const { scheduledJobs } = schedule;
+        // const { macAddress } = getMacAddress;
+        // const { scheduledJobs } = schedule;
 
         // for (const data of cronData) { // 06 06 2024 - not sure the intention of this in hindsight, but also consider "undefined" vs undefined.
         //     console.log('#974: data.jobName ', data.jobName)

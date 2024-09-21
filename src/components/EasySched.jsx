@@ -6,6 +6,7 @@ import { convertSelectedDateForComparison } from "./utility_functions/convertSel
 import LoadingDialog from "./utility_components/LoadingDialog";
 import { loadingDialogTimer } from "./utility_components/LoadingDialogTimer";
 import { SelectOptionsComponent } from "./Scheduler/SchedulerComponents/SelectOptionsComponent";
+import SubmitButtonComponent from "./utility_components/SubmitButtonComponent";
 
 
 export default function EasySched({ triggerRender })
@@ -40,6 +41,11 @@ export default function EasySched({ triggerRender })
     const [selectAllow, setSelectAllow] = useState(true);
     const badDateModalRef = useRef();
     const toggleLoadingDialogRef = useRef();
+    const [submitButtonLoading, setSubmitButtonLoading] = useState(false);
+
+    const timer = t => new Promise(res => setTimeout(res, t));
+
+
 
 
     const d1 = useRef();
@@ -166,7 +172,8 @@ export default function EasySched({ triggerRender })
 
 
         try {
-            toggleLoadingDialogRef.current.showModal();
+            // toggleLoadingDialogRef.current.showModal();
+            setSubmitButtonLoading(true);
             const submitData = await fetch('/addeasyschedule', {
                 method: "POST",
                 mode: "cors",
@@ -179,16 +186,17 @@ export default function EasySched({ triggerRender })
             if (submitData.ok) {
                 setInvalidscheduleMessage({ error: false });
 
-                loadingDialogTimer(toggleLoadingDialogRef);
-                // const res = submitData.json();
-                // console.log(`message: ${res.message} timeData: ${res.timeData}`)
+                timer(400)
+                    .then(() => setSubmitButtonLoading(false))
+
                 console.log('submitData \t', submitData);
 
-                // reFetch();
                 triggerRender();
                 resetToInitialState();
             } else if (submitData.status === 422) {
-                loadingDialogTimer(toggleLoadingDialogRef);
+
+                timer(400)
+                    .then(() => setSubmitButtonLoading(false))
                 // const badResults = await submitData.json();
                 // console.log('subdata message ', badResults.message)
                 setInvalidscheduleMessage({
@@ -197,7 +205,8 @@ export default function EasySched({ triggerRender })
                 });
             }
         } catch (error) {
-            loadingDialogTimer(toggleLoadingDialogRef);
+            timer(400)
+                .then(() => setSubmitButtonLoading(false))
             console.error(error);
         }
     }
@@ -230,28 +239,30 @@ export default function EasySched({ triggerRender })
 
     return (
         <>
-            <div className="flex flex-row gap-4 my-4">
-                <span>Recurring:</span>
+        <div className="flex items-center justify-center">
+            <div className="join m-4 bg-base-200 border-8 border-base-200 rounded-lg">
                 <input
                     type="radio"
                     data-recur="recur"
                     ref={recurringScheduleRef}
                     onClick={handlePickedSchedule}
                     name="radio-2"
-                    className="radio radio-primary"
+                    className="btn join-item"
                     checked={!oneTimeSchedule}
+                    aria-label="Recurring"
                 />
-                <span>Single Event:</span>
                 <input
                     type="radio"
                     data-onetime="onetime"
                     ref={oneTimeScheduleRef}
                     onClick={handlePickedSchedule}
                     name="radio-2"
-                    className="radio radio-primary"
+                    className="btn join-item"
                     checked={oneTimeSchedule}
+                    aria-label="One Time"
                 />
             </div>
+        </div>
             <div class="divider">Action</div>
             <div className="flex items-center justify-center">
                 <div className="join m-4 bg-base-200 border-8 border-base-200 rounded-lg">
@@ -305,7 +316,12 @@ export default function EasySched({ triggerRender })
                     </div>
                     </>}
                     <div class="divider"></div>
-                    <div className={`btn mb-8 ${oneTimeSchedule ? '' : dayOfTheWeekSelected ? '' : 'btn-disabled'}`} onClick={handleSubmit}>Submit</div>
+                    {/* <div className={`btn mb-8 ${oneTimeSchedule ? '' : dayOfTheWeekSelected ? '' : 'btn-disabled'}`} onClick={handleSubmit}>Submit</div> */}
+                    <SubmitButtonComponent
+                        handleSubmit={handleSubmit}
+                        submitButtonLoading={submitButtonLoading}
+                        enabledCriteria={oneTimeSchedule ? oneTimeSchedule : dayOfTheWeekSelected ? dayOfTheWeekSelected : false}
+                    />
                 </div>
             </div>
             <dialog ref={badDateModalRef} className="modal">

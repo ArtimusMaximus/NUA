@@ -4,6 +4,7 @@ import EasySched from "../EasySched";
 import { useParams } from "react-router-dom";
 import ScheduleData from "./ScheduleData";
 import { SelectOptionsComponent } from "./SchedulerComponents/SelectOptionsComponent";
+import { SelectStandardOrAdvanced } from "./SchedulerComponents/SelectStandardOrAdvanced";
 
 
 
@@ -102,7 +103,7 @@ export default function Scheduler() {
                                 className="btn w-28 bg-base-200 border-none min-h-0 h-8"
                                 onClick={handleAdvancedBtnClick}>Advanced</div>
                         </div> */}
-                        <SelectOptionsComponent btnText={btnText} setScheduleMode={setScheduleMode} reRender={reRender} />
+                        <SelectStandardOrAdvanced setScheduleMode={setScheduleMode} reRender={reRender} />
                         <div className="divider"></div>
                         {scheduleMode === "standard" ? (
                             <EasySched triggerRender={triggerRender} />

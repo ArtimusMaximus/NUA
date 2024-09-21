@@ -15,7 +15,7 @@ export function CronScheduleTable({ returnData, handleDeleteCron, handleCronTogg
                             return (
                                 <>
                                     <tr key={cronData.id} align="center">
-                                        <td className="uppercase">{cronData.crontime}</td>
+                                        <td><div>{cronData.crontime}</div></td>
                                         <td className={`uppercase ${cronData.crontype === 'block' ? 'text-red-500' : 'text-green-500'}`}>
                                             {cronData.crontype}
                                         </td>
