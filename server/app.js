@@ -6,22 +6,15 @@ const sqlite3 = require('sqlite3').verbose();
 const { open } = require('sqlite');
 const { PrismaClient } = require('@prisma/client');
 const schedule = require('node-schedule');
-const cronValidate = require('node-cron');
 const customPORT = require('./globalSettings');
 const fs = require('fs');
-const { convertToMilitaryTime } = require('./server_util_funcs/convert_to_military_time');
-const { convertDOWtoString } = require('./server_util_funcs/ez_sched_utils/convertDOWtoString');
-const { dateFromDateString } = require('./server_util_funcs/ez_sched_utils/dateFromDateString');
-const { deleteCompletedJobs } = require('./server_util_funcs/ez_sched_utils/deleteCompletedJobs');
 const { ezScheduleRoutes } = require('./Routes/scheduler_routes/ezScheduleRoutes'); // ezScheduleRoutes(app, unifi, prisma)
 const { red } = require('./server_util_funcs/red');
 const { jobFunction } = require('./server_util_funcs/jobfunction');
-const { nodeOneTimeScheduleRule } = require('./ez_sched_funcs/nodeOneTimeScheduleRule');
-const { nodeScheduleRecurrenceRule } = require('./ez_sched_funcs/nodeRecurringScheduleRule');
 const { updateOneTimeSchedule } = require('./ez_sched_funcs/update_ez_schedules/updateOneTimeSchedule');
 const { updateRecurringSchedule } = require('./ez_sched_funcs/update_ez_schedules/updateRecurringSchedule');
-const { addEasySchedule } = require("./ez_sched_funcs/addEasySchedule");
 const { serverLogger } = require('./server_util_funcs/server_log_utils/serverLogger');
+const { validateCron } = require('./server_util_funcs/validateCron');
 
 
 
@@ -33,20 +26,12 @@ const { serverLogger } = require('./server_util_funcs/server_log_utils/serverLog
     })
 })();
 const prisma = new PrismaClient();
-// commented line to test docker build
+
 // create server & add middleware
 const app = express();
 app.use(cors());
 app.use(bodyParser.json());
 app.use(express.static(process.cwd().slice(0, -7) + '/dist'));
-
-// function red(text, color) { // specific console color logger
-//     if (color === 'red') {
-//         console.log('\x1b[31m\x1b[5m', text);
-//     } else if (color === 'cyan') {
-//         console.log('\x1b[36m\x1b[1m', text);
-//     }
-// }
 
 function handleLoginError(error) {
     if (error !== undefined) {
@@ -117,7 +102,7 @@ checkForCredentials();
 // unifi connection instance // original
 // let unifi;
 // async function logIntoUnifi(hostname, port, sslverify, username, password) {
-//     unifi = new Unifi.Controller({hostname: hostname, port: port, sslverify: sslverify});
+//     unifi = new Unifi.Controller({ hostname: hostname, port: port, sslverify: sslverify });
 //     const loginData = await unifi.login(username, password);
 //     if (loginData) {
 //         return { unifi, validCredentials: true };
@@ -244,11 +229,7 @@ function extractMacs(body) {
     // console.log(body);
     return body.macData.map(mac => mac.macAddress);
 }
-function validateCron(crontype) { // return true/false
-    let validation = cronValidate.validate(crontype);
-    console.log('validation func: ', validation)
-    return validation;
-}
+
 
 // (async function() {
 //     try {
@@ -958,7 +939,7 @@ app.post('/addschedule', async (req, res) => { // adds cron data specific front 
                 res.status(422).send({ message: "Invalid Cron Type, please try again." })
             }
         } catch (error) {
-            if(error) throw error;
+            console.error(error);
         }
 });
 

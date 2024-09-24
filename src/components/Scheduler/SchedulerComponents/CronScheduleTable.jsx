@@ -3,19 +3,23 @@ import { GoTrash } from "react-icons/go";
 export function CronScheduleTable({ returnData, handleDeleteCron, handleCronToggle, submitButtonRef }) {
     return (
         <table className="table table-zebra border rounded-lg shadow overflow-hidden dark:border-gray-700 dark:shadow-gray-900 mb-8">
-            <tbody>
+            <thead>
                 <tr className="font-bold sm:text-xl" align="center">
-                    <td>Cron</td>
-                    <td>Action</td>
-                    <td>Off/On</td>
-                    <td>Delete</td>
+                    <th>Cron</th>
+                    <th>Action</th>
+                    <th>Off/On</th>
+                    <th>Delete</th>
                 </tr>
+            </thead>    
+            <tbody>
                     {
                         returnData.cronData.length ? returnData?.cronData?.map((cronData) => {
                             return (
                                 <>
                                     <tr key={cronData.id} align="center">
-                                        <td><div>{cronData.crontime}</div></td>
+                                        <td>
+                                            <div>{cronData.crontime}</div>
+                                        </td>
                                         <td className={`uppercase ${cronData.crontype === 'block' ? 'text-red-500' : 'text-green-500'}`}>
                                             {cronData.crontype}
                                         </td>
