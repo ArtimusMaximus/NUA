@@ -19,7 +19,7 @@ export function EZScheduleTable({ returnData, handleDeleteEZSched, handleEZToggl
                             return (
                                 <>
                                     <tr key={ezData.id} align="center">
-                                        <td className="uppercase"><DisplayOneTimeOrRecurringSchedule oneTime={ezData.oneTime} ezData={ezData} /></td>
+                                        <td className="uppercase w-1/4 text-xs sm:text-sm"><DisplayOneTimeOrRecurringSchedule oneTime={ezData.oneTime} ezData={ezData} /></td>
                                         <td className={`uppercase ${ezData.blockAllow === 'block' ? 'text-red-500' : 'text-green-500'}`}>
                                             {ezData.blockAllow}
                                         </td>

@@ -1740,6 +1740,22 @@ app.post('/getallworking', async (req, res) => {
         .catch((error) => console.error(error));
 });
 
+app.post('/addbonustime', async (req, res) => {
+    const { hours, minutes } = req.body;
+    console.log("hours minutes\t", hours, minutes);
+
+    try {
+        if (hours || minutes) {
+            res.status(200).send({ msg: "Confirmed" });
+
+            // database and device shutdown logic here
+
+        }
+    } catch (error) {
+        console.error(error);
+    }
+})
+
 // ~~~~force error test~~~~
 app.post('/submitapptest', async (req, res) => {
     const { appDeviceObjectCopy } = req.body;
@@ -1758,11 +1774,6 @@ app.post('/submitapptest', async (req, res) => {
     } catch (error) {
         console.error('error.response.data \t', error.response.data);
         res.status(500).json({ success: false, error: error?.response?.data });
-        // res.status(error.response.status).json({ error: error.response.data });
-
-        // res.sendStatus(501);
-        // res.status(400).json({ error: error.message });
-        // res.json({ error: error.response.data });
     }
 });
 

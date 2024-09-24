@@ -3,6 +3,7 @@ import { Link, useNavigate, useParams } from "react-router-dom";
 import { HiMiniPencilSquare } from "react-icons/hi2";
 import DeviceSkeleton from "./skeletons/DevicesSkeleton";
 import LoadingDialog from "./utility_components/LoadingDialog";
+import BonusTimeButton from "./utility_components/BonusTimeButton";
 
 
 
@@ -189,12 +190,12 @@ export default function Devices({ data, toggleReRender, handleRenderToggle, load
             <div className="flex items-center justify-center w-full h-full sm:w-3/4 lg:w-1/2 mx-auto pb-12">
                 <div className="flex w-full mx-2">
                     <div className="flex flex-col items-center justify-center w-full h-full mx-auto border rounded-lg shadow overflow-hidden border-neutral shadow-base-300 m-8">
-                        <div className="flex w-full mt-2 justify-around">
-                            <div className="text-xl font-bold">Toggle</div>
-                            <div className="text-xl font-bold">Device</div>
+                        <div className="flex w-full mt-2 justify-between">
+                            <div className="px-4 text-xl font-bold">Toggle</div>
+                            <div className="px-12 text-xl font-bold">Device</div>
                         </div>
                         <div className="divider mt-2 mb-2"></div>
-                        <ul className="flex flex-col w-full">
+                        <ul className="flex flex-col w-full mb-2">
                             {
                                 !loadingMacData ? data?.macData?.map((device) => {
                                 // data?.macData?.map((device) => {
@@ -205,10 +206,6 @@ export default function Devices({ data, toggleReRender, handleRenderToggle, load
                                                 <input type="checkbox" />
                                                     <div className="collapse-title text-xl font-medium">
                                                         <div className="w-full flex flex-row items-center justify-between hover:cursor-pointer z-40">
-                                                            {/* <IoEllipseOutline
-                                                                data-name={device?.id}
-                                                                className={`${device?.active ? 'text-green-500' : 'text-red-500'} animate-pulse w-8 h-8 z-40`}
-                                                            /> */}
                                                             <input
                                                                 type="checkbox"
                                                                 className="toggle toggle-success z-40"
@@ -217,16 +214,6 @@ export default function Devices({ data, toggleReRender, handleRenderToggle, load
                                                                 data-name={device?.id}
                                                             />
                                                             {device?.name === "" ? device?.macAddress : device?.name}
-                                                            {/* <div
-                                                                draggable={true}
-                                                                data-orderid={`${index+1}`}
-                                                                data-devid={device?.id}
-                                                                onDragStart={handleDragStart}
-                                                                onDragOver={handleDragOver}
-                                                                onDrop={handleDrop}
-                                                                className="rotate-90 z-50 hover:cursor-grab">
-                                                                |||
-                                                            </div> */}
                                                         </div>
                                                     </div>
                                                     <div className="collapse-content">
@@ -243,6 +230,9 @@ export default function Devices({ data, toggleReRender, handleRenderToggle, load
                                                                     />
                                                                 </span>
                                                             </div>
+                                                        <div className="mt-2">
+                                                            <BonusTimeButton />
+                                                        </div>
                                                         <div>
                                                             <Link to={`/admin/${device?.id}/scheduler`} className="w-fit hover:cursor-pointer" >
                                                                 <div className="btn btn-block bg-base-300 hover:bg-base-content hover:text-base-100 my-2">Schedule</div>

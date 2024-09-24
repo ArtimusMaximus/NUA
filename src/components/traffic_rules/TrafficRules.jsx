@@ -285,14 +285,14 @@ export default function TrafficRules()
         <>
             <div className="flex items-center justify-center flex-col w-full h-full sm:w-3/4 lg:w-1/2 mx-auto pb-12">
                 {/* <div className="btn" onClick={handleDeleteTestIds}>Delete Test Ids</div> */}
-                <div className="flex w-full mx-2">
+                <div className="flex w-full mx-2 px">
                     <div className="flex flex-col items-center justify-center w-full h-full mx-auto border rounded-lg shadow overflow-hidden border-neutral shadow-base-300 m-8">
-                        <div className="flex w-full mt-2 justify-around">
-                            <div className="text-xl font-bold">Toggle</div>
-                            <div className="text-xl font-bold">Description</div>
+                        <div className="flex w-full mt-2 justify-between">
+                            <div className="px-4 text-xl font-bold">Toggle</div>
+                            <div className="px-12 text-xl font-bold">Description</div>
                         </div>
                         <div className="divider mt-2 mb-2"></div>
-                        <ul className="flex flex-col w-full justify-around gap-2">
+                        <ul className="flex flex-col w-full justify-around gap-2 mb-2">
                             {
                                 customAPIRules.length ?
                                 customAPIRules?.map((data) => {
@@ -363,7 +363,7 @@ export default function TrafficRules()
                                             </li>
                                         </>
                                     )
-                                }) : <span>No data in db yet</span>
+                                }) : <span className="ml-2 mb-2">No data available. Please create or import rules to proceed.</span>
                             }
                         </ul>
                     </div>

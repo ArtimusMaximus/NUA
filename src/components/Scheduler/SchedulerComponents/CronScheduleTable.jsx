@@ -10,15 +10,15 @@ export function CronScheduleTable({ returnData, handleDeleteCron, handleCronTogg
                     <th>Off/On</th>
                     <th>Delete</th>
                 </tr>
-            </thead>    
+            </thead>
             <tbody>
                     {
                         returnData.cronData.length ? returnData?.cronData?.map((cronData) => {
                             return (
                                 <>
                                     <tr key={cronData.id} align="center">
-                                        <td>
-                                            <div>{cronData.crontime}</div>
+                                        <td className="w-1/4">
+                                            <div className="text-xs sm:text-sm">{cronData.crontime}</div>
                                         </td>
                                         <td className={`uppercase ${cronData.crontype === 'block' ? 'text-red-500' : 'text-green-500'}`}>
                                             {cronData.crontype}
