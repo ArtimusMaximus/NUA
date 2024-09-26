@@ -4,7 +4,7 @@ const bodyParser = require('body-parser');
 const Unifi = require('node-unifi');
 const sqlite3 = require('sqlite3').verbose();
 const { open } = require('sqlite');
-const { PrismaClient } = require('@prisma/client');
+const { PrismaClient, Prisma } = require('@prisma/client');
 const schedule = require('node-schedule');
 const customPORT = require('./globalSettings');
 const fs = require('fs');
@@ -1741,20 +1741,108 @@ app.post('/getallworking', async (req, res) => {
 });
 
 app.post('/addbonustime', async (req, res) => {
-    const { hours, minutes } = req.body;
+    const { hours, minutes, deviceId } = req.body;
     console.log("hours minutes\t", hours, minutes);
 
     try {
         if (hours || minutes) {
             res.status(200).send({ msg: "Confirmed" });
-
             // database and device shutdown logic here
-
         }
+        const getMacAddressForDevice = await prisma.device.findUnique({ where: { id: deviceId }});
+        console.log("getMacAddressForDevice\t", getMacAddressForDevice);
+
+        // const getDeviceId = await prisma.easySchedule.findMany({ where: { deviceId: deviceId }});
+        // console.log('getDeviceId\t', getDeviceId);
+        const getCrons = await prisma.cron.findMany({ where: { deviceId: deviceId }});
+        console.log('getCrons\t', getCrons);
+
+        //////////////////////////// cancels job and changes db entry
+        for (const cronRule of getCrons) {
+            console.log('cronRule.toggleSched\t', cronRule.id, cronRule.toggleCron);
+
+            if (cronRule.toggleCron) {
+                const cancelled = schedule?.cancelJob(cronRule.jobName);
+                console.log('Cancelled Bonus Button Job?: ', cancelled);
+
+                if (cancelled) {
+                    const updateCron = await prisma.cron.update({
+                        where: { id: cronRule.id },
+                        data: {
+                            toggleCron: false
+                            // jobName: jb
+                        }
+                    });
+
+                    const createBonusToggleOff = await prisma.bonusToggles.create({
+                        data: {
+                            cronRuleToggledOff: cronRule.id,
+                            crontype: cronRule.crontype,
+                            crontime: cronRule.crontime,
+                            macAddress: getMacAddressForDevice.macAddress,
+                            device: {
+                                connect: { id: cronRule.deviceId }
+                            }
+                        }
+                    });
+                }
+            }
+        }
+
+            // let jb = jobName;
+            // if (toggleCron === false && jobName !== '') {
+            //     const cancelled = schedule?.cancelJob(jobName);
+            //     console.log('Cancelled Job?: ', cancelled);
+            // } else if (toggleCron === true) {
+            //     console.log('continue');
+            //     const reInitiatedJob = schedule.scheduleJob(crontime, () => jobFunction(crontype, getMacAddress.macAddress, false, unifi, prisma));
+            //     jb = reInitiatedJob.name;
+            //     console.log('jb.name: ', jb.name);
+            // }
+            // const updateCronToggle = await prisma.cron.update({
+            //     where: { id: id },
+            //     data: {
+            //         toggleCron: toggleCron,
+            //         jobName: jb
+            //         // jobName: toggleCron ? jb.name : jobName
+            //     }
+            // });
+        ///////////////////////////
+
+
     } catch (error) {
         console.error(error);
     }
-})
+});
+
+app.post("/deletebonustoggles", async (req, res) => { // simulate the bonus time ending
+    const { deviceId } = req.body;
+    try {
+        const getBonusTogglesForDevice = await prisma.bonusToggles.findMany({ where: { deviceId: deviceId }});
+        // const getOriginalCrons = await prisma.cron.findMany({ where: { deviceId: deviceId }});
+
+        let jb;
+        for (const bonusToggle of getBonusTogglesForDevice) {
+            await prisma.bonusToggles.delete({ where: { id: bonusToggle.id }});
+
+            const reInitiatedJob = schedule.scheduleJob(bonusToggle.crontime, () => jobFunction(bonusToggle.crontype, bonusToggle.macAddress, false, unifi, prisma));
+            // const jobFunction = async (crontype, macAddress, oneTime, unifi, prisma) => {
+            jb = reInitiatedJob.name;
+            console.log('jb.name: ', jb.name);
+
+            const updateCronToggle = await prisma.cron.update({
+                where: { id: bonusToggle.cronRuleToggledOff },
+                data: {
+                    toggleCron: true,
+                    jobName: jb
+                }
+            });
+        }
+
+    } catch (error) {
+        console.error(error);
+    }
+});
 
 // ~~~~force error test~~~~
 app.post('/submitapptest', async (req, res) => {

@@ -22,6 +22,24 @@ export default function Devices({ data, toggleReRender, handleRenderToggle, load
     //     navigate(`/admin/${device}`)
     // }
 
+    const bonusToggleTestRef = useRef();
+    const handleBonusToggleTest = async e => {
+        const deviceId = parseInt(e.target.id);
+        const obj = { deviceId : deviceId };
+        try {
+            const pingBonusToggle = await fetch('/deletebonustoggles', {
+                method: 'POST',
+                mode: 'cors',
+                headers: {
+                    "Content-Type":"application/json"
+                },
+                body: JSON.stringify(obj)
+            });
+        } catch (error) {
+            console.error(error);
+        }
+    }
+
     function handleToggleIsLoading() {
         if (toggleIsLoading) {
             toggleLoadingDialogRef.current.showModal();
@@ -231,7 +249,10 @@ export default function Devices({ data, toggleReRender, handleRenderToggle, load
                                                                 </span>
                                                             </div>
                                                         <div className="mt-2">
-                                                            <BonusTimeButton />
+                                                            <BonusTimeButton deviceId={device?.id} />
+                                                        </div>
+                                                        <div className="">
+                                                            <div id={device.id} className="btn btn-warning" ref={bonusToggleTestRef} onClick={handleBonusToggleTest}>Temp Test</div>
                                                         </div>
                                                         <div>
                                                             <Link to={`/admin/${device?.id}/scheduler`} className="w-fit hover:cursor-pointer" >

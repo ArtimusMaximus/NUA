@@ -66,7 +66,7 @@ export default function BonusTimeButton({ deviceId }) {
     }
     const handleAddTime = async () => {
         setSubmitBtnLoading(true);
-        const data = { hours: hours, minutes: minutes };
+        const data = { hours: hours, minutes: minutes, deviceId: deviceId };
         try {
             const addBonusTime = await fetch("/addbonustime", {
                 method: "POST",
@@ -76,14 +76,15 @@ export default function BonusTimeButton({ deviceId }) {
                 },
                 body: JSON.stringify(data)
             });
-            console.log('addBonusTime\t', addBonusTime)
             if (addBonusTime.ok) {
                 timer(500)
                     .then(() => setSubmitBtnLoading(false))
                     .then(() => bonusDialogRef.current.close())
-                    const response = await addBonusTime.json();
-                    console.log("response\t", response.msg);
-                }
+                const response = await addBonusTime.json();
+                console.log("response\t", response.msg);
+                setHours(0);
+                setMinutes(30);
+            }
             } catch (error) {
                 timer(500)
                 .then(() => setSubmitBtnLoading(false))
