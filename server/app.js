@@ -965,7 +965,7 @@ app.delete('/deletecron', async (req, res) => {
 
 app.put('/togglecron', async (req, res) => {
     const { id, toggleCron, jobName, crontime, crontype, deviceId } = req.body;
-    serverLogger(`Toggle on off ${toggleCron}`, "nua.log");
+    // serverLogger(`Toggle on off ${toggleCron}`, "nua.log");
     // const { id, deviceId, jobName, ezBlockAllow, ezDate, toggleEZSched } = req.body
     // I believe the issue here is that you are not getting the job name from the front end, try node-schedule again -TRUE & Successful....
     let jb = jobName;
@@ -1820,6 +1820,8 @@ app.post("/deletebonustoggles", async (req, res) => { // simulate the bonus time
     try {
         const getBonusTogglesForDevice = await prisma.bonusToggles.findMany({ where: { deviceId: deviceId }});
         // const getOriginalCrons = await prisma.cron.findMany({ where: { deviceId: deviceId }});
+        console.log('getBonusTogglesForDevice\t', getBonusTogglesForDevice);
+        const getMacAddressForDevice = await prisma.device.findUnique({ where: { id: deviceId }});
 
         let jb;
         for (const bonusToggle of getBonusTogglesForDevice) {
@@ -1837,7 +1839,16 @@ app.post("/deletebonustoggles", async (req, res) => { // simulate the bonus time
                     jobName: jb
                 }
             });
+
         }
+        const blockDevice = await unifi.blockClient(getMacAddressForDevice.macAddress);
+        // console.log("blockDevice\t", blockDevice);
+        const updateDeviceStatus = await prisma.device.update({
+            where: { id: deviceId },
+            data: {
+                active: false
+            }
+        });
 
     } catch (error) {
         console.error(error);
