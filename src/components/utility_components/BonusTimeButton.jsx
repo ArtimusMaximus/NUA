@@ -17,6 +17,7 @@ export default function BonusTimeButton({ deviceId }) {
         return arr;
     })();
     const timer = t => new Promise(res => setTimeout(res, t));
+    const [serverBonusTimer, setServerBonusTimer] = useState(null);
 
 
     const handleHoursIncDec = e => {
@@ -58,8 +59,17 @@ export default function BonusTimeButton({ deviceId }) {
 
     useEffect(() => {
         // console.log("hours\t", hours);
+        if (serverBonusTimer !== 0 || serverBonusTimer !== null) {
+            if (serverBonusTimer <= 0) {
+                setServerBonusTimer(null);
+            }
+            const interval = setInterval(() => {
+                setServerBonusTimer(prev => prev - 1000);
+            }, 1000);
+            return () => clearInterval(interval);
+        }
 
-    }, [hours])
+    }, [hours, serverBonusTimer])
 
     const handleBonusTime = () => {
         bonusDialogRef.current.showModal();
@@ -82,12 +92,14 @@ export default function BonusTimeButton({ deviceId }) {
                     .then(() => bonusDialogRef.current.close())
                 const response = await addBonusTime.json();
                 console.log("response\t", response.msg);
+                console.log('response.time\t', response.timer);
+                setServerBonusTimer(response.timer);
                 setHours(0);
                 setMinutes(30);
             }
             } catch (error) {
                 timer(500)
-                .then(() => setSubmitBtnLoading(false))
+                    .then(() => setSubmitBtnLoading(false))
                 // .then(() => bonusDialogRef.current.close())
             console.error(error);
         }
@@ -95,7 +107,9 @@ export default function BonusTimeButton({ deviceId }) {
 
     return (
         <>
-            <div className="btn btn-block btn-info" onClick={handleBonusTime}>Bonus Time</div>
+            <div className="btn btn-block btn-info" onClick={handleBonusTime}>
+                Bonus Time {serverBonusTimer !== null && serverBonusTimer > 0 ? serverBonusTimer : ""}
+            </div>
 
             <dialog ref={bonusDialogRef} className="modal">
                 <div className="modal-box">

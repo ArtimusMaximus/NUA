@@ -35,6 +35,7 @@ export default function Devices({ data, toggleReRender, handleRenderToggle, load
                 },
                 body: JSON.stringify(obj)
             });
+            // pingBonusToggle();
         } catch (error) {
             console.error(error);
         }
@@ -252,7 +253,7 @@ export default function Devices({ data, toggleReRender, handleRenderToggle, load
                                                             <BonusTimeButton deviceId={device?.id} />
                                                         </div>
                                                         <div className="">
-                                                            <div id={device.id} className="btn btn-warning" ref={bonusToggleTestRef} onClick={handleBonusToggleTest}>Temp Test</div>
+                                                            <div id={device.id} className="btn btn-warning" ref={bonusToggleTestRef} onClick={handleBonusToggleTest}>Temp Test (delete bonus toggles)</div>
                                                         </div>
                                                         <div>
                                                             <Link to={`/admin/${device?.id}/scheduler`} className="w-fit hover:cursor-pointer" >
