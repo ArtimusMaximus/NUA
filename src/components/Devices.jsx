@@ -1,9 +1,10 @@
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { HiMiniPencilSquare } from "react-icons/hi2";
 import DeviceSkeleton from "./skeletons/DevicesSkeleton";
 import LoadingDialog from "./utility_components/LoadingDialog";
 import BonusTimeButton from "./utility_components/BonusTimeButton";
+import DisplayBonusTimer from "./utility_components/DisplayBonusTimer";
 
 
 
@@ -49,6 +50,7 @@ export default function Devices({ data, toggleReRender, handleRenderToggle, load
         }
     }
     const delay = t => new Promise(res => setTimeout(res, t));
+
 
     const handleToggle = async e => { // toggle device blocked or unblocked
         setLoading(true);
@@ -216,8 +218,8 @@ export default function Devices({ data, toggleReRender, handleRenderToggle, load
                         <div className="divider mt-2 mb-2"></div>
                         <ul className="flex flex-col w-full mb-2">
                             {
-                                !loadingMacData ? data?.macData?.map((device) => {
-                                // data?.macData?.map((device) => {
+                                // !loadingMacData ? data?.macData?.map((device) => {
+                                data?.macData?.map((device) => {
                                     return (
                                         <>
                                             <li key={device?.id} className="m-1">
@@ -251,6 +253,7 @@ export default function Devices({ data, toggleReRender, handleRenderToggle, load
                                                             </div>
                                                         <div className="mt-2">
                                                             <BonusTimeButton deviceId={device?.id} />
+                                                            <DisplayBonusTimer />
                                                         </div>
                                                         <div className="">
                                                             <div id={device.id} className="btn btn-warning" ref={bonusToggleTestRef} onClick={handleBonusToggleTest}>Temp Test (delete bonus toggles)</div>
@@ -272,8 +275,10 @@ export default function Devices({ data, toggleReRender, handleRenderToggle, load
                                             </li>
                                         </>
                                     );
-                                }) : <DeviceSkeleton devices={data?.macData && data?.macData} loadingMacData={loadingMacData} />
+                                // }) : <DeviceSkeleton devices={data?.macData && data?.macData} loadingMacData={loadingMacData} />
+                                // }) : <span className="loading-spinner loading text-2xl text-primary"></span>
                                 // })
+                            })
                             }
                         </ul>
                     </div>

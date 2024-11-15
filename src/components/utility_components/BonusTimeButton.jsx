@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import DisplayBonusTimer from "./DisplayBonusTimer";
 
 export default function BonusTimeButton({ deviceId }) {
 
@@ -18,7 +19,6 @@ export default function BonusTimeButton({ deviceId }) {
     })();
     const timer = t => new Promise(res => setTimeout(res, t));
     const [serverBonusTimer, setServerBonusTimer] = useState(null);
-
 
     const handleHoursIncDec = e => {
         if (e.target.id === "decrementHours") {
@@ -59,9 +59,10 @@ export default function BonusTimeButton({ deviceId }) {
 
     useEffect(() => {
         // console.log("hours\t", hours);
-        if (serverBonusTimer !== 0 || serverBonusTimer !== null) {
+        if (serverBonusTimer !== 0 || serverBonusTimer !== null) { // decrements milliTime and passes to DisplayBonusTimeComponent
             if (serverBonusTimer <= 0) {
                 setServerBonusTimer(null);
+                return;
             }
             const interval = setInterval(() => {
                 setServerBonusTimer(prev => prev - 1000);
@@ -70,6 +71,7 @@ export default function BonusTimeButton({ deviceId }) {
         }
 
     }, [hours, serverBonusTimer])
+    // }, [hours]);
 
     const handleBonusTime = () => {
         bonusDialogRef.current.showModal();
@@ -108,8 +110,12 @@ export default function BonusTimeButton({ deviceId }) {
     return (
         <>
             <div className="btn btn-block btn-info" onClick={handleBonusTime}>
-                Bonus Time {serverBonusTimer !== null && serverBonusTimer > 0 ? serverBonusTimer : ""}
+                {/* Bonus Time {serverBonusTimer !== null && serverBonusTimer > 0 ? serverBonusTimer : ""} */}
+                Bonus Time {serverBonusTimer && <DisplayBonusTimer milliTime={serverBonusTimer} />}
             </div>
+
+
+
 
             <dialog ref={bonusDialogRef} className="modal">
                 <div className="modal-box">

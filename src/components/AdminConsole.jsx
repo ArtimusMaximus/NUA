@@ -132,7 +132,7 @@ export default function AdminConsole()
     //     }
     // }, [])
 
-    useEffect(() => { // new 03/04/2024
+    useEffect(() => { // new 03/04/2024 // revisited 11 15 2024 - need this to not interrupt state in devices component
         let eventSource;
         try {
             eventSource = new EventSource('/pingmacaddresses');
