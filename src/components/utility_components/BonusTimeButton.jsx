@@ -59,19 +59,19 @@ export default function BonusTimeButton({ deviceId }) {
 
     useEffect(() => {
         // console.log("hours\t", hours);
-        if (serverBonusTimer !== 0 || serverBonusTimer !== null) { // decrements milliTime and passes to DisplayBonusTimeComponent
-            if (serverBonusTimer <= 0) {
-                setServerBonusTimer(null);
-                return;
-            }
-            const interval = setInterval(() => {
-                setServerBonusTimer(prev => prev - 1000);
-            }, 1000);
-            return () => clearInterval(interval);
-        }
+        // if (serverBonusTimer !== 0 || serverBonusTimer !== null) { // decrements milliTime and passes to DisplayBonusTimeComponent
+        //     if (serverBonusTimer <= 0) {
+        //         setServerBonusTimer(null);
+        //         return;
+        //     }
+        //     const interval = setInterval(() => {
+        //         setServerBonusTimer(prev => prev - 1000);
+        //     }, 1000);
+        //     return () => clearInterval(interval);
+        // }
 
-    }, [hours, serverBonusTimer])
-    // }, [hours]);
+    // }, [hours, serverBonusTimer])
+    }, [hours, serverBonusTimer]);
 
     const handleBonusTime = () => {
         bonusDialogRef.current.showModal();

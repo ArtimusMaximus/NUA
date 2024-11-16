@@ -29,7 +29,8 @@ model Device {
   crons                   Cron[]
   easySchedules           EasySchedule[]
   order                   Int?
-  bonusToggles            BonusToggles[]
+  cronBonusToggles        CronBonusToggles[]
+  easyBonusToggles        EasyBonusToggles[]
 }
 
 model Cron {
@@ -110,14 +111,34 @@ model TrafficRuleDevices {
   trafficRulesId          Int
 }
 
-model BonusToggles {
+model CronBonusToggles {
   id                      Int          @id @default(autoincrement())
   createdAt               DateTime     @default(now())
-  cronRuleToggledOff      Int
+  cronRuleIDToggledOff    Int
   device                  Device?      @relation(fields: [deviceId], references: [id])
   deviceId                Int?
   crontype                String
   crontime                String
   macAddress              String
 }
+
+model EasyBonusToggles {
+  id                      Int          @id @default(autoincrement())
+  createdAt               DateTime     @default(now())
+  easyRuleIDToggledOff    Int
+  toggleSched             Boolean?
+  device                  Device?      @relation(fields: [deviceId], references: [id])
+  deviceId                Int?
+  blockAllow              String
+  month                   Int?
+  days                    String?
+  minute                  Int
+  hour                    Int
+  ampm                    String
+  date                    String?
+  macAddress              String
+  oneTime                 Boolean
+  jobName                 String?
+}
+
 

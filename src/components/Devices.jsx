@@ -253,7 +253,7 @@ export default function Devices({ data, toggleReRender, handleRenderToggle, load
                                                             </div>
                                                         <div className="mt-2">
                                                             <BonusTimeButton deviceId={device?.id} />
-                                                            <DisplayBonusTimer />
+
                                                         </div>
                                                         <div className="">
                                                             <div id={device.id} className="btn btn-warning" ref={bonusToggleTestRef} onClick={handleBonusToggleTest}>Temp Test (delete bonus toggles)</div>

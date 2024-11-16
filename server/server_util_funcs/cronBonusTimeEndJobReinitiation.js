@@ -1,14 +1,14 @@
 
-async function bonusTimeEndJobReinitiation(deviceId, schedule, prisma, unifi, jobFunction, logger) {
+async function cronBonusTimeEndJobReinitiation(deviceId, schedule, prisma, unifi, jobFunction, logger) {
     try {
-        const getBonusTogglesForDevice = await prisma.bonusToggles.findMany({ where: { deviceId: deviceId }});
-        // console.log('getBonusTogglesForDevice\t', getBonusTogglesForDevice);
+        const getCronBonusTogglesForDevice = await prisma.cronBonusToggles.findMany({ where: { deviceId: deviceId }});
+        // console.log('getCronBonusTogglesForDevice\t', getCronBonusTogglesForDevice);
 
         const getMacAddressForDevice = await prisma.device.findUnique({ where: { id: deviceId }});
 
         let jb;
-        for (const bonusToggle of getBonusTogglesForDevice) {
-            await prisma.bonusToggles.delete({ where: { id: bonusToggle.id }});
+        for (const bonusToggle of getCronBonusTogglesForDevice) {
+            await prisma.cronBonusToggles.delete({ where: { id: bonusToggle.id }});
 
             const reInitiatedJob = schedule.scheduleJob(bonusToggle.crontime, () => jobFunction(bonusToggle.crontype, bonusToggle.macAddress, false, unifi, prisma));
             // const jobFunction = async (crontype, macAddress, oneTime, unifi, prisma) => {
@@ -17,7 +17,7 @@ async function bonusTimeEndJobReinitiation(deviceId, schedule, prisma, unifi, jo
             logger.log('jb.name: ', jb);
 
             const updateCronToggle = await prisma.cron.update({
-                where: { id: bonusToggle.cronRuleToggledOff },
+                where: { id: bonusToggle.cronRuleIDToggledOff },
                 data: {
                     toggleCron: true,
                     jobName: jb
@@ -42,4 +42,4 @@ async function bonusTimeEndJobReinitiation(deviceId, schedule, prisma, unifi, jo
 
 
 
-module.exports = { bonusTimeEndJobReinitiation };
+module.exports = { cronBonusTimeEndJobReinitiation };
