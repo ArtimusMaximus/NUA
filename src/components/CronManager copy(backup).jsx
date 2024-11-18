@@ -28,7 +28,6 @@ export default function CronManager()
     }
     const handleChecked = e => { // /togglecron
         setChecked(prev => !prev)
-        console.log(e.target.checked);
 
         // const deviceId = parseInt(e.target.dataset.checked)
         // const jName = e.target.dataset.jobname
@@ -47,7 +46,7 @@ export default function CronManager()
         const crontime = e.target.dataset.crontime;
         const crontype = e.target.dataset.crontype;
         const deviceId = parseInt(e.target.dataset.deviceid);
-        
+
         async function toggleCronUpdate() {
             try {
                 const toggleCronOnOff = await fetch('/togglecron', {

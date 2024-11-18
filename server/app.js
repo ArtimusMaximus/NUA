@@ -20,6 +20,9 @@ const { logger } = require("./server_util_funcs/server_log_utils/customLogger");
 const { cronBonusTimeEndJobReinitiation } = require("./server_util_funcs/cronBonusTimeEndJobReinitiation");
 const { easyBonusTimeEndJobReinitiation } = require("./server_util_funcs/easyBonusTimeEndJobReinitiation");
 const { minutesHoursToMilli } = require("./server_util_funcs/minutesHoursToMilli");
+const { convertToMilitaryTime } = require('./server_util_funcs/convert_to_military_time');
+const { dateFromDateString } = require('./server_util_funcs/ez_sched_utils/dateFromDateString');
+
 
 
 
@@ -1800,25 +1803,6 @@ app.post('/addbonustime', async (req, res) => { // cron bonus time
                 }
             }
 
-            // model EasyBonusToggles {
-            //     id                      Int          @id @default(autoincrement())
-            //     createdAt               DateTime     @default(now())
-            //     easyRuleIDToggledOff    Int
-            //     toggleSched             Boolean?
-            //     device                  Device?      @relation(fields: [deviceId], references: [id])
-            //     deviceId                Int?
-            //     blockAllow              String
-            //     month                   Int?
-            //     days                    String?
-            //     minute                  Int
-            //     hour                    Int
-            //     ampm                    String
-            //     date                    String?
-            //     macAddress              String
-            //     oneTime                 Boolean
-            //     jobName                 String?
-            //   }
-
             //////////////////////////// cancels job and changes db entry for CRON ////////////////////
             for (const cronRule of getCrons) {
                 console.log('cronRule.toggleSched\t', cronRule.id, cronRule.toggleCron);
@@ -1897,13 +1881,14 @@ app.post('/addbonustime', async (req, res) => { // cron bonus time
 app.post("/deletebonustoggles", async (req, res) => { // simulate the bonus time ending
     const { deviceId } = req.body;
     try {
-        const getBonusTogglesForDevice = await prisma.cronBonusToggles.findMany({ where: { deviceId: deviceId }});
+        const getCronBonusTogglesToDelete = await prisma.cronBonusToggles.findMany({ where: { deviceId: deviceId }});
+        const getEasyBonusTogglesToDelete = await prisma.easyBonusToggles.findMany({ where: { deviceId: deviceId }});
         // const getOriginalCrons = await prisma.cron.findMany({ where: { deviceId: deviceId }});
-        console.log('getBonusTogglesForDevice\t', getBonusTogglesForDevice);
+        // console.log('getCronBonusTogglesToDelete\t', getCronBonusTogglesToDelete);
         const getMacAddressForDevice = await prisma.device.findUnique({ where: { id: deviceId }});
 
         let jb;
-        for (const bonusToggle of getBonusTogglesForDevice) {
+        for (const bonusToggle of getCronBonusTogglesToDelete) {
             await prisma.cronBonusToggles.delete({ where: { id: bonusToggle.id }});
 
             const reInitiatedJob = schedule.scheduleJob(bonusToggle.crontime, () => jobFunction(bonusToggle.crontype, bonusToggle.macAddress, false, unifi, prisma));
@@ -1920,9 +1905,54 @@ app.post("/deletebonustoggles", async (req, res) => { // simulate the bonus time
                 }
             });
         }
-        const blockDevice = await unifi.blockClient(getMacAddressForDevice.macAddress);
+        /////////////////////////////////////////////////////
+        for (const bonusToggle of getEasyBonusTogglesToDelete) {
+            const { date, hour, minute, ampm, oneTime, macAddress, blockAllow, days } = bonusToggle;
+
+            const modifiedHour = convertToMilitaryTime(ampm, parseInt(hour));
+            if (!oneTime) {
+                ////////////////////////////////////////
+                const modifiedDaysOfTheWeek = days && days.split("").map((day) => parseInt(day));
+                const rule = new schedule.RecurrenceRule();
+                rule.dayOfWeek = [...modifiedDaysOfTheWeek];
+                rule.hour = modifiedHour;
+                rule.minute = parseInt(minute);
+                const reInitiatedJob = schedule.scheduleJob(rule, () => jobFunction(blockAllow, macAddress, oneTime, unifi, prisma));
+                jb = reInitiatedJob.name;
+
+                console.log('jb.name: ', jb);
+                logger.log('Job re-initiated: ', reInitiatedJob);
+
+                await prisma.easySchedule.update({ // put original ez schedule back as was
+                    where: { id: bonusToggle.easyRuleIDToggledOff },
+                    data: {
+                        toggleSched: true,
+                        jobName: jb
+                    }
+                });
+                await prisma.easyBonusToggles.delete({ where: { id: bonusToggle.id }}); // delete easyToggle
+                /////////////////////////////////////////
+            } else { // oneTime schedule
+                const { year, month, day } = dateFromDateString(date);
+                const dateTime = new Date(year, month-1, day, modifiedHour, parseInt(minute), 0);
+                const reInitiatedJob = schedule.scheduleJob(dateTime, () => jobFunction(blockAllow, macAddress, oneTime, unifi, prisma));
+                jb = reInitiatedJob.name;
+                console.log('jb.name: ', jb);
+                logger.log('Job re-initiated: ', reInitiatedJob);
+
+                await prisma.easySchedule.update({ // put original ez schedule back as was
+                    where: { id: bonusToggle.easyRuleIDToggledOff },
+                    data: {
+                        toggleSched: true,
+                        jobName: jb
+                    }
+                });
+                await prisma.easyBonusToggles.delete({ where: { id: bonusToggle.id }});
+            }
+        }
+        await unifi.blockClient(getMacAddressForDevice.macAddress);
         // console.log("blockDevice\t", blockDevice);
-        const updateDeviceStatus = await prisma.device.update({
+        await prisma.device.update({
             where: { id: deviceId },
             data: {
                 active: false

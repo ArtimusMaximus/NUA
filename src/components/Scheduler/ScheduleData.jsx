@@ -56,7 +56,6 @@ export default function ScheduleData({ changed })
     }
     const handleEZToggle = e => { // /toggleEZ
         setChecked(prev => !prev);
-        console.log(e.target.checked);
 
         const id = parseInt(e.target.dataset.id);
         const deviceId = parseInt(e.target.dataset.deviceid);
