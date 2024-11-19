@@ -1,6 +1,11 @@
-let timeoutMap = new Map();
+const { minutesHoursToMilli } = require('../minutesHoursToMilli.js');
 
-function startTimeout(timerId, delay, callback) {
+
+const timeoutMap = new Map();
+
+function startTimeout(timerId, minutes, hours, callback) { // timerId is deviceId
+    const delay = minutesHoursToMilli(minutes, hours);
+    const futureTime = Date.now() + delay;
     const timeoutId = setTimeout(async () => {
         try {
             await callback();
@@ -10,16 +15,20 @@ function startTimeout(timerId, delay, callback) {
             timeoutMap.delete(timerId);
         }
     }, delay);
-    timeoutMap.set(timerId, timeoutId);
+    const mapObj = { time: futureTime, timeoutId: timeoutId };
+    timeoutMap.set(timerId, mapObj);
+
+    return { timeoutMap };
 }
 
 function endTimeout(timerId) {
     if (timeoutMap.has(timerId)) {
-        clearTimeout(timeoutMap.get(timerId));
+        clearTimeout(timeoutMap.get(timerId).timeoutId);
         timeoutMap.delete(timerId);
+        console.log("timeoutMap cleared:", timeoutMap);
         return true;
     }
     return false;
 }
 
-module.exports = { startTimeout, endTimeout };
+module.exports = { startTimeout, endTimeout, timeoutMap };

@@ -26,32 +26,6 @@ export default function Devices({ data, toggleReRender, handleRenderToggle, load
     function timerHandler(cancelled) {
         setTimerCancelled(cancelled); // passed to CancelBonusTimeButton
     }
-    // useEffect(() => {
-    //     console.log("Timer Cancelled useEffect in Devices.jsx")
-    // }, [timerCancelled]);
-
-    // const bonusToggleTestRef = useRef();
-    // const handleStopBonusTime = async e => {
-    //     timerHandler(true);
-    //     const deviceId = parseInt(e.target.id);
-    //     const obj = { deviceId : deviceId, cancelTimer: true, };
-    //     try {
-    //         const pingBonusToggle = await fetch('/deletebonustoggles', {
-    //             method: 'POST',
-    //             mode: 'cors',
-    //             headers: {
-    //                 "Content-Type":"application/json"
-    //             },
-    //             body: JSON.stringify(obj)
-    //         });
-    //         if (pingBonusToggle.ok) {
-    //             timerHandler(false);
-    //         }
-    //         // pingBonusToggle();
-    //     } catch (error) {
-    //         console.error(error);
-    //     }
-    // }
 
     function handleToggleIsLoading() {
         if (toggleIsLoading) {
@@ -269,16 +243,6 @@ export default function Devices({ data, toggleReRender, handleRenderToggle, load
                                                                 timerHandler={timerHandler}
                                                             />
                                                         </div>
-                                                        {/* <div className="">
-                                                            <div
-                                                                id={device.id}
-                                                                className="btn btn-warning"
-                                                                ref={bonusToggleTestRef}
-                                                                onClick={handleStopBonusTime}
-                                                            >
-                                                                Stop Bonus Time
-                                                            </div>
-                                                        </div> */}
                                                         <div>
                                                             <Link to={`/admin/${device?.id}/scheduler`} className="w-fit hover:cursor-pointer" >
                                                                 <div className="btn btn-block bg-base-300 hover:bg-base-content hover:text-base-100 my-2">Schedule</div>
@@ -296,9 +260,6 @@ export default function Devices({ data, toggleReRender, handleRenderToggle, load
                                             </li>
                                         </>
                                     );
-                                // }) : <DeviceSkeleton devices={data?.macData && data?.macData} loadingMacData={loadingMacData} />
-                                // }) : <span className="loading-spinner loading text-2xl text-primary"></span>
-                                // })
                             })
                             }
                         </ul>

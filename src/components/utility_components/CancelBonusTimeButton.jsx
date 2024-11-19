@@ -1,12 +1,12 @@
 import { useRef, useState } from "react";
 
-export default function CancelBonusTimeButton({ deviceId, timerId, timerHandler, timerCancelled }) {
+export default function CancelBonusTimeButton({ deviceId, timerHandler }) {
     const bonusToggleTestRef = useRef();
 
     const handleStopBonusTime = async e => {
         timerHandler(true);
         const deviceId = parseInt(e.target.id);
-        const obj = { deviceId : deviceId, cancelTimer: true, timerId: timerId };
+        const obj = { deviceId : deviceId, cancelTimer: true }; // deviceId is the timerId on the server
         try {
             const pingBonusToggle = await fetch('/deletebonustoggles', {
                 method: 'POST',

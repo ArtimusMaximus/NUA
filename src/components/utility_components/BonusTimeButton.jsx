@@ -19,7 +19,7 @@ export default function BonusTimeButton({ deviceId, timerCancelled, timerHandler
         return arr;
     })();
     const timer = t => new Promise(res => setTimeout(res, t));
-    const [serverBonusTimer, setServerBonusTimer] = useState({ timer: null, resetKey: 0, timerId: null, timeDone: false });
+    const [milliTime, setMilliTime] = useState(null);
 
     const handleHoursIncDec = e => {
         if (e.target.id === "decrementHours") {
@@ -59,22 +59,55 @@ export default function BonusTimeButton({ deviceId, timerCancelled, timerHandler
     }
 
     useEffect(() => {
-        // console.log("hours\t", hours);
-        // if (serverBonusTimer !== 0 || serverBonusTimer !== null) { // decrements milliTime and passes to DisplayBonusTimeComponent
-        //     if (serverBonusTimer <= 0) {
-        //         setServerBonusTimer(null);
-        //         return;
-        //     }
-        //     const interval = setInterval(() => {
-        //         setServerBonusTimer(prev => prev - 1000);
-        //     }, 1000);
-        //     return () => clearInterval(interval);
-        // }
+        console.log("/getbonustimesmap is firing...");
+        let isMounted = true;
+        if (deviceId) {
+            const dataObj = { deviceId: deviceId };
+            (async function() {
+                try {
+                    const retrieveTimes = await fetch("/getbonustimesmap", {
+                        method: "POST",
+                        mode: "cors",
+                        headers: {
+                            "Content-Type" : "application/json"
+                        },
+                        body: JSON.stringify(dataObj)
+                    });
+                    if (retrieveTimes.status === 200) {
+                        const res = await retrieveTimes.json();
+                        console.log('res\t', res);
+                        if (isMounted) {
+                            const time = res.timer;
+                            setMilliTime(time);
+                        }
+                    } else if (retrieveTimes.status === 204) {
+                        console.log("No bonus time data to be retrieved!");
+                    }
+                } catch (error) {
+                    console.error(error);
+                }
+            })();
+        }
+        return () => {
+            isMounted = false;
 
-    // }, [hours, serverBonusTimer])
-    }, [hours, serverBonusTimer]);
+        }
+    }, [deviceId]);
 
-    const handleBonusTime = () => {
+    useEffect(() => {
+        console.log("milliTime\t", milliTime);
+        const interval = setInterval(() => {
+            setMilliTime(prev => prev - 1000);
+        }, 1000);
+        if (milliTime <= 0 || timerCancelled) {
+            setMilliTime(null);
+            clearInterval(interval);
+            return;
+        }
+        return () => clearInterval(interval);
+    }, [hours, milliTime, timerCancelled]);
+
+    const handleBonusTime = () => { // modal
         bonusDialogRef.current.showModal();
     }
     const handleAddTime = async () => {
@@ -97,7 +130,7 @@ export default function BonusTimeButton({ deviceId, timerCancelled, timerHandler
                 const response = await addBonusTime.json();
                 console.log("response\t", response.msg);
                 console.log('response.timer\t', response.timer);
-                setServerBonusTimer((prev) => ({ timer: response.timer, resetKey: prev.resetKey + 1, timerId: response.timerId, timeDone: false }));
+                setMilliTime(response.timer);
                 setHours(0);
                 setMinutes(30);
             }
@@ -113,29 +146,19 @@ export default function BonusTimeButton({ deviceId, timerCancelled, timerHandler
     return (
         <>
             <div className="flex flex-row bg-info rounded-lg w-full items-center justify-evenly">
-
-                <div className={`${serverBonusTimer.timer ? "btn btn-info w-1/2" : "btn btn-info w-full"}`} onClick={handleBonusTime}>
-                    {/* Bonus Time {serverBonusTimer !== null && serverBonusTimer > 0 ? serverBonusTimer : ""} */}
+                <div className={milliTime ? "btn btn-info w-3/4" : "btn btn-info w-full"} onClick={handleBonusTime}>
                     <span>Bonus Time</span>
-                    {serverBonusTimer.timer &&
-                        <DisplayBonusTimer
-                            milliTime={serverBonusTimer}
-                            timerCancelled={timerCancelled}
-                        />}
+                    <DisplayBonusTimer
+                        milliTime={milliTime}
+                    />
                 </div>
-                <div className={`${serverBonusTimer.timer && serverBonusTimer.timer !== 0 ? "w-1/2" : ""}`}>
-                    {serverBonusTimer.timer && serverBonusTimer.timer > 0 &&
-                        <CancelBonusTimeButton
+                <div className={milliTime ? "w-1/4 justify-end" : "hidden"}>
+                    <CancelBonusTimeButton
                         deviceId={deviceId}
-                        timerId={serverBonusTimer.timerId}
                         timerHandler={timerHandler}
-                        timerCancelled={timerCancelled}
-                    />}
+                    />
                 </div>
             </div>
-
-
-
             <dialog ref={bonusDialogRef} className="modal">
                 <div className="modal-box">
                     <h3 className="font-bold text-lg">Add Bonus Time</h3>
