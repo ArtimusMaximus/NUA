@@ -22,6 +22,8 @@ const { easyBonusTimeEndJobReinitiation } = require("./server_util_funcs/easyBon
 const { minutesHoursToMilli } = require("./server_util_funcs/minutesHoursToMilli");
 const { convertToMilitaryTime } = require('./server_util_funcs/convert_to_military_time');
 const { dateFromDateString } = require('./server_util_funcs/ez_sched_utils/dateFromDateString');
+const { startTimeout, endTimeout } = require('./server_util_funcs/start_&_clear_timeouts/start_end_timeouts');
+
 
 
 
@@ -1750,13 +1752,13 @@ app.post('/getallworking', async (req, res) => {
 });
 
 app.post('/addbonustime', async (req, res) => { // cron bonus time
-    const { hours, minutes, deviceId } = req.body;
+    const { hours, minutes, timerId, deviceId } = req.body;
     console.log("hours minutes\t", hours, minutes);
 
     try {
         if (hours || minutes) {
             const t = minutesHoursToMilli(minutes, hours);
-            res.status(200).send({ msg: "Confirmed", timer: t });
+            res.status(200).send({ msg: "Confirmed", timer: t, timerId: timerId });
             // database and device shutdown logic here
 
             const getMacAddressForDevice = await prisma.device.findUnique({ where: { id: deviceId }});
@@ -1837,16 +1839,27 @@ app.post('/addbonustime', async (req, res) => { // cron bonus time
 
             console.log("Time converted to milli:\t", t);
             console.log("Time converted to Seconds:\t", t/1000);
-            async function restartPausedJobs(time) {
+            // async function restartPausedJobs(time) {
+            //     try {
+            //         await new Promise(res => setTimeout(res, time));
+            //         await cronBonusTimeEndJobReinitiation(deviceId, schedule, prisma, unifi, jobFunction, logger);
+            //         await easyBonusTimeEndJobReinitiation(deviceId, schedule, prisma, unifi, jobFunction, logger);
+            //     } catch (error) {
+            //         console.error(error);
+            //     }
+            // }
+            // await restartPausedJobs(t);
+            async function restartPausedJobs() {
                 try {
-                    await new Promise(res => setTimeout(res, time));
                     await cronBonusTimeEndJobReinitiation(deviceId, schedule, prisma, unifi, jobFunction, logger);
                     await easyBonusTimeEndJobReinitiation(deviceId, schedule, prisma, unifi, jobFunction, logger);
                 } catch (error) {
                     console.error(error);
                 }
             }
-            await restartPausedJobs(t);
+            // await restartPausedJobs();
+            startTimeout(timerId, t, restartPausedJobs);
+
         }
 
 
@@ -1878,9 +1891,14 @@ app.post('/addbonustime', async (req, res) => { // cron bonus time
     }
 });
 
+
+
 app.post("/deletebonustoggles", async (req, res) => { // simulate the bonus time ending
-    const { deviceId } = req.body;
+    const { deviceId, cancelTimer, timerId } = req.body;
     try {
+        if (cancelTimer) { // cancelling timer/ending timeout from /addbonustoggles
+            endTimeout(timerId);
+        }
         const getCronBonusTogglesToDelete = await prisma.cronBonusToggles.findMany({ where: { deviceId: deviceId }});
         const getEasyBonusTogglesToDelete = await prisma.easyBonusToggles.findMany({ where: { deviceId: deviceId }});
         // const getOriginalCrons = await prisma.cron.findMany({ where: { deviceId: deviceId }});
@@ -1959,7 +1977,7 @@ app.post("/deletebonustoggles", async (req, res) => { // simulate the bonus time
             }
         });
 
-
+    res.sendStatus(200);
     } catch (error) {
         console.error(error);
     }

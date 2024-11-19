@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 import DisplayBonusTimer from "./DisplayBonusTimer";
+import CancelBonusTimeButton from "./CancelBonusTimeButton";
 
-export default function BonusTimeButton({ deviceId }) {
+export default function BonusTimeButton({ deviceId, timerCancelled, timerHandler }) {
 
     const bonusDialogRef = useRef();
     const [submitBtnLoading, setSubmitBtnLoading] = useState(false);
@@ -18,7 +19,7 @@ export default function BonusTimeButton({ deviceId }) {
         return arr;
     })();
     const timer = t => new Promise(res => setTimeout(res, t));
-    const [serverBonusTimer, setServerBonusTimer] = useState(null);
+    const [serverBonusTimer, setServerBonusTimer] = useState({ timer: null, resetKey: 0, timerId: null, timeDone: false });
 
     const handleHoursIncDec = e => {
         if (e.target.id === "decrementHours") {
@@ -78,7 +79,8 @@ export default function BonusTimeButton({ deviceId }) {
     }
     const handleAddTime = async () => {
         setSubmitBtnLoading(true);
-        const data = { hours: hours, minutes: minutes, deviceId: deviceId };
+        const timerId = Date.now();
+        const data = { hours: hours, minutes: minutes, deviceId: deviceId, timerId: timerId };
         try {
             const addBonusTime = await fetch("/addbonustime", {
                 method: "POST",
@@ -94,14 +96,15 @@ export default function BonusTimeButton({ deviceId }) {
                     .then(() => bonusDialogRef.current.close())
                 const response = await addBonusTime.json();
                 console.log("response\t", response.msg);
-                console.log('response.time\t', response.timer);
-                setServerBonusTimer(response.timer);
+                console.log('response.timer\t', response.timer);
+                setServerBonusTimer((prev) => ({ timer: response.timer, resetKey: prev.resetKey + 1, timerId: response.timerId, timeDone: false }));
                 setHours(0);
                 setMinutes(30);
             }
             } catch (error) {
                 timer(500)
                     .then(() => setSubmitBtnLoading(false))
+                    .catch(err => console.error(`${err}: (setSubmitBtnLoading(false) after timer had an error!)`))
                 // .then(() => bonusDialogRef.current.close())
             console.error(error);
         }
@@ -109,11 +112,27 @@ export default function BonusTimeButton({ deviceId }) {
 
     return (
         <>
-            <div className="btn btn-block btn-info" onClick={handleBonusTime}>
-                {/* Bonus Time {serverBonusTimer !== null && serverBonusTimer > 0 ? serverBonusTimer : ""} */}
-                Bonus Time {serverBonusTimer && <DisplayBonusTimer milliTime={serverBonusTimer} />}
-            </div>
+            <div className="flex flex-row bg-info rounded-lg w-full items-center justify-evenly">
 
+                <div className={`${serverBonusTimer.timer ? "btn btn-info w-1/2" : "btn btn-info w-full"}`} onClick={handleBonusTime}>
+                    {/* Bonus Time {serverBonusTimer !== null && serverBonusTimer > 0 ? serverBonusTimer : ""} */}
+                    <span>Bonus Time</span>
+                    {serverBonusTimer.timer &&
+                        <DisplayBonusTimer
+                            milliTime={serverBonusTimer}
+                            timerCancelled={timerCancelled}
+                        />}
+                </div>
+                <div className={`${serverBonusTimer.timer && serverBonusTimer.timer !== 0 ? "w-1/2" : ""}`}>
+                    {serverBonusTimer.timer && serverBonusTimer.timer > 0 &&
+                        <CancelBonusTimeButton
+                        deviceId={deviceId}
+                        timerId={serverBonusTimer.timerId}
+                        timerHandler={timerHandler}
+                        timerCancelled={timerCancelled}
+                    />}
+                </div>
+            </div>
 
 
 

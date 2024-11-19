@@ -1,43 +1,53 @@
 import { useEffect, useState, useRef } from "react";
 
-export default function DisplayBonusTimer({ milliTime }) {
-    const [serverBonusTimer, setServerBonusTimer] = useState(milliTime);
-
-    // const [hours, setHours]     = useState(Math.floor((milliTime / (1000*60*60)) % 24));
-    // const [minutes, setMinutes] = useState(Math.floor((milliTime / (1000*60)) % 60));
-    // const [seconds, setSeconds] = useState(Math.floor(milliTime / (1000) % 60));
-    // const hours = Math.floor((remainingTime / (1000*60*60)) % 24);
-    // const minutes = Math.floor((remainingTime / (1000*60)) % 60);
-    // const seconds = Math.floor(remainingTime / (1000) % 60);
-    const [hours, setHours]     = useState(null);
-    const [minutes, setMinutes] = useState(null);
-    const [seconds, setSeconds] = useState(null);
+export default function DisplayBonusTimer({ milliTime, timerCancelled }) {
+    const [serverBonusTimer, setServerBonusTimer] = useState(milliTime.timer);
+    const [timerCompleted, setTimerCompleted] = useState(false);
 
     useEffect(() => {
-        if (serverBonusTimer !== 0 || serverBonusTimer !== null) { // decrements milliTime and passes to DisplayBonusTimeComponent
-            if (serverBonusTimer <= 0) {
-                setServerBonusTimer(0);
-                return;
-            }
+        setServerBonusTimer(milliTime.timer);
+        setTimerCompleted(false);
+    }, [milliTime])
+
+
+    useEffect(() => {
+        if (timerCancelled) {
+            setServerBonusTimer(0);
+            setTimerCompleted(true);
+            return;
+        }
+        if (timerCompleted || serverBonusTimer <= 0) {
+            setTimerCompleted(true);
+            return;
+        }
+
             const interval = setInterval(() => {
-                setServerBonusTimer(prev => prev - 1000);
-                setHours(Math.floor((serverBonusTimer / (1000*60*60)) % 24));
-                setMinutes(Math.floor((serverBonusTimer / (1000*60)) % 60));
-                setSeconds(Math.floor(serverBonusTimer / (1000) % 60));
+                setServerBonusTimer((prev) => {
+                    const updatedTime = prev - 1000;
+
+                    if (updatedTime <= 0) {
+                        setTimerCompleted(true);
+                        clearInterval(interval);
+                        return 0;
+                    }
+                    return updatedTime;
+                });
             }, 1000);
             return () => clearInterval(interval);
-        }
-        console.log('serverBonusTimer\t', serverBonusTimer);
 
-    }, [serverBonusTimer, milliTime]);
-    // }, [milliTime]);
+    }, [timerCompleted, timerCancelled]);
+
+    const hours = (Math.floor((serverBonusTimer / (1000*60*60)) % 24));
+    const minutes = (Math.floor((serverBonusTimer / (1000*60)) % 60));
+    const seconds = (Math.floor(serverBonusTimer / (1000) % 60));
 
     return (
         <>
-            {serverBonusTimer !== null &&
-                <span className="pl-4">
-                    {hours !== null && minutes !== null && seconds !== null && hours + " : " + minutes + " : " + seconds}
-                </span>
+            {serverBonusTimer > 0 && !timerCompleted ?
+                <>
+                    {hours + " : " + minutes + " : " + seconds}
+                </>
+                : <></>
             }
         </>
     );
