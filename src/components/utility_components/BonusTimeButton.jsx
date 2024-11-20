@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import DisplayBonusTimer from "./DisplayBonusTimer";
 import CancelBonusTimeButton from "./CancelBonusTimeButton";
+import { HiMiniPencilSquare } from "react-icons/hi2";
 
 export default function BonusTimeButton({ deviceId, timerCancelled, timerHandler, handleRenderToggle }) {
 
@@ -125,7 +126,7 @@ export default function BonusTimeButton({ deviceId, timerCancelled, timerHandler
             });
             if (addBonusTime.ok) {
                  // re-render device component so it updates to the active state :update: device is blocked on router, hence the update issues...
-                 handleRenderToggle();
+                handleRenderToggle();
                 timer(500)
                     .then(() => setSubmitBtnLoading(false))
                     .then(() => bonusDialogRef.current.close())
@@ -148,21 +149,21 @@ export default function BonusTimeButton({ deviceId, timerCancelled, timerHandler
     return (
         <>
             <div className={`flex flex-row rounded-lg w-full items-center justify-evenly bg-info`}>
-                <div className={`${milliTime ? "w-1/2" : "w-full"} btn btn-info`} onClick={handleBonusTime}>
+                <div className={`${milliTime ? "w-[80%]" : "w-full"} btn btn-info`} onClick={handleBonusTime}>
                     <span>Bonus Time</span>
                     <DisplayBonusTimer
                         milliTime={milliTime}
                     />
                 </div>
-                <div className={milliTime ? "w-1/4 justify-end" : "hidden"}>
+                <div className={milliTime ? "w-[10%] mr-1" : "hidden"}>
                     <CancelBonusTimeButton
                         deviceId={deviceId}
                         timerHandler={timerHandler}
                         handleRenderToggle={handleRenderToggle}
                     />
                 </div>
-                <div className={`${milliTime ? "btn btn-circle btn-success w-1/4" : "hidden"}`}>
-
+                <div className={`${milliTime ? "w-[10%] mr-1" : "hidden"}`}>
+                    <HiMiniPencilSquare className="w-10 h-10 text-secondary" />
                 </div>
             </div>
             <dialog ref={bonusDialogRef} className="modal">

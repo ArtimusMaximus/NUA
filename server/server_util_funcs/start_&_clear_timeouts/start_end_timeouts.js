@@ -5,6 +5,8 @@ const timeoutMap = new Map();
 
 function startTimeout(timerId, minutes, hours, callback) { // timerId === deviceId
     const delay = minutesHoursToMilli(minutes, hours);
+    // console.log("delay in startTimeout function:\t", delay);
+
     const futureTime = Date.now() + delay;
     const timeoutId = setTimeout(async () => {
         try {

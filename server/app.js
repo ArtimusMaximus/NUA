@@ -1753,7 +1753,7 @@ app.post('/getallworking', async (req, res) => {
 app.post('/addbonustime', async (req, res) => { // cron bonus time
     try {
         const { hours, minutes, deviceId } = req.body;
-        console.log("hours minutes\t", hours, minutes, deviceId, typeof deviceId);
+        // console.log("hours minutes\t", hours, minutes, deviceId, typeof deviceId);
         if (hours || minutes) {
 
             // database and device shutdown logic here
@@ -1771,10 +1771,6 @@ app.post('/addbonustime', async (req, res) => { // cron bonus time
                 });
                 // console.log('tablet\t', tablet); // this is correct, but device is blocked...
             }
-
-
-
-
 
             const getEasyDevices = await prisma.easySchedule.findMany({ where: { deviceId: deviceId }});
             const getCrons = await prisma.cron.findMany({ where: { deviceId: deviceId }});
@@ -1851,6 +1847,15 @@ app.post('/addbonustime', async (req, res) => { // cron bonus time
                     await cronBonusTimeEndJobReinitiation(deviceId, schedule, prisma, unifi, jobFunction, logger);
                     await easyBonusTimeEndJobReinitiation(deviceId, schedule, prisma, unifi, jobFunction, logger);
                     endTimeout(deviceId);
+                    // const confirmBlocked = await unifi?.blockClient(getMacAddressForDevice.macAddress);
+                    // console.log(`${getMacAddressForDevice.macAddress} has been blocked: ${confirmBlocked}`);
+                    // device active set off happens in jobFunction
+                    // await prisma.device.update({
+                    //     where: { id: deviceId },
+                    //     data: {
+                    //         active: false
+                    //     }
+                    // });
                 } catch (error) {
                     console.error(error);
                 }
