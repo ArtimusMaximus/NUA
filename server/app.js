@@ -1871,7 +1871,7 @@ app.post("/getbonustimesmap", async (req, res) => {
 });
 
 
-app.post("/deletebonustoggles", async (req, res) => { // simulate the bonus time ending
+app.post("/deletebonustoggles", async (req, res) => {
     const { deviceId, cancelTimer } = req.body; // deviceId is the timerId
     try {
         if (cancelTimer) { // cancelling timer/ending timeout from /addbonustoggles

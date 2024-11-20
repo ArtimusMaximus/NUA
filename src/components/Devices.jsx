@@ -241,6 +241,7 @@ export default function Devices({ data, toggleReRender, handleRenderToggle, load
                                                                 deviceId={device?.id}
                                                                 timerCancelled={timerCancelled}
                                                                 timerHandler={timerHandler}
+                                                                deviceActive={device?.active}
                                                             />
                                                         </div>
                                                         <div>

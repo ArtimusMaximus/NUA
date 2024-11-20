@@ -29,7 +29,7 @@ export default function CancelBonusTimeButton({ deviceId, timerHandler }) {
         <>
             <div
                 id={deviceId}
-                className="btn btn-warning hover:bg-error btn-sm mx-4"
+                className="btn btn-warning hover:bg-error btn-sm"
                 ref={bonusToggleTestRef}
                 onClick={handleStopBonusTime}
             >

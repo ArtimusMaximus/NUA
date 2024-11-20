@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import DisplayBonusTimer from "./DisplayBonusTimer";
 import CancelBonusTimeButton from "./CancelBonusTimeButton";
 
-export default function BonusTimeButton({ deviceId, timerCancelled, timerHandler }) {
+export default function BonusTimeButton({ deviceId, timerCancelled, timerHandler, deviceActive }) {
 
     const bonusDialogRef = useRef();
     const [submitBtnLoading, setSubmitBtnLoading] = useState(false);
@@ -145,8 +145,8 @@ export default function BonusTimeButton({ deviceId, timerCancelled, timerHandler
 
     return (
         <>
-            <div className="flex flex-row bg-info rounded-lg w-full items-center justify-evenly">
-                <div className={milliTime ? "btn btn-info w-3/4" : "btn btn-info w-full"} onClick={handleBonusTime}>
+            <div className={`flex flex-row rounded-lg w-full items-center justify-evenly ${deviceActive ? "bg-info" : ""}`}>
+                <div className={`${milliTime ? "btn-info w-3/4" : "btn-info w-full"} ${deviceActive ? "btn" : "btn btn-disabled"}`} onClick={handleBonusTime}>
                     <span>Bonus Time</span>
                     <DisplayBonusTimer
                         milliTime={milliTime}
