@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import DisplayBonusTimer from "./DisplayBonusTimer";
 import CancelBonusTimeButton from "./CancelBonusTimeButton";
 
-export default function BonusTimeButton({ deviceId, timerCancelled, timerHandler, deviceActive, handleRenderToggle }) {
+export default function BonusTimeButton({ deviceId, timerCancelled, timerHandler, handleRenderToggle }) {
 
     const bonusDialogRef = useRef();
     const [submitBtnLoading, setSubmitBtnLoading] = useState(false);
@@ -60,6 +60,7 @@ export default function BonusTimeButton({ deviceId, timerCancelled, timerHandler
 
     useEffect(() => {
         let isMounted = true;
+
         if (deviceId) {
             const dataObj = { deviceId: deviceId };
             (async function() {
@@ -111,6 +112,7 @@ export default function BonusTimeButton({ deviceId, timerCancelled, timerHandler
     }
     const handleAddTime = async () => {
         try {
+            timerHandler(false);
             setSubmitBtnLoading(true);
             const data = { hours: hours, minutes: minutes, deviceId: deviceId };
             const addBonusTime = await fetch("/addbonustime", {
@@ -123,16 +125,13 @@ export default function BonusTimeButton({ deviceId, timerCancelled, timerHandler
             });
             if (addBonusTime.ok) {
                  // re-render device component so it updates to the active state :update: device is blocked on router, hence the update issues...
-                 handleRenderToggle()
+                 handleRenderToggle();
                 timer(500)
                     .then(() => setSubmitBtnLoading(false))
                     .then(() => bonusDialogRef.current.close())
                 const response = await addBonusTime.json();
                 console.log("response\t", response.msg);
                 console.log('response.timer\t', response.timer);
-                // timer(3000)
-                //     .then(() => )
-                //     .catch(err => console.error("error timing render toggle...", err))
                 setMilliTime(response.timer);
                 setHours(0);
                 setMinutes(30);
@@ -159,6 +158,7 @@ export default function BonusTimeButton({ deviceId, timerCancelled, timerHandler
                     <CancelBonusTimeButton
                         deviceId={deviceId}
                         timerHandler={timerHandler}
+                        handleRenderToggle={handleRenderToggle}
                     />
                 </div>
                 <div className={`${milliTime ? "btn btn-circle btn-success w-1/4" : "hidden"}`}>

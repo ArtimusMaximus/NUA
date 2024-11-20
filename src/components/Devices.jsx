@@ -69,6 +69,7 @@ export default function Devices({ data, toggleReRender, handleRenderToggle, load
                     const updatedData = await updateToggle.json();
                     console.log('Updated data: ', updatedData);
                     setLoading(false);
+                    timerHandler(true);
                     handleRenderToggle();
 
                     delay(2000).then(() => {
@@ -246,8 +247,8 @@ export default function Devices({ data, toggleReRender, handleRenderToggle, load
                                                                 deviceId={device?.id}
                                                                 timerCancelled={timerCancelled}
                                                                 timerHandler={timerHandler}
-                                                                deviceActive={device?.active}
                                                                 handleRenderToggle={handleRenderToggle}
+
                                                             />
                                                         </div>
                                                         <div>

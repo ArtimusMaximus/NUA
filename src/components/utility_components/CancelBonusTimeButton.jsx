@@ -1,6 +1,6 @@
 import { useRef, useState } from "react";
 
-export default function CancelBonusTimeButton({ deviceId, timerHandler }) {
+export default function CancelBonusTimeButton({ deviceId, timerHandler, handleRenderToggle }) {
     const bonusToggleTestRef = useRef();
 
     const handleStopBonusTime = async e => {
@@ -17,6 +17,7 @@ export default function CancelBonusTimeButton({ deviceId, timerHandler }) {
                 body: JSON.stringify(obj)
             });
             if (pingBonusToggle.ok) {
+                handleRenderToggle(); // re-render new state
                 timerHandler(false);
             }
             // pingBonusToggle();

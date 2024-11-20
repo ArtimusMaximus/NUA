@@ -3,7 +3,7 @@ const { minutesHoursToMilli } = require('../minutesHoursToMilli.js');
 
 const timeoutMap = new Map();
 
-function startTimeout(timerId, minutes, hours, callback) { // timerId is deviceId
+function startTimeout(timerId, minutes, hours, callback) { // timerId === deviceId
     const delay = minutesHoursToMilli(minutes, hours);
     const futureTime = Date.now() + delay;
     const timeoutId = setTimeout(async () => {

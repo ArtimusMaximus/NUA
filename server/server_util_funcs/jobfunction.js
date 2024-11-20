@@ -9,7 +9,7 @@ const jobFunction = async (crontype, macAddress, oneTime, unifi, prisma) => { //
             const confirmAllow = await unifi?.unblockClient(macAddress);
             console.log(`${macAddress} has been unblocked: ${confirmAllow}`);
             if (oneTime) {
-                deleteCompletedJobs(prisma);
+                deleteCompletedJobs(prisma); // only onetime jobs need to be deleted
             }
         } else if (crontype === 'block') {
             const confirmBlocked = await unifi?.blockClient(macAddress);

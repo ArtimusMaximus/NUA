@@ -23,7 +23,7 @@ const { minutesHoursToMilli } = require("./server_util_funcs/minutesHoursToMilli
 const { convertToMilitaryTime } = require('./server_util_funcs/convert_to_military_time');
 const { dateFromDateString } = require('./server_util_funcs/ez_sched_utils/dateFromDateString');
 const { startTimeout, endTimeout, timeoutMap } = require('./server_util_funcs/start_&_clear_timeouts/start_end_timeouts');
-
+const { stopBonusTime } = require('./server_util_funcs/stop_bonus_time/stopBonusTimeViaToggleOff');
 
 
 
@@ -638,6 +638,9 @@ app.put('/updatemacaddressstatus', async (req, res) => { // toggler
     const { id, macAddress, active } = req.body;
     //bypass front end active for now
     try {
+        if (timeoutMap.get(id)) {
+            await stopBonusTime(id, true, schedule, prisma, unifi);
+        }
         // console.log('Login Data: ', loginData);
         const blockedUsers = await unifi.getBlockedUsers();
 
@@ -645,12 +648,6 @@ app.put('/updatemacaddressstatus', async (req, res) => { // toggler
         const filterBlockedUsers = blockedUsers.filter((device) => {
             return device.mac === macAddress
         });
-        // console.log('Filtered only blocked users from db: ', filterBlockedUsers);
-        // console.log(blockedUsers);
-    ///////////////////////////////////// bash block device command here///////////////
-    //////////////////////////////////// to toggle we need to be able to unblock as well
-    // const { stdout, stderr } = await exec(`php ${active ? '/opt/nodeunifi/API-client/block_list.php' : '/opt/nodeunifi/API-client/unblock_list.php'} ${macAddress}`)
-        // console.log(stdout);
         if (active) {
             await unifi.blockClient(macAddress)
         } else {
@@ -666,6 +663,7 @@ app.put('/updatemacaddressstatus', async (req, res) => { // toggler
                 active: !active
             }
         });
+
     ////////////////////////////////////send back to front end ////////////////////////
         res.json({ updatedUser: updateUser, blockedUsers: blockedUsers });
         // const logoutData = await unifi.logout(); // getting an error when logging out after each request, perhaps too many requests in a short period of time?
@@ -1765,14 +1763,16 @@ app.post('/addbonustime', async (req, res) => { // cron bonus time
 
             if (getMacAddressForDevice.active === false) {
                 console.log("getMacAddressForDevice.active === false", getMacAddressForDevice.active === false);
-
-
+                const confirmAllow = await unifi?.unblockClient(getMacAddressForDevice.macAddress);
+                console.log(`${getMacAddressForDevice.macAddress} has been unblocked: ${confirmAllow}`);
+                await prisma.device.update({
+                    where: { id: deviceId },
+                    data: { active: true }
+                });
+                // console.log('tablet\t', tablet); // this is correct, but device is blocked...
             }
-            const tablet = await prisma.device.update({
-                where: { id: deviceId },
-                data: { active: true }
-            });
-            console.log('tablet\t', tablet); // this is correct, but device is blocked...
+
+
 
 
 
@@ -1959,8 +1959,10 @@ app.post("/deletebonustoggles", async (req, res) => { // stop timer and shutoff 
                 await prisma.easyBonusToggles.delete({ where: { id: bonusToggle.id }});
             }
         }
-        await unifi.blockClient(getMacAddressForDevice.macAddress);
+        // await unifi.blockClient(getMacAddressForDevice.macAddress);
         // console.log("blockDevice\t", blockDevice);
+        const confirmBlocked = await unifi?.blockClient(getMacAddressForDevice.macAddress);
+        console.log(`${getMacAddressForDevice.macAddress} has been blocked: ${confirmBlocked}`);
         await prisma.device.update({
             where: { id: deviceId },
             data: {
