@@ -145,8 +145,8 @@ export default function BonusTimeButton({ deviceId, timerCancelled, timerHandler
 
     return (
         <>
-            <div className={`flex flex-row rounded-lg w-full items-center justify-evenly ${deviceActive ? "bg-info" : ""}`}>
-                <div className={`${milliTime ? "btn-info w-3/4" : "btn-info w-full"} ${deviceActive ? "btn" : "btn btn-disabled"}`} onClick={handleBonusTime}>
+            <div className={`flex flex-row rounded-lg w-full items-center justify-evenly bg-info`}>
+                <div className={`${milliTime ? "w-1/2" : "w-full"} btn btn-info`} onClick={handleBonusTime}>
                     <span>Bonus Time</span>
                     <DisplayBonusTimer
                         milliTime={milliTime}
@@ -157,6 +157,9 @@ export default function BonusTimeButton({ deviceId, timerCancelled, timerHandler
                         deviceId={deviceId}
                         timerHandler={timerHandler}
                     />
+                </div>
+                <div className={`${milliTime ? "btn btn-round btn-success w-1/4" : "hidden"}`}>
+
                 </div>
             </div>
             <dialog ref={bonusDialogRef} className="modal">
