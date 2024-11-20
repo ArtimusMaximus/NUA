@@ -36,13 +36,18 @@ export default function Devices({ data, toggleReRender, handleRenderToggle, load
     }
     const delay = t => new Promise(res => setTimeout(res, t));
 
+    useEffect(() => {
+      console.log('useEffect in devices fired...')
+      console.log("Data from devices upon hopeful re-render:\t", data)
+    }, [toggleReRender])
+
 
     const handleToggle = async e => { // toggle device blocked or unblocked
-        setLoading(true);
-        setToggleIsLoading(true);
-        toggleLoadingDialogRef.current.showModal();
-
         try {
+            setLoading(true);
+            setToggleIsLoading(true);
+            toggleLoadingDialogRef.current.showModal();
+
             // const itemId = e.target.dataset.name;
             const dataToUpdate = data?.macData?.filter((data) => data?.id === parseInt(e.target.dataset.name));
             // const dataToUpdate = data?.macData?.find((data) => data.id === itemId)
@@ -242,6 +247,7 @@ export default function Devices({ data, toggleReRender, handleRenderToggle, load
                                                                 timerCancelled={timerCancelled}
                                                                 timerHandler={timerHandler}
                                                                 deviceActive={device?.active}
+                                                                handleRenderToggle={handleRenderToggle}
                                                             />
                                                         </div>
                                                         <div>

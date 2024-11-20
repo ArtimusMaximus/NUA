@@ -412,6 +412,7 @@ app.get('/getmacaddresses', async (req, res) => {
             // const blockedUsers = await unifi?.getBlockedUsers(); // old 03/11/2024
             const blockedUsers = await getBlockedUsers();
             // console.log('blockedUsers in get mac addresses \t', blockedUsers);
+            // console.log(blockedUsers.filter((mac) => mac.mac === '48:b4:23:f7:30:0a')) // "tablet" is blocked on server side, preventing you from updating it 11/19/2024
             // console.log('refreshRate \t', refreshRate);
 
             const doMacAddressMatch = (unifiDataMacAddress, macData) => {
@@ -1752,16 +1753,28 @@ app.post('/getallworking', async (req, res) => {
 });
 
 app.post('/addbonustime', async (req, res) => { // cron bonus time
-    const { hours, minutes, timerId, deviceId } = req.body;
-    console.log("hours minutes\t", hours, minutes);
-
     try {
+        const { hours, minutes, deviceId } = req.body;
+        console.log("hours minutes\t", hours, minutes, deviceId, typeof deviceId);
         if (hours || minutes) {
 
             // database and device shutdown logic here
 
             const getMacAddressForDevice = await prisma.device.findUnique({ where: { id: deviceId }});
-            // console.log("getMacAddressForDevice\t", getMacAddressForDevice);
+            console.log("getMacAddressForDevice\t", getMacAddressForDevice);
+
+            if (getMacAddressForDevice.active === false) {
+                console.log("getMacAddressForDevice.active === false", getMacAddressForDevice.active === false);
+
+
+            }
+            const tablet = await prisma.device.update({
+                where: { id: deviceId },
+                data: { active: true }
+            });
+            console.log('tablet\t', tablet); // this is correct, but device is blocked...
+
+
 
             const getEasyDevices = await prisma.easySchedule.findMany({ where: { deviceId: deviceId }});
             const getCrons = await prisma.cron.findMany({ where: { deviceId: deviceId }});
@@ -1871,7 +1884,7 @@ app.post("/getbonustimesmap", async (req, res) => {
 });
 
 
-app.post("/deletebonustoggles", async (req, res) => {
+app.post("/deletebonustoggles", async (req, res) => { // stop timer and shutoff device
     const { deviceId, cancelTimer } = req.body; // deviceId is the timerId
     try {
         if (cancelTimer) { // cancelling timer/ending timeout from /addbonustoggles

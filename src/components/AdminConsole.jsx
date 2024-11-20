@@ -1,6 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
 import Devices from "./Devices";
-import { IoAddCircleOutline } from "react-icons/io5";
 import { useNavigate } from 'react-router-dom';
 import NuaSvg from "../images/nua.svg";
 
@@ -100,7 +99,7 @@ export default function AdminConsole()
                 });
                 if (response.ok) {
                     const data = await response.json();
-                    console.log('macData \t', data);
+                    console.log('macData from ping re-render:\t', data);
                     setMacData(data ? data : {});
                     setLoadingMacData(false)
                 } else if (!response.ok) {
