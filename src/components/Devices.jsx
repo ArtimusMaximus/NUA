@@ -70,7 +70,7 @@ export default function Devices({ data, toggleReRender, handleRenderToggle, load
                     console.log('Updated data: ', updatedData);
                     setLoading(false);
                     timerHandler(true);
-                    handleRenderToggle();
+                    handleRenderToggle(); // test without
 
                     delay(2000).then(() => {
                         setToggleIsLoading(false);

@@ -103,6 +103,7 @@ export default function BonusTimeButton({ deviceId, timerCancelled, timerHandler
         if (milliTime <= 0 || timerCancelled) {
             setMilliTime(null);
             clearInterval(interval);
+            handleRenderToggle();
             return;
         }
         return () => clearInterval(interval);
@@ -150,6 +151,7 @@ export default function BonusTimeButton({ deviceId, timerCancelled, timerHandler
         <>
             <div className={`flex flex-row rounded-lg w-full items-center justify-evenly bg-info`}>
                 <div className={`${milliTime ? "w-[80%]" : "w-full"} btn btn-info`} onClick={handleBonusTime}>
+                    <span><HiMiniPencilSquare className="w-10 h-10 text-neutral" /></span>
                     <span>Bonus Time</span>
                     <DisplayBonusTimer
                         milliTime={milliTime}
@@ -163,7 +165,7 @@ export default function BonusTimeButton({ deviceId, timerCancelled, timerHandler
                     />
                 </div>
                 <div className={`${milliTime ? "w-[10%] mr-1" : "hidden"}`}>
-                    <HiMiniPencilSquare className="w-10 h-10 text-secondary" />
+                    <HiMiniPencilSquare className="w-10 h-10 text-neutral" />
                 </div>
             </div>
             <dialog ref={bonusDialogRef} className="modal">

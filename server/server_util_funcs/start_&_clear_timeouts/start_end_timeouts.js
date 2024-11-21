@@ -27,7 +27,7 @@ function endTimeout(timerId) {
     if (timeoutMap.has(timerId)) {
         clearTimeout(timeoutMap.get(timerId).timeoutId);
         timeoutMap.delete(timerId);
-        console.log("timeoutMap cleared:", timeoutMap);
+        console.log("timeoutMap cleared:", timeoutMap, "\n On Date:\t", new Date(Date.now()));
         return true;
     }
     return false;

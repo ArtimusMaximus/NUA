@@ -19,8 +19,8 @@ export default function CancelBonusTimeButton({ deviceId, timerHandler, handleRe
                 body: JSON.stringify(obj)
             });
             if (pingBonusToggle.ok) {
-                handleRenderToggle(); // re-render new state
                 timerHandler(false);
+                handleRenderToggle(); // re-render new state
             }
             // pingBonusToggle();
         } catch (error) {
