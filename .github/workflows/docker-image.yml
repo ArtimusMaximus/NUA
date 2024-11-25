@@ -37,8 +37,8 @@ jobs:
         context: .
         push: true
         tags: |
-          ${{ secrets.DOCKER_REPO }}:${{ github.ref == 'refs/heads/master' ? 'latest' : 'dev' }}
-          ${{ secrets.DOCKER_REPO }}:${{ env.VERSION }}-${{ github.ref == 'refs/heads/master' ? 'prod' : 'dev' }}
+          ${{ secrets.DOCKER_REPO }}:${{ github.ref_name == 'master' && 'latest' || 'dev' }}
+          ${{ secrets.DOCKER_REPO }}:${{ env.VERSION }}-${{ github.ref_name == 'master' && 'latest' || 'dev' }}
 
     # - name: Output image version tag
     #   run: |
