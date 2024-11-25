@@ -2,7 +2,7 @@ import { useRef, useState } from "react";
 import { FcCancel } from "react-icons/fc";
 import { MdOutlineCancel } from "react-icons/md";
 
-export default function CancelBonusTimeButton({ deviceId, timerHandler, handleRenderToggle }) {
+export default function CancelBonusTimeButton({ deviceId, timerHandler, handleRenderToggle, milliTime }) {
     const bonusToggleTestRef = useRef();
 
     const handleStopBonusTime = async e => {
@@ -32,13 +32,13 @@ export default function CancelBonusTimeButton({ deviceId, timerHandler, handleRe
         <>
             <div
                 id={deviceId}
-                className="btn btn-error btn-sm"
+                className={`btn btn-error btn-sm mx-auto ${!milliTime ? "pointer-events-none btn-outline" : ""}`}
                 ref={bonusToggleTestRef}
                 onClick={handleStopBonusTime}
             >
                 {/* <MdOutlineCancel className="text-error" />
                 <FcCancel className="text-error" /> */}
-                Stop
+                Stop Current Timer
             </div>
         </>
     );

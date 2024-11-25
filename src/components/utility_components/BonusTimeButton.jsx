@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import DisplayBonusTimer from "./DisplayBonusTimer";
 import CancelBonusTimeButton from "./CancelBonusTimeButton";
 import { HiMiniPencilSquare } from "react-icons/hi2";
+import { MdMoreTime } from "react-icons/md";
 
 export default function BonusTimeButton({ deviceId, timerCancelled, timerHandler, handleRenderToggle }) {
 
@@ -116,7 +117,8 @@ export default function BonusTimeButton({ deviceId, timerCancelled, timerHandler
         try {
             timerHandler(false);
             setSubmitBtnLoading(true);
-            const data = { hours: hours, minutes: minutes, deviceId: deviceId };
+            const isAdditionalTime = milliTime ? true : false;
+            const data = { hours: hours, minutes: minutes, deviceId: deviceId, isAdditionalTime: isAdditionalTime };
             const addBonusTime = await fetch("/addbonustime", {
                 method: "POST",
                 mode: "cors",
@@ -149,23 +151,12 @@ export default function BonusTimeButton({ deviceId, timerCancelled, timerHandler
 
     return (
         <>
-            <div className={`flex flex-row rounded-lg w-full items-center justify-evenly bg-info`}>
-                <div className={`${milliTime ? "w-[80%]" : "w-full"} btn btn-info`} onClick={handleBonusTime}>
-                    <span><HiMiniPencilSquare className="w-10 h-10 text-neutral" /></span>
-                    <span>Bonus Time</span>
+            <div className={`flex flex-row w-full items-center justify-evenly`}>
+                <div className={`${milliTime ? "pointer-events-none" : ""} btn btn-info w-full`} onClick={handleBonusTime}>
+                    <span className={""}>Bonus Time</span>
                     <DisplayBonusTimer
                         milliTime={milliTime}
                     />
-                </div>
-                <div className={milliTime ? "w-[10%] mr-1" : "hidden"}>
-                    <CancelBonusTimeButton
-                        deviceId={deviceId}
-                        timerHandler={timerHandler}
-                        handleRenderToggle={handleRenderToggle}
-                    />
-                </div>
-                <div className={`${milliTime ? "w-[10%] mr-1" : "hidden"}`}>
-                    <HiMiniPencilSquare className="w-10 h-10 text-neutral" />
                 </div>
             </div>
             <dialog ref={bonusDialogRef} className="modal">
@@ -211,6 +202,15 @@ export default function BonusTimeButton({ deviceId, timerCancelled, timerHandler
                                 </button>
                             </div>
                         </form>
+                        {/* <div className="">
+                            <CancelBonusTimeButton
+                                deviceId={deviceId}
+                                timerHandler={timerHandler}
+                                handleRenderToggle={handleRenderToggle}
+                                milliTime={milliTime}
+                            />
+                        </div> */}
+                        {/* commented out for future use, when user is able to add more bonus time */}
                     </div>
                     <div className="modal-action">
                         <div className="btn btn-primary" onClick={handleAddTime}>

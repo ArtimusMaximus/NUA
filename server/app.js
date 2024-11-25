@@ -1752,7 +1752,17 @@ app.post('/getallworking', async (req, res) => {
 
 app.post('/addbonustime', async (req, res) => { // cron bonus time
     try {
-        const { hours, minutes, deviceId } = req.body;
+        const { hours, minutes, deviceId, isAdditionalTime } = req.body;
+
+        // if (isAdditionalTime) {
+        //     const originalTime = timeoutMap.get(deviceId)?.time;
+
+        //     const { timeoutMap } = startTimeout(deviceId, minutes, hours, restartPausedJobs, originalTime);
+        //     const newTime = originalTime - Date.now();
+
+        //     res.status(200).json({ msg: "New bonus timer set...", timer: newTime, timerId: deviceId });
+        //     return;
+        // }
         // console.log("hours minutes\t", hours, minutes, deviceId, typeof deviceId);
         if (hours || minutes) {
 

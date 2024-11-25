@@ -7,9 +7,11 @@ export default function DisplayBonusTimer({ milliTime }) {
     return (
         <>
             {milliTime ?
-                <>
-                    {hours + " : " + minutes + " : " + seconds}
-                </>
+                <div className="flex flex-col justify-center">
+                        <div className="absolute">
+                            {hours + " : " + minutes + " : " + seconds}
+                        </div>
+                </div>
             :
             <></>
             }

@@ -3,9 +3,12 @@ const { minutesHoursToMilli } = require('../minutesHoursToMilli.js');
 
 const timeoutMap = new Map();
 
-function startTimeout(timerId, minutes, hours, callback) { // timerId === deviceId
-    const delay = minutesHoursToMilli(minutes, hours);
+function startTimeout(timerId, minutes, hours, callback, originalTime=null) { // timerId === deviceId
+    let delay = minutesHoursToMilli(minutes, hours);
     // console.log("delay in startTimeout function:\t", delay);
+    if (originalTime) { // for future feature of adding to current bonus time
+        delay += originalTime;
+    }
 
     const futureTime = Date.now() + delay;
     const timeoutId = setTimeout(async () => {
