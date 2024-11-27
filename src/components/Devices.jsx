@@ -8,7 +8,7 @@ import DisplayBonusTimer from "./utility_components/DisplayBonusTimer";
 
 
 
-export default function Devices({ macData, handleRenderToggle, loadingMacData })
+export default function Devices({ macData, blockedUsers, handleRenderToggle, loadingMacData })
 {
     const navigate = useNavigate();
     const [loading, setLoading] = useState(false);
@@ -89,6 +89,7 @@ export default function Devices({ macData, handleRenderToggle, loadingMacData })
     }
     const handleUnBlockAll = async () => {
         try {
+            const data = { macData, blockedUsers };
             const blockAll = await fetch('unblockallmacs', {
                 method: "PUT",
                 mode: 'cors',
@@ -103,11 +104,12 @@ export default function Devices({ macData, handleRenderToggle, loadingMacData })
                 handleRenderToggle();
             }
         } catch (error) {
-            if (error) throw error;
+            console.error(error);
         }
     }
     const handleBlockAll = async () => {
         try {
+            const data = { macData, blockedUsers };
             const blockAll = await fetch('blockallmacs', {
                 method: "PUT",
                 mode: 'cors',

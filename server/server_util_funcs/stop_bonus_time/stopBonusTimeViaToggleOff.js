@@ -4,7 +4,7 @@ const { endTimeout } = require("../start_&_clear_timeouts/start_end_timeouts");
 const { jobFunction } = require("../jobfunction");
 const { dateFromDateString } = require("../ez_sched_utils/dateFromDateString");
 
-async function stopBonusTime(deviceId, cancelTimer, schedule, prisma, unifi) {
+async function stopBonusTime(deviceId, cancelTimer, schedule, prisma, unifi, res) {
     try {
         if (cancelTimer) { // cancelling timer/ending timeout from /addbonustoggles
             endTimeout(deviceId);
@@ -91,6 +91,7 @@ async function stopBonusTime(deviceId, cancelTimer, schedule, prisma, unifi) {
         });
 
     // res.sendStatus(200);
+    res.json({ msg: "stopBonusTime callback complete..." });
     } catch (error) {
         console.error(error);
     }

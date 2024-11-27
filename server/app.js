@@ -206,7 +206,7 @@ async function blockMultiple(reqBodyArr) {
                 console.log(`Successfully blocked: ${mac}`);
             }
         } catch (error) {
-            if (error) throw error;
+            console.error(error);
         }
     }
 }
@@ -634,12 +634,13 @@ app.post('/getspecificdevice', async (req, res) => { // fetch individual device 
 });
 
 app.put('/updatemacaddressstatus', async (req, res) => { // toggler
-
-    const { id, macAddress, active, bonusTimeActive } = req.body;
-    //bypass front end active for now
     try {
+        //bypass front end active for now
+        const { id, macAddress, active, bonusTimeActive } = req.body;
         if (timeoutMap.get(id)) {
-            await stopBonusTime(id, true, schedule, prisma, unifi);
+            await stopBonusTime(id, true, schedule, prisma, unifi, res);
+            // res.json({ msg: "Stop Bonus Time fired in updatemacaddressstatus"});
+            return;
         }
         // console.log('Login Data: ', loginData);
         const blockedUsers = await unifi.getBlockedUsers();
@@ -648,22 +649,24 @@ app.put('/updatemacaddressstatus', async (req, res) => { // toggler
         const filterBlockedUsers = blockedUsers.filter((device) => {
             return device.mac === macAddress
         });
+        let updateUser;
         if (active) {
-            await unifi.blockClient(macAddress)
+            await unifi.blockClient(macAddress);
         } else {
-            await unifi.unblockClient(macAddress)
+            await unifi.unblockClient(macAddress);
         }
-        /////////////////////////////////////update to database here///////////////////////
-        const updateUser = await prisma.device.update({
+        updateUser = await prisma.device.update({
             where: {
                 id,
                 macAddress
             },
             data: {
                 active: !active,
-                // bonusTimeActive: !bonusTimeActive // not necessary 11/26/2024
+                // bonusTimeActive: false // necessary 11/26/2024
             }
         });
+        /////////////////////////////////////update to database here///////////////////////
+
 
     ////////////////////////////////////send back to front end ////////////////////////
         res.json({ updatedUser: updateUser, blockedUsers: blockedUsers });
@@ -675,14 +678,17 @@ app.put('/updatemacaddressstatus', async (req, res) => { // toggler
 
 app.put('/blockallmacs', async (req, res) => {
     const { data } = req.body;
-    const filteredIds = data?.map((mac) => {
+    const filteredIds = data?.macData.map((mac) => {
         return mac?.id;
     });
+    console.log('data in blockallmacs\t', data)
+    console.log('filteredIds in blockallmacs\t', filteredIds)
     const updatedData = {
-        active: false
+        active: false,
+        bonusTimeActive: false
     }
     try {
-        const filtMacs = extractMacs(req.body)
+        const filtMacs = extractMacs(req.body);
         await blockMultiple(filtMacs);
         const updatedRecords = await prisma.device.updateMany({
             where: {
@@ -692,15 +698,16 @@ app.put('/blockallmacs', async (req, res) => {
             },
             data: updatedData
         });
-        res.json({ updatedRecords });
+        // res.json({ updatedRecords });
+        res.json({ msg: "All mac addresses blocked!"});
     } catch (error) {
-        if (error) throw error;
+        console.error(error);
     }
 });
 
 app.put('/unblockallmacs', async (req, res) => {
     const { data } = req.body;
-    const filteredIds = data?.map((mac) => {
+    const filteredIds = data?.macData?.map((mac) => {
         return mac?.id;
     });
     const updatedData = {
@@ -717,9 +724,10 @@ app.put('/unblockallmacs', async (req, res) => {
             },
             data: updatedData
         });
-        res.json({ updatedRecords });
+        res.json({ msg: "OKAY" });
+        // res.json({ updatedRecords });
     } catch (error) {
-        if (error) throw error;
+        console.error(error);
     }
 });
 
@@ -1766,7 +1774,10 @@ app.post('/addbonustime', async (req, res) => { // cron bonus time
         // }
         // console.log("hours minutes\t", hours, minutes, deviceId, typeof deviceId);
         if (hours || minutes) {
-
+            await prisma.device.update({
+                where: { id: deviceId },
+                data: { bonusTimeActive: true }
+            });
             // database and device shutdown logic here
 
             const getMacAddressForDevice = await prisma.device.findUnique({ where: { id: deviceId }});
@@ -1778,7 +1789,7 @@ app.post('/addbonustime', async (req, res) => { // cron bonus time
                 console.log(`${getMacAddressForDevice.macAddress} has been unblocked: ${confirmAllow}`);
                 await prisma.device.update({
                     where: { id: deviceId },
-                    data: { active: true, bonusTimeActive: true }
+                    data: { active: true }
                 });
                 // console.log('tablet\t', tablet); // this is correct, but device is blocked...
             }
@@ -1853,20 +1864,26 @@ app.post('/addbonustime', async (req, res) => { // cron bonus time
                 }
             }
 
-            async function restartPausedJobs() {
+            async function restartPausedJobs() { // callback for startTimeout
                 try {
                     await cronBonusTimeEndJobReinitiation(deviceId, schedule, prisma, unifi, jobFunction, logger);
                     await easyBonusTimeEndJobReinitiation(deviceId, schedule, prisma, unifi, jobFunction, logger);
                     endTimeout(deviceId);
                     // const confirmBlocked = await unifi?.blockClient(getMacAddressForDevice.macAddress);
                     // console.log(`${getMacAddressForDevice.macAddress} has been blocked: ${confirmBlocked}`);
-                    // device active set off happens in jobFunction
+                    // device active set off happens in jobFunction ? really now? 11/26/2024
                     // await prisma.device.update({
                     //     where: { id: deviceId },
                     //     data: {
                     //         active: false
                     //     }
                     // });
+                    await prisma.device.update({
+                        where: { id: deviceId },
+                        data: {
+                            bonusTimeActive: false
+                        }
+                    });
                 } catch (error) {
                     console.error(error);
                 }

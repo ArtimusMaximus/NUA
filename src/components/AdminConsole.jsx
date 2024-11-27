@@ -11,6 +11,7 @@ export default function AdminConsole()
     });
     // const [macData, setMacData] = useState({}); // prev
     const [macData, setMacData] = useState([]);
+    const [blockedUsers, setBlockedUsers] = useState([]);
     const [validationError, setValidationError] = useState(false);
     const [toggleReRender, setToggleReRender] = useState(false);
     const [cronJobCheck, setCronJobChecked] = useState({});
@@ -96,6 +97,7 @@ export default function AdminConsole()
                     console.log('macData from ping re-render:\t', data);
                     // setMacData(data ? data : {}); // previous, updating
                     setMacData([...data.macData] || []);
+                    setBlockedUsers([...data.blockedUsers] || []);
                     setLoadingMacData(false)
                 } else if (!response.ok) {
                     dialogRef.current.showModal();
@@ -201,6 +203,7 @@ export default function AdminConsole()
             <div className="grid mx-auto grid-flow-row gap-6 w-full">
                 <Devices
                     macData={macData && macData}
+                    blockedUsers={blockedUsers}
                     handleRenderToggle={handleRenderToggle}
                     loadingMacData={loadingMacData}
                 />
