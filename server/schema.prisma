@@ -25,6 +25,7 @@ model Device {
   name                    String
   macAddress              String
   active                  Boolean
+  bonusTimeActive         Boolean  @default(false)
   createdAt               DateTime @default(now())
   crons                   Cron[]
   easySchedules           EasySchedule[]

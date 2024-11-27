@@ -635,7 +635,7 @@ app.post('/getspecificdevice', async (req, res) => { // fetch individual device 
 
 app.put('/updatemacaddressstatus', async (req, res) => { // toggler
 
-    const { id, macAddress, active } = req.body;
+    const { id, macAddress, active, bonusTimeActive } = req.body;
     //bypass front end active for now
     try {
         if (timeoutMap.get(id)) {
@@ -660,7 +660,8 @@ app.put('/updatemacaddressstatus', async (req, res) => { // toggler
                 macAddress
             },
             data: {
-                active: !active
+                active: !active,
+                // bonusTimeActive: !bonusTimeActive // not necessary 11/26/2024
             }
         });
 
@@ -1777,7 +1778,7 @@ app.post('/addbonustime', async (req, res) => { // cron bonus time
                 console.log(`${getMacAddressForDevice.macAddress} has been unblocked: ${confirmAllow}`);
                 await prisma.device.update({
                     where: { id: deviceId },
-                    data: { active: true }
+                    data: { active: true, bonusTimeActive: true }
                 });
                 // console.log('tablet\t', tablet); // this is correct, but device is blocked...
             }
@@ -1981,7 +1982,8 @@ app.post("/deletebonustoggles", async (req, res) => { // stop timer and shutoff 
         await prisma.device.update({
             where: { id: deviceId },
             data: {
-                active: false
+                active: false,
+                bonusTimeActive: false
             }
         });
 

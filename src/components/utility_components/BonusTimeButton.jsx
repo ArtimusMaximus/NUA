@@ -4,7 +4,7 @@ import CancelBonusTimeButton from "./CancelBonusTimeButton";
 import { HiMiniPencilSquare } from "react-icons/hi2";
 import { MdMoreTime } from "react-icons/md";
 
-export default function BonusTimeButton({ deviceId, timerCancelled, timerHandler, handleRenderToggle }) {
+export default function BonusTimeButton({ deviceId, timerCancelled, timerHandler, handleRenderToggle, bonusTimeActive }) {
 
     const bonusDialogRef = useRef();
     const [submitBtnLoading, setSubmitBtnLoading] = useState(false);
@@ -61,6 +61,13 @@ export default function BonusTimeButton({ deviceId, timerCancelled, timerHandler
     }
 
     useEffect(() => {
+      if (bonusTimeActive === false) {
+        setMilliTime(null);
+      }
+    }, [bonusTimeActive]);
+
+
+    useEffect(() => {
         let isMounted = true;
 
         if (deviceId) {
@@ -98,17 +105,21 @@ export default function BonusTimeButton({ deviceId, timerCancelled, timerHandler
 
     useEffect(() => {
         console.log("milliTime\t", milliTime);
+        // if (milliTime <= 0 || timerCancelled) { // timer cancels all timers, not just specific device
+        // if (milliTime <= 0 || !bonusTimeActive) { // cancels timer but then timer will not render consistently
+        // solved by separating bonusTimeActive to useEffect above, to shut off milliTime if bonus time not active
         const interval = setInterval(() => {
             setMilliTime(prev => prev - 1000);
         }, 1000);
-        if (milliTime <= 0 || timerCancelled) {
+
+        if (milliTime <= 0) {
             setMilliTime(null);
             clearInterval(interval);
             handleRenderToggle();
             return;
         }
         return () => clearInterval(interval);
-    }, [hours, milliTime, timerCancelled]);
+    }, [hours, milliTime, bonusTimeActive]);
 
     const handleBonusTime = () => { // modal
         bonusDialogRef.current.showModal();
@@ -129,7 +140,7 @@ export default function BonusTimeButton({ deviceId, timerCancelled, timerHandler
             });
             if (addBonusTime.ok) {
                  // re-render device component so it updates to the active state :update: device is blocked on router, hence the update issues...
-                handleRenderToggle();
+
                 timer(500)
                     .then(() => setSubmitBtnLoading(false))
                     .then(() => bonusDialogRef.current.close())
@@ -139,6 +150,7 @@ export default function BonusTimeButton({ deviceId, timerCancelled, timerHandler
                 setMilliTime(response.timer);
                 setHours(0);
                 setMinutes(30);
+                handleRenderToggle();
             }
             } catch (error) {
                 timer(500)
@@ -156,6 +168,7 @@ export default function BonusTimeButton({ deviceId, timerCancelled, timerHandler
                     <span className={""}>Bonus Time</span>
                     <DisplayBonusTimer
                         milliTime={milliTime}
+                        bonusTimeActive={bonusTimeActive}
                     />
                 </div>
             </div>

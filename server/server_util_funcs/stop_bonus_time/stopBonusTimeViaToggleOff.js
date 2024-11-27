@@ -85,7 +85,8 @@ async function stopBonusTime(deviceId, cancelTimer, schedule, prisma, unifi) {
         await prisma.device.update({
             where: { id: deviceId },
             data: {
-                active: false
+                active: false,
+                bonusTimeActive: false
             }
         });
 

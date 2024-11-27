@@ -8,14 +8,16 @@ import DisplayBonusTimer from "./utility_components/DisplayBonusTimer";
 
 
 
-export default function Devices({ data, toggleReRender, handleRenderToggle, loadingMacData })
+export default function Devices({ macData, handleRenderToggle, loadingMacData })
 {
     const navigate = useNavigate();
     const [loading, setLoading] = useState(false);
     const editRef = useRef();
     const [updatedDeviceData, setUpdatedDeviceData] = useState(null);
     const [toggleIsLoading, setToggleIsLoading] = useState(false);
-    const [timerCancelled, setTimerCancelled] = useState(false);
+    const [timerCancelled, setTimerCancelled] = useState(false); // this cancels all device timer visuals, but not the timer itself
+                                                                //consider removing after or during bonus time adjustment
+
     const toggleLoadingDialogRef = useRef();
     const newDeviceNameRef = useRef();
     const newMacAddressRef = useRef();
@@ -38,8 +40,10 @@ export default function Devices({ data, toggleReRender, handleRenderToggle, load
 
     useEffect(() => {
       console.log('useEffect in devices fired...')
-      console.log("Data from devices upon hopeful re-render:\t", data)
-    }, [toggleReRender])
+      console.log("Data from devices upon hopeful re-render:\t", macData)
+    // }, [toggleReRender, data])
+    // }, [toggleReRender])
+    }, [macData])
 
 
     const handleToggle = async e => { // toggle device blocked or unblocked
@@ -47,15 +51,8 @@ export default function Devices({ data, toggleReRender, handleRenderToggle, load
             setLoading(true);
             setToggleIsLoading(true);
             toggleLoadingDialogRef.current.showModal();
-
-            // const itemId = e.target.dataset.name;
-            const dataToUpdate = data?.macData?.filter((data) => data?.id === parseInt(e.target.dataset.name));
-            // const dataToUpdate = data?.macData?.find((data) => data.id === itemId)
-            // console.log(dataToUpdate);
-
-            // dataToUpdate[0]?.active === true ? dataToUpdate[0].active = false : dataToUpdate[0].active = true
-            // console.log('dataToUpdate[0]: ', dataToUpdate[0]);
-
+            // const dataToUpdate = data?.macData?.filter((data) => data?.id === parseInt(e.target.dataset.name)); // previous, updating 11 26 2024
+            const dataToUpdate = macData?.filter((data) => data?.id === parseInt(e.target.dataset.name));
                 const updateToggle = await fetch(`/updatemacaddressstatus`, {
                     method: "PUT",
                     mode: "cors",
@@ -69,7 +66,7 @@ export default function Devices({ data, toggleReRender, handleRenderToggle, load
                     const updatedData = await updateToggle.json();
                     console.log('Updated data: ', updatedData);
                     setLoading(false);
-                    timerHandler(true);
+                    // timerHandler(true); // test with this off 11 26 2024 - this was removing the timer on other devices when a separate device is toggled on or off
                     handleRenderToggle(); // test without
 
                     delay(2000).then(() => {
@@ -149,7 +146,8 @@ export default function Devices({ data, toggleReRender, handleRenderToggle, load
     }
     const openEditDialog = e => {
         editRef.current.showModal();
-        const selectedDevice = data?.macData?.filter(device => device.id === parseInt(e.target.dataset.id));
+        // const selectedDevice = data?.macData?.filter(device => device.id === parseInt(e.target.dataset.id)); // previous, updating 11 26 2024
+        const selectedDevice = macData?.filter(device => device.id === parseInt(e.target.dataset.id));
         setUpdatedDeviceData({
             ...selectedDevice,
             id: e.target.dataset.id
@@ -209,8 +207,8 @@ export default function Devices({ data, toggleReRender, handleRenderToggle, load
                         <div className="divider mt-2 mb-2"></div>
                         <ul className="flex flex-col w-full mb-2">
                             {
-                                // !loadingMacData ? data?.macData?.map((device) => {
-                                data?.macData?.map((device) => {
+                                // !loadingMacData ? data?.macData?.map((device) => { // previous (prior it was data.macData), updating 11 26 2024
+                                macData?.map((device) => {
                                     return (
                                         <>
                                             <li key={device?.id} className="m-1">
@@ -220,7 +218,7 @@ export default function Devices({ data, toggleReRender, handleRenderToggle, load
                                                         <div className="w-full flex flex-row items-center justify-between hover:cursor-pointer z-40">
                                                             <input
                                                                 type="checkbox"
-                                                                className="toggle toggle-success z-40"
+                                                                className={`toggle ${device?.active && device?.bonusTimeActive ? "toggle-info" : device?.active ? "toggle-success" : "" } z-40`}
                                                                 onClick={handleToggle}
                                                                 checked={device?.active}
                                                                 data-name={device?.id}
@@ -232,7 +230,12 @@ export default function Devices({ data, toggleReRender, handleRenderToggle, load
                                                             <div className="flex justify-between flex-wrap">
                                                                 <p><span className="font-bold italic">Name:</span> {device?.name}</p>
                                                                 <p><span className="font-bold italic">Mac:</span> {device?.macAddress}</p>
-                                                                <p><span className="font-bold italic">Status:</span> <span className={`${device?.active ? 'text-green-500' : 'text-red-500'}`}>{device?.active ? 'Allowed' : 'Blocked'}</span></p>
+                                                                <p>
+                                                                    <span className="font-bold italic">Status: </span>
+                                                                    <span className={`${device?.active ? 'text-green-500' : 'text-red-500'}`}>
+                                                                            {device?.active ? 'Allowed' : 'Blocked'}
+                                                                    </span>
+                                                                </p>
                                                                 <span className="flex items-center justify-center"
                                                                     onClick={openEditDialog}
                                                                     data-id={device?.id}
@@ -247,8 +250,8 @@ export default function Devices({ data, toggleReRender, handleRenderToggle, load
                                                                 deviceId={device?.id}
                                                                 timerCancelled={timerCancelled}
                                                                 timerHandler={timerHandler}
+                                                                bonusTimeActive={device?.bonusTimeActive}
                                                                 handleRenderToggle={handleRenderToggle}
-
                                                             />
                                                         </div>
                                                         <div>
