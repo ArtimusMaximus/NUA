@@ -4,7 +4,7 @@ const { endTimeout } = require("../start_&_clear_timeouts/start_end_timeouts");
 const { jobFunction } = require("../jobfunction");
 const { dateFromDateString } = require("../ez_sched_utils/dateFromDateString");
 
-async function stopBonusTime(deviceId, cancelTimer, schedule, prisma, unifi, res) {
+async function stopBonusTime(deviceId, cancelTimer, schedule, prisma, unifi) {
     try {
         if (cancelTimer) { // cancelling timer/ending timeout from /addbonustoggles
             endTimeout(deviceId);
@@ -91,7 +91,9 @@ async function stopBonusTime(deviceId, cancelTimer, schedule, prisma, unifi, res
         });
 
     // res.sendStatus(200);
-    res.json({ msg: "stopBonusTime callback complete..." });
+    // if (res) {
+    //     res.json({ msg: "stopBonusTime callback complete, toggles deleted, jobs re-initiated, devices blocked" });
+    // } // the issue is when we are looping through multiple devices, we cannot send the res.json more than once, and we need it for UI re-render 12/2/2024
     } catch (error) {
         console.error(error);
     }

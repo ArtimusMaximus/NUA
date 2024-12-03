@@ -120,7 +120,7 @@ export default function Devices({ macData, blockedUsers, handleRenderToggle, loa
             });
             if (blockAll.ok) {
                 const updatedData = await blockAll.json();
-                console.log('All Devices Blocked: ', updatedData);
+                console.log('All Devices Blocked response: ', updatedData);
                 handleRenderToggle();
             }
         } catch (error) {

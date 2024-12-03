@@ -638,8 +638,8 @@ app.put('/updatemacaddressstatus', async (req, res) => { // toggler
         //bypass front end active for now
         const { id, macAddress, active, bonusTimeActive } = req.body;
         if (timeoutMap.get(id)) {
-            await stopBonusTime(id, true, schedule, prisma, unifi, res);
-            // res.json({ msg: "Stop Bonus Time fired in updatemacaddressstatus"});
+            await stopBonusTime(id, true, schedule, prisma, unifi);
+            res.json({ msg: "Stop Bonus Time fired in updatemacaddressstatus"});
             return;
         }
         // console.log('Login Data: ', loginData);
@@ -677,29 +677,42 @@ app.put('/updatemacaddressstatus', async (req, res) => { // toggler
 });
 
 app.put('/blockallmacs', async (req, res) => {
-    const { data } = req.body;
-    const filteredIds = data?.macData.map((mac) => {
-        return mac?.id;
-    });
-    console.log('data in blockallmacs\t', data)
-    console.log('filteredIds in blockallmacs\t', filteredIds)
-    const updatedData = {
-        active: false,
-        bonusTimeActive: false
-    }
     try {
-        const filtMacs = extractMacs(req.body);
-        await blockMultiple(filtMacs);
-        const updatedRecords = await prisma.device.updateMany({
-            where: {
-                id: {
-                    in: filteredIds,
-                }
-            },
-            data: updatedData
+        const { macData, blockedUsers } = req.body;
+        const deviceIdList = macData.map((mac) => {
+            return mac?.id; // device ids of user devices
         });
+        // console.log('data in blockallmacs\t', macData);
+        // console.log('deviceIdList in blockallmacs\t', deviceIdList);
+        // console.log('blockedUsers from req.body\t', blockedUsers);
+
+        for (const device of deviceIdList) {
+            await stopBonusTime(device, true, schedule, prisma, unifi); // will bonus time crash if there is no bonus time
+        }
+
+
+        //////////////////////////////
+        // endTimeout(timerId)
+        // stopBonusTime(deviceId, cancelTimer, schedule, prisma, unifi, res)
+        ////////////////////////////
+        // I dont think we need this updated records, stopBonusTime handles deletes and re-instates 12/2/2024 commented all out
+        // const updatedData = {
+        //     active: false,
+        //     bonusTimeActive: false
+        // }
+        // const filtMacs = extractMacs(req.body); // what is this
+        // await blockMultiple(filtMacs);          // what is this
+        // const updatedRecords = await prisma.device.updateMany({
+        //     where: {
+        //         id: {
+        //             in: deviceIdList,
+        //         }
+        //     },
+        //     data: updatedData
+        // });
         // res.json({ updatedRecords });
-        res.json({ msg: "All mac addresses blocked!"});
+        res.json({ msg: "All mac addresses blocked, jobs reinitiated, bonus time ended"});
+        /////////////////////////////
     } catch (error) {
         console.error(error);
     }
@@ -1802,7 +1815,7 @@ app.post('/addbonustime', async (req, res) => { // cron bonus time
                     // console.log('easyRule toggleSched = true\t', easyRule);
                     const cancelled = schedule.cancelJob(easyRule.jobName);
                     console.log('cancelled\t', cancelled);
-                    if(cancelled) {
+                    if(cancelled) { // note, if you have no existing jobs, this will not be updated for you... 12/2/2024
                         const updateEasy = await prisma.easySchedule.update({
                             where: { id: easyRule.id },
                             data: {
