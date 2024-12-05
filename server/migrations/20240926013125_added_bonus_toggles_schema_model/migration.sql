@@ -1,0 +1,8 @@
+-- CreateTable
+CREATE TABLE "BonusToggles" (
+    "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "devicesOff" TEXT NOT NULL,
+    "cronId" INTEGER NOT NULL,
+    CONSTRAINT "BonusToggles_cronId_fkey" FOREIGN KEY ("cronId") REFERENCES "Cron" ("id") ON DELETE RESTRICT ON UPDATE CASCADE
+);

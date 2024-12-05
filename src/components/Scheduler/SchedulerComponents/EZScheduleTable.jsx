@@ -5,19 +5,21 @@ import { TbRepeat, TbRepeatOff } from "react-icons/tb";
 export function EZScheduleTable({ returnData, handleDeleteEZSched, handleEZToggle, submitButtonRef }) {
     return (
         <table className="table table-zebra border rounded-lg shadow overflow-hidden dark:border-gray-700 dark:shadow-gray-900 mb-8">
-            <tbody>
+            <thead>
                 <tr className="font-bold sm:text-xl" align="center">
-                    <td>Time</td>
-                    <td>Action</td>
-                    <td>Off/On</td>
-                    <td>Delete</td>
+                    <th>Time</th>
+                    <th>Action</th>
+                    <th>Off/On</th>
+                    <th>Delete</th>
                 </tr>
+            </thead>
+            <tbody>
                     {
                         returnData.ezScheduleData.length ? returnData?.ezScheduleData?.map((ezData) => {
                             return (
                                 <>
                                     <tr key={ezData.id} align="center">
-                                        <td className="uppercase"><DisplayOneTimeOrRecurringSchedule oneTime={ezData.oneTime} ezData={ezData} /></td>
+                                        <td className="uppercase w-1/4 text-xs sm:text-sm"><DisplayOneTimeOrRecurringSchedule oneTime={ezData.oneTime} ezData={ezData} /></td>
                                         <td className={`uppercase ${ezData.blockAllow === 'block' ? 'text-red-500' : 'text-green-500'}`}>
                                             {ezData.blockAllow}
                                         </td>

@@ -1,18 +1,23 @@
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { HiMiniPencilSquare } from "react-icons/hi2";
 import DeviceSkeleton from "./skeletons/DevicesSkeleton";
 import LoadingDialog from "./utility_components/LoadingDialog";
+import BonusTimeButton from "./utility_components/BonusTimeButton";
+import DisplayBonusTimer from "./utility_components/DisplayBonusTimer";
 
 
 
-export default function Devices({ data, toggleReRender, handleRenderToggle, loadingMacData })
+export default function Devices({ macData, blockedUsers, handleRenderToggle, loadingMacData })
 {
     const navigate = useNavigate();
     const [loading, setLoading] = useState(false);
     const editRef = useRef();
     const [updatedDeviceData, setUpdatedDeviceData] = useState(null);
     const [toggleIsLoading, setToggleIsLoading] = useState(false);
+    const [timerCancelled, setTimerCancelled] = useState(false); // this cancels all device timer visuals, but not the timer itself
+                                                                //consider removing after or during bonus time adjustment
+
     const toggleLoadingDialogRef = useRef();
     const newDeviceNameRef = useRef();
     const newMacAddressRef = useRef();
@@ -20,6 +25,9 @@ export default function Devices({ data, toggleReRender, handleRenderToggle, load
     // const handleSchedule = device => {
     //     navigate(`/admin/${device}`)
     // }
+    function timerHandler(cancelled) {
+        setTimerCancelled(cancelled); // passed to CancelBonusTimeButton
+    }
 
     function handleToggleIsLoading() {
         if (toggleIsLoading) {
@@ -30,20 +38,21 @@ export default function Devices({ data, toggleReRender, handleRenderToggle, load
     }
     const delay = t => new Promise(res => setTimeout(res, t));
 
+    useEffect(() => {
+      console.log('useEffect in devices fired...')
+      console.log("Data from devices upon hopeful re-render:\t", macData)
+    // }, [toggleReRender, data])
+    // }, [toggleReRender])
+    }, [macData])
+
+
     const handleToggle = async e => { // toggle device blocked or unblocked
-        setLoading(true);
-        setToggleIsLoading(true);
-        toggleLoadingDialogRef.current.showModal();
-
         try {
-            // const itemId = e.target.dataset.name;
-            const dataToUpdate = data?.macData?.filter((data) => data?.id === parseInt(e.target.dataset.name));
-            // const dataToUpdate = data?.macData?.find((data) => data.id === itemId)
-            // console.log(dataToUpdate);
-
-            // dataToUpdate[0]?.active === true ? dataToUpdate[0].active = false : dataToUpdate[0].active = true
-            // console.log('dataToUpdate[0]: ', dataToUpdate[0]);
-
+            setLoading(true);
+            setToggleIsLoading(true);
+            toggleLoadingDialogRef.current.showModal();
+            // const dataToUpdate = data?.macData?.filter((data) => data?.id === parseInt(e.target.dataset.name)); // previous, updating 11 26 2024
+            const dataToUpdate = macData?.filter((data) => data?.id === parseInt(e.target.dataset.name));
                 const updateToggle = await fetch(`/updatemacaddressstatus`, {
                     method: "PUT",
                     mode: "cors",
@@ -57,7 +66,8 @@ export default function Devices({ data, toggleReRender, handleRenderToggle, load
                     const updatedData = await updateToggle.json();
                     console.log('Updated data: ', updatedData);
                     setLoading(false);
-                    handleRenderToggle();
+                    // timerHandler(true); // test with this off 11 26 2024 - this was removing the timer on other devices when a separate device is toggled on or off
+                    handleRenderToggle(); // test without
 
                     delay(2000).then(() => {
                         setToggleIsLoading(false);
@@ -79,6 +89,7 @@ export default function Devices({ data, toggleReRender, handleRenderToggle, load
     }
     const handleUnBlockAll = async () => {
         try {
+            const data = { macData, blockedUsers };
             const blockAll = await fetch('unblockallmacs', {
                 method: "PUT",
                 mode: 'cors',
@@ -93,11 +104,12 @@ export default function Devices({ data, toggleReRender, handleRenderToggle, load
                 handleRenderToggle();
             }
         } catch (error) {
-            if (error) throw error;
+            console.error(error);
         }
     }
     const handleBlockAll = async () => {
         try {
+            const data = { macData, blockedUsers };
             const blockAll = await fetch('blockallmacs', {
                 method: "PUT",
                 mode: 'cors',
@@ -108,7 +120,7 @@ export default function Devices({ data, toggleReRender, handleRenderToggle, load
             });
             if (blockAll.ok) {
                 const updatedData = await blockAll.json();
-                console.log('All Devices Blocked: ', updatedData);
+                console.log('All Devices Blocked response: ', updatedData);
                 handleRenderToggle();
             }
         } catch (error) {
@@ -136,7 +148,8 @@ export default function Devices({ data, toggleReRender, handleRenderToggle, load
     }
     const openEditDialog = e => {
         editRef.current.showModal();
-        const selectedDevice = data?.macData?.filter(device => device.id === parseInt(e.target.dataset.id));
+        // const selectedDevice = data?.macData?.filter(device => device.id === parseInt(e.target.dataset.id)); // previous, updating 11 26 2024
+        const selectedDevice = macData?.filter(device => device.id === parseInt(e.target.dataset.id));
         setUpdatedDeviceData({
             ...selectedDevice,
             id: e.target.dataset.id
@@ -189,15 +202,15 @@ export default function Devices({ data, toggleReRender, handleRenderToggle, load
             <div className="flex items-center justify-center w-full h-full sm:w-3/4 lg:w-1/2 mx-auto pb-12">
                 <div className="flex w-full mx-2">
                     <div className="flex flex-col items-center justify-center w-full h-full mx-auto border rounded-lg shadow overflow-hidden border-neutral shadow-base-300 m-8">
-                        <div className="flex w-full mt-2 justify-around">
-                            <div className="text-xl font-bold">Toggle</div>
-                            <div className="text-xl font-bold">Device</div>
+                        <div className="flex w-full mt-2 justify-between">
+                            <div className="px-4 text-xl font-bold">Toggle</div>
+                            <div className="px-12 text-xl font-bold">Device</div>
                         </div>
                         <div className="divider mt-2 mb-2"></div>
-                        <ul className="flex flex-col w-full">
+                        <ul className="flex flex-col w-full mb-2">
                             {
-                                !loadingMacData ? data?.macData?.map((device) => {
-                                // data?.macData?.map((device) => {
+                                // !loadingMacData ? data?.macData?.map((device) => { // previous (prior it was data.macData), updating 11 26 2024
+                                macData?.map((device) => {
                                     return (
                                         <>
                                             <li key={device?.id} className="m-1">
@@ -205,35 +218,26 @@ export default function Devices({ data, toggleReRender, handleRenderToggle, load
                                                 <input type="checkbox" />
                                                     <div className="collapse-title text-xl font-medium">
                                                         <div className="w-full flex flex-row items-center justify-between hover:cursor-pointer z-40">
-                                                            {/* <IoEllipseOutline
-                                                                data-name={device?.id}
-                                                                className={`${device?.active ? 'text-green-500' : 'text-red-500'} animate-pulse w-8 h-8 z-40`}
-                                                            /> */}
                                                             <input
                                                                 type="checkbox"
-                                                                className="toggle toggle-success z-40"
+                                                                className={`toggle ${device?.active && device?.bonusTimeActive ? "toggle-info" : device?.active ? "toggle-success" : "" } z-40`}
                                                                 onClick={handleToggle}
                                                                 checked={device?.active}
                                                                 data-name={device?.id}
                                                             />
                                                             {device?.name === "" ? device?.macAddress : device?.name}
-                                                            {/* <div
-                                                                draggable={true}
-                                                                data-orderid={`${index+1}`}
-                                                                data-devid={device?.id}
-                                                                onDragStart={handleDragStart}
-                                                                onDragOver={handleDragOver}
-                                                                onDrop={handleDrop}
-                                                                className="rotate-90 z-50 hover:cursor-grab">
-                                                                |||
-                                                            </div> */}
                                                         </div>
                                                     </div>
                                                     <div className="collapse-content">
                                                             <div className="flex justify-between flex-wrap">
                                                                 <p><span className="font-bold italic">Name:</span> {device?.name}</p>
                                                                 <p><span className="font-bold italic">Mac:</span> {device?.macAddress}</p>
-                                                                <p><span className="font-bold italic">Status:</span> <span className={`${device?.active ? 'text-green-500' : 'text-red-500'}`}>{device?.active ? 'Allowed' : 'Blocked'}</span></p>
+                                                                <p>
+                                                                    <span className="font-bold italic">Status: </span>
+                                                                    <span className={`${device?.active ? 'text-green-500' : 'text-red-500'}`}>
+                                                                            {device?.active ? 'Allowed' : 'Blocked'}
+                                                                    </span>
+                                                                </p>
                                                                 <span className="flex items-center justify-center"
                                                                     onClick={openEditDialog}
                                                                     data-id={device?.id}
@@ -243,6 +247,15 @@ export default function Devices({ data, toggleReRender, handleRenderToggle, load
                                                                     />
                                                                 </span>
                                                             </div>
+                                                        <div className="mt-2">
+                                                            <BonusTimeButton
+                                                                deviceId={device?.id}
+                                                                timerCancelled={timerCancelled}
+                                                                timerHandler={timerHandler}
+                                                                bonusTimeActive={device?.bonusTimeActive}
+                                                                handleRenderToggle={handleRenderToggle}
+                                                            />
+                                                        </div>
                                                         <div>
                                                             <Link to={`/admin/${device?.id}/scheduler`} className="w-fit hover:cursor-pointer" >
                                                                 <div className="btn btn-block bg-base-300 hover:bg-base-content hover:text-base-100 my-2">Schedule</div>
@@ -260,8 +273,7 @@ export default function Devices({ data, toggleReRender, handleRenderToggle, load
                                             </li>
                                         </>
                                     );
-                                }) : <DeviceSkeleton devices={data?.macData && data?.macData} loadingMacData={loadingMacData} />
-                                // })
+                            })
                             }
                         </ul>
                     </div>

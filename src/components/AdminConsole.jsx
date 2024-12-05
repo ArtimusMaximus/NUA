@@ -1,6 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
 import Devices from "./Devices";
-import { IoAddCircleOutline } from "react-icons/io5";
 import { useNavigate } from 'react-router-dom';
 import NuaSvg from "../images/nua.svg";
 
@@ -10,24 +9,19 @@ export default function AdminConsole()
     const [inputData, setInputData] = useState({
         active: false,
     });
-    const [macData, setMacData] = useState({});
+    // const [macData, setMacData] = useState({}); // prev
+    const [macData, setMacData] = useState([]);
+    const [blockedUsers, setBlockedUsers] = useState([]);
     const [validationError, setValidationError] = useState(false);
     const [toggleReRender, setToggleReRender] = useState(false);
     const [cronJobCheck, setCronJobChecked] = useState({});
-    const [serverRestart, setServerRestart] = useState(true);
-    const [refreshTimer, setRefreshTimer] = useState(null);
-    const [refresh, setRefresh] = useState(false);
     const [loadingMacData, setLoadingMacData] = useState(false);
-    const macRef = useRef();
-    const deviceNameRef = useRef();
     const initialized = useRef(false);
     const navigate = useNavigate();
     const [countdown, setCountdown] = useState(2);
     const dialogRef = useRef();
 
-    const refreshUI = () => {
-        setRefresh(prev => !prev)
-    }
+
     const timer = t => new Promise(res => setTimeout(res, t));
     const handleTimer = async () => {
         const timer = t => new Promise(res => setTimeout(res, t));
@@ -100,8 +94,10 @@ export default function AdminConsole()
                 });
                 if (response.ok) {
                     const data = await response.json();
-                    console.log('macData \t', data);
-                    setMacData(data ? data : {});
+                    console.log('macData from ping re-render:\t', data);
+                    // setMacData(data ? data : {}); // previous, updating
+                    setMacData([...data.macData] || []);
+                    setBlockedUsers([...data.blockedUsers] || []);
                     setLoadingMacData(false)
                 } else if (!response.ok) {
                     dialogRef.current.showModal();
@@ -132,7 +128,7 @@ export default function AdminConsole()
     //     }
     // }, [])
 
-    useEffect(() => { // new 03/04/2024
+    useEffect(() => { // new 03/04/2024 // revisited 11 15 2024 - need this to not interrupt state in devices component
         let eventSource;
         try {
             eventSource = new EventSource('/pingmacaddresses');
@@ -206,8 +202,8 @@ export default function AdminConsole()
         <>
             <div className="grid mx-auto grid-flow-row gap-6 w-full">
                 <Devices
-                    data={macData && macData}
-                    toggleReRender={toggleReRender}
+                    macData={macData && macData}
+                    blockedUsers={blockedUsers}
                     handleRenderToggle={handleRenderToggle}
                     loadingMacData={loadingMacData}
                 />

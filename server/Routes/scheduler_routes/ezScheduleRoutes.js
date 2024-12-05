@@ -44,6 +44,9 @@ function ezScheduleRoutes(app, unifi, prisma, schedule, jobFunction) {
         const { id, deviceId, jobName, date, scheduletype, oneTime, ampm, hour, minute, toggleSched, days } = req.body;
         const modifiedDaysOfTheWeek = days && days.split("").map((day) => parseInt(day));
 
+        console.log("days\t", days);
+        console.log("modifiedDaysOfTheWeek\t", modifiedDaysOfTheWeek);
+
         const boolOneTime        = convertStringToBool(oneTime);
         const toggleSchedBoolean = convertStringToBool(toggleSched);
 

@@ -8,103 +8,138 @@ generator client {
 }
 
 model Credentials {
-  id           Int      @id @default(autoincrement())
-  username     String?
-  password     String?
-  hostname     String?
-  port         Int?
-  sslverify    Boolean?
-  theme        String?
-  refreshRate  Int?
-  defaultPage  String?
-  initialSetup Boolean?
+  id                      Int      @id @default(autoincrement())
+  username                String?
+  password                String?
+  hostname                String?
+  port                    Int?
+  sslverify               Boolean?
+  theme                   String?
+  refreshRate             Int?
+  defaultPage             String?
+  initialSetup            Boolean?
 }
 
 model Device {
-  id            Int      @id @default(autoincrement())
-  name          String
-  macAddress    String
-  active        Boolean
-  createdAt     DateTime @default(now())
-  crons         Cron[]
-  easySchedules EasySchedule[]
-  order         Int?
+  id                      Int      @id @default(autoincrement())
+  name                    String
+  macAddress              String
+  active                  Boolean
+  bonusTimeActive         Boolean  @default(false)
+  createdAt               DateTime @default(now())
+  crons                   Cron[]
+  easySchedules           EasySchedule[]
+  order                   Int?
+  cronBonusToggles        CronBonusToggles[]
+  easyBonusToggles        EasyBonusToggles[]
 }
 
 model Cron {
-  id         Int      @id @default(autoincrement())
-  createdAt  DateTime @default(now())
-  crontime   String
-  crontype   String
-  jobName    String?
-  device     Device?  @relation(fields: [deviceId], references: [id])
-  deviceId   Int?
-  toggleCron Boolean?
+  id                      Int      @id @default(autoincrement())
+  createdAt               DateTime @default(now())
+  crontime                String
+  crontype                String
+  jobName                 String?
+  device                  Device?  @relation(fields: [deviceId], references: [id])
+  deviceId                Int?
+  toggleCron              Boolean?
 }
 
 model EasySchedule {
-  id            Int       @id @default(autoincrement())
-  createdAt     DateTime? @default(now())
-  month         Int?
-  days          String?
-  minute        Int
-  hour          Int
-  ampm          String
-  date          String?
-  blockAllow    String
-  oneTime       Boolean
-  jobName       String?
-  device        Device?   @relation(fields: [deviceId], references: [id])
-  deviceId      Int?
-  toggleSched   Boolean?
+  id                      Int       @id @default(autoincrement())
+  createdAt               DateTime? @default(now())
+  month                   Int?
+  days                    String?
+  minute                  Int
+  hour                    Int
+  ampm                    String
+  date                    String?
+  blockAllow              String
+  oneTime                 Boolean
+  jobName                 String?
+  device                  Device?   @relation(fields: [deviceId], references: [id])
+  deviceId                Int?
+  toggleSched             Boolean?
 }
 
 model TrafficRules {
-  id                 Int                  @id @default(autoincrement())
-  createdAt          DateTime             @default(now())
-  unifiId            String
-  app_category_ids   AppCatIds[]
-  app_ids            AppIds[]
-  target_devices     TargetDevice[]
-  trafficRuleDevices TrafficRuleDevices[]
-  description        String
-  enabled            Boolean
-  blockAllow         String
+  id                      Int                  @id @default(autoincrement())
+  createdAt               DateTime             @default(now())
+  unifiId                 String
+  app_category_ids        AppCatIds[]
+  app_ids                 AppIds[]
+  target_devices          TargetDevice[]
+  trafficRuleDevices      TrafficRuleDevices[]
+  description             String
+  enabled                 Boolean
+  blockAllow              String
 }
 
 model AppCatIds {
-  id             Int          @id @default(autoincrement())
-  createdAt      DateTime     @default(now())
-  app_cat_id     Int
-  app_cat_name   String?
-  trafficRules   TrafficRules @relation(fields: [trafficRulesId], references: [id])
-  trafficRulesId Int
+  id                      Int          @id @default(autoincrement())
+  createdAt               DateTime     @default(now())
+  app_cat_id              Int
+  app_cat_name            String?
+  trafficRules            TrafficRules @relation(fields: [trafficRulesId], references: [id])
+  trafficRulesId          Int
 }
 
 model AppIds {
-  id             Int          @id @default(autoincrement())
-  createdAt      DateTime     @default(now())
-  app_id         Int
-  app_name       String?
-  trafficRules   TrafficRules @relation(fields: [trafficRulesId], references: [id])
-  trafficRulesId Int
+  id                      Int          @id @default(autoincrement())
+  createdAt               DateTime     @default(now())
+  app_id                  Int
+  app_name                String?
+  trafficRules            TrafficRules @relation(fields: [trafficRulesId], references: [id])
+  trafficRulesId          Int
 }
 
 model TargetDevice {
-  id             Int          @id @default(autoincrement())
-  createdAt      DateTime     @default(now())
-  client_mac     String
-  type           String
-  trafficRules   TrafficRules @relation(fields: [trafficRulesId], references: [id])
-  trafficRulesId Int
+  id                      Int          @id @default(autoincrement())
+  createdAt               DateTime     @default(now())
+  client_mac              String
+  type                    String
+  trafficRules            TrafficRules @relation(fields: [trafficRulesId], references: [id])
+  trafficRulesId          Int
 }
 
 model TrafficRuleDevices {
-  id             Int          @id @default(autoincrement())
-  createdAt      DateTime     @default(now())
-  deviceName     String
-  deviceId       Int?
-  macAddress     String
-  trafficRules   TrafficRules @relation(fields: [trafficRulesId], references: [id])
-  trafficRulesId Int
+  id                      Int          @id @default(autoincrement())
+  createdAt               DateTime     @default(now())
+  deviceName              String
+  deviceId                Int?
+  macAddress              String
+  trafficRules            TrafficRules @relation(fields: [trafficRulesId], references: [id])
+  trafficRulesId          Int
 }
+
+model CronBonusToggles {
+  id                      Int          @id @default(autoincrement())
+  createdAt               DateTime     @default(now())
+  cronRuleIDToggledOff    Int
+  device                  Device?      @relation(fields: [deviceId], references: [id])
+  deviceId                Int?
+  crontype                String
+  crontime                String
+  macAddress              String
+}
+
+model EasyBonusToggles {
+  id                      Int          @id @default(autoincrement())
+  createdAt               DateTime     @default(now())
+  easyRuleIDToggledOff    Int
+  toggleSched             Boolean?
+  device                  Device?      @relation(fields: [deviceId], references: [id])
+  deviceId                Int?
+  blockAllow              String
+  month                   Int?
+  days                    String?
+  minute                  Int
+  hour                    Int
+  ampm                    String
+  date                    String?
+  macAddress              String
+  oneTime                 Boolean
+  jobName                 String?
+}
+
+

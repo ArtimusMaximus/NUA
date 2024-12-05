@@ -42,12 +42,12 @@ export default function AllDevicesCard({ props, length, handleAddToDevices })
                     ? <p><span className="font-bold italic">name: </span>{props?.name ? props?.name : '"none"'}</p>
                     : <></>
                     }
-                    <p><span className="italic font-thin">font-bold italic: </span>{props?.hostname ? props?.hostname : '"none"'}</p>
-                    <p><span className="italic font-thin">font-bold italic: </span>{props?.oui ? props?.oui : '"none"'}</p>
-                    <p><span className="italic font-thin">font-bold italic: </span>{props?.mac}</p>
-                    <p><span className="italic font-thin">font-bold italic: </span>{props?.last_ip}</p>
+                    <p><span className="italic font-thin">hostname: </span>{props?.hostname ? props?.hostname : '"none"'}</p>
+                    <p><span className="italic font-thin">oui: </span>{props?.oui ? props?.oui : '"none"'}</p>
+                    <p><span className="italic font-thin">mac: </span>{props?.mac}</p>
+                    <p><span className="italic font-thin">last ip: </span>{props?.last_ip}</p>
                     {/* <p><span className="italic font-thin">is guest: </span>{props?.is_guest === true ? 'true' : 'false'}</p> */}
-                    <p><span className="italic font-thin">font-bold italic: </span>{props?.is_wired === true ? 'true' : 'false'}</p>
+                    <p><span className="italic font-thin">is is_wired: </span>{props?.is_wired === true ? 'true' : 'false'}</p>
                     <div className="card-actions justify-between pt-4">
                         <button
                             className={`btn ${props.onList ? 'btn-disabled' : ''}`}

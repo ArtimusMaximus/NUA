@@ -4,24 +4,27 @@ const bodyParser = require('body-parser');
 const Unifi = require('node-unifi');
 const sqlite3 = require('sqlite3').verbose();
 const { open } = require('sqlite');
-const { PrismaClient } = require('@prisma/client');
+const { PrismaClient, Prisma } = require('@prisma/client');
 const schedule = require('node-schedule');
-const cronValidate = require('node-cron');
 const customPORT = require('./globalSettings');
 const fs = require('fs');
-const { convertToMilitaryTime } = require('./server_util_funcs/convert_to_military_time');
-const { convertDOWtoString } = require('./server_util_funcs/ez_sched_utils/convertDOWtoString');
-const { dateFromDateString } = require('./server_util_funcs/ez_sched_utils/dateFromDateString');
-const { deleteCompletedJobs } = require('./server_util_funcs/ez_sched_utils/deleteCompletedJobs');
 const { ezScheduleRoutes } = require('./Routes/scheduler_routes/ezScheduleRoutes'); // ezScheduleRoutes(app, unifi, prisma)
 const { red } = require('./server_util_funcs/red');
 const { jobFunction } = require('./server_util_funcs/jobfunction');
-const { nodeOneTimeScheduleRule } = require('./ez_sched_funcs/nodeOneTimeScheduleRule');
-const { nodeScheduleRecurrenceRule } = require('./ez_sched_funcs/nodeRecurringScheduleRule');
 const { updateOneTimeSchedule } = require('./ez_sched_funcs/update_ez_schedules/updateOneTimeSchedule');
 const { updateRecurringSchedule } = require('./ez_sched_funcs/update_ez_schedules/updateRecurringSchedule');
-const { addEasySchedule } = require("./ez_sched_funcs/addEasySchedule");
 const { serverLogger } = require('./server_util_funcs/server_log_utils/serverLogger');
+const { validateCron } = require('./server_util_funcs/validateCron');
+const { consoleReader } = require('./server_util_funcs/server_log_utils/consoleReader');
+const { logger } = require("./server_util_funcs/server_log_utils/customLogger");
+const { cronBonusTimeEndJobReinitiation } = require("./server_util_funcs/cronBonusTimeEndJobReinitiation");
+const { easyBonusTimeEndJobReinitiation } = require("./server_util_funcs/easyBonusTimeEndJobReinitiation");
+const { minutesHoursToMilli } = require("./server_util_funcs/minutesHoursToMilli");
+const { convertToMilitaryTime } = require('./server_util_funcs/convert_to_military_time');
+const { dateFromDateString } = require('./server_util_funcs/ez_sched_utils/dateFromDateString');
+const { startTimeout, endTimeout, timeoutMap } = require('./server_util_funcs/start_&_clear_timeouts/start_end_timeouts');
+const { stopBonusTime } = require('./server_util_funcs/stop_bonus_time/stopBonusTimeViaToggleOff');
+
 
 
 
@@ -33,20 +36,13 @@ const { serverLogger } = require('./server_util_funcs/server_log_utils/serverLog
     })
 })();
 const prisma = new PrismaClient();
-// commented line to test docker build
+
 // create server & add middleware
 const app = express();
 app.use(cors());
 app.use(bodyParser.json());
 app.use(express.static(process.cwd().slice(0, -7) + '/dist'));
-
-// function red(text, color) { // specific console color logger
-//     if (color === 'red') {
-//         console.log('\x1b[31m\x1b[5m', text);
-//     } else if (color === 'cyan') {
-//         console.log('\x1b[36m\x1b[1m', text);
-//     }
-// }
+consoleReader(schedule);
 
 function handleLoginError(error) {
     if (error !== undefined) {
@@ -117,7 +113,7 @@ checkForCredentials();
 // unifi connection instance // original
 // let unifi;
 // async function logIntoUnifi(hostname, port, sslverify, username, password) {
-//     unifi = new Unifi.Controller({hostname: hostname, port: port, sslverify: sslverify});
+//     unifi = new Unifi.Controller({ hostname: hostname, port: port, sslverify: sslverify });
 //     const loginData = await unifi.login(username, password);
 //     if (loginData) {
 //         return { unifi, validCredentials: true };
@@ -210,7 +206,7 @@ async function blockMultiple(reqBodyArr) {
                 console.log(`Successfully blocked: ${mac}`);
             }
         } catch (error) {
-            if (error) throw error;
+            console.error(error);
         }
     }
 }
@@ -244,11 +240,7 @@ function extractMacs(body) {
     // console.log(body);
     return body.macData.map(mac => mac.macAddress);
 }
-function validateCron(crontype) { // return true/false
-    let validation = cronValidate.validate(crontype);
-    console.log('validation func: ', validation)
-    return validation;
-}
+
 
 // (async function() {
 //     try {
@@ -420,6 +412,7 @@ app.get('/getmacaddresses', async (req, res) => {
             // const blockedUsers = await unifi?.getBlockedUsers(); // old 03/11/2024
             const blockedUsers = await getBlockedUsers();
             // console.log('blockedUsers in get mac addresses \t', blockedUsers);
+            // console.log(blockedUsers.filter((mac) => mac.mac === '48:b4:23:f7:30:0a')) // "tablet" is blocked on server side, preventing you from updating it 11/19/2024
             // console.log('refreshRate \t', refreshRate);
 
             const doMacAddressMatch = (unifiDataMacAddress, macData) => {
@@ -641,10 +634,14 @@ app.post('/getspecificdevice', async (req, res) => { // fetch individual device 
 });
 
 app.put('/updatemacaddressstatus', async (req, res) => { // toggler
-
-    const { id, macAddress, active } = req.body;
-    //bypass front end active for now
     try {
+        //bypass front end active for now
+        const { id, macAddress, active, bonusTimeActive } = req.body;
+        if (timeoutMap.get(id)) {
+            await stopBonusTime(id, true, schedule, prisma, unifi);
+            res.json({ msg: "Stop Bonus Time fired in updatemacaddressstatus"});
+            return;
+        }
         // console.log('Login Data: ', loginData);
         const blockedUsers = await unifi.getBlockedUsers();
 
@@ -652,27 +649,25 @@ app.put('/updatemacaddressstatus', async (req, res) => { // toggler
         const filterBlockedUsers = blockedUsers.filter((device) => {
             return device.mac === macAddress
         });
-        // console.log('Filtered only blocked users from db: ', filterBlockedUsers);
-        // console.log(blockedUsers);
-    ///////////////////////////////////// bash block device command here///////////////
-    //////////////////////////////////// to toggle we need to be able to unblock as well
-    // const { stdout, stderr } = await exec(`php ${active ? '/opt/nodeunifi/API-client/block_list.php' : '/opt/nodeunifi/API-client/unblock_list.php'} ${macAddress}`)
-        // console.log(stdout);
+        let updateUser;
         if (active) {
-            await unifi.blockClient(macAddress)
+            await unifi.blockClient(macAddress);
         } else {
-            await unifi.unblockClient(macAddress)
+            await unifi.unblockClient(macAddress);
         }
-        /////////////////////////////////////update to database here///////////////////////
-        const updateUser = await prisma.device.update({
+        updateUser = await prisma.device.update({
             where: {
                 id,
                 macAddress
             },
             data: {
-                active: !active
+                active: !active,
+                // bonusTimeActive: false // necessary 11/26/2024
             }
         });
+        /////////////////////////////////////update to database here///////////////////////
+
+
     ////////////////////////////////////send back to front end ////////////////////////
         res.json({ updatedUser: updateUser, blockedUsers: blockedUsers });
         // const logoutData = await unifi.logout(); // getting an error when logging out after each request, perhaps too many requests in a short period of time?
@@ -682,33 +677,50 @@ app.put('/updatemacaddressstatus', async (req, res) => { // toggler
 });
 
 app.put('/blockallmacs', async (req, res) => {
-    const { data } = req.body;
-    const filteredIds = data?.map((mac) => {
-        return mac?.id;
-    });
-    const updatedData = {
-        active: false
-    }
     try {
-        const filtMacs = extractMacs(req.body)
-        await blockMultiple(filtMacs);
-        const updatedRecords = await prisma.device.updateMany({
-            where: {
-                id: {
-                    in: filteredIds,
-                }
-            },
-            data: updatedData
+        const { macData, blockedUsers } = req.body;
+        const deviceIdList = macData.map((mac) => {
+            return mac?.id; // device ids of user devices
         });
-        res.json({ updatedRecords });
+        // console.log('data in blockallmacs\t', macData);
+        // console.log('deviceIdList in blockallmacs\t', deviceIdList);
+        // console.log('blockedUsers from req.body\t', blockedUsers);
+
+        for (const device of deviceIdList) {
+            await stopBonusTime(device, true, schedule, prisma, unifi); // will bonus time crash if there is no bonus time
+        }
+
+
+        //////////////////////////////
+        // endTimeout(timerId)
+        // stopBonusTime(deviceId, cancelTimer, schedule, prisma, unifi, res)
+        ////////////////////////////
+        // I dont think we need this updated records, stopBonusTime handles deletes and re-instates 12/2/2024 commented all out
+        // const updatedData = {
+        //     active: false,
+        //     bonusTimeActive: false
+        // }
+        // const filtMacs = extractMacs(req.body); // what is this
+        // await blockMultiple(filtMacs);          // what is this
+        // const updatedRecords = await prisma.device.updateMany({
+        //     where: {
+        //         id: {
+        //             in: deviceIdList,
+        //         }
+        //     },
+        //     data: updatedData
+        // });
+        // res.json({ updatedRecords });
+        res.json({ msg: "All mac addresses blocked, jobs reinitiated, bonus time ended"});
+        /////////////////////////////
     } catch (error) {
-        if (error) throw error;
+        console.error(error);
     }
 });
 
 app.put('/unblockallmacs', async (req, res) => {
     const { data } = req.body;
-    const filteredIds = data?.map((mac) => {
+    const filteredIds = data?.macData?.map((mac) => {
         return mac?.id;
     });
     const updatedData = {
@@ -725,9 +737,10 @@ app.put('/unblockallmacs', async (req, res) => {
             },
             data: updatedData
         });
-        res.json({ updatedRecords });
+        res.json({ msg: "OKAY" });
+        // res.json({ updatedRecords });
     } catch (error) {
-        if (error) throw error;
+        console.error(error);
     }
 });
 
@@ -958,7 +971,7 @@ app.post('/addschedule', async (req, res) => { // adds cron data specific front 
                 res.status(422).send({ message: "Invalid Cron Type, please try again." })
             }
         } catch (error) {
-            if(error) throw error;
+            console.error(error);
         }
 });
 
@@ -984,7 +997,7 @@ app.delete('/deletecron', async (req, res) => {
 
 app.put('/togglecron', async (req, res) => {
     const { id, toggleCron, jobName, crontime, crontype, deviceId } = req.body;
-    serverLogger(`Toggle on off ${toggleCron}`, "nua.log");
+    // serverLogger(`Toggle on off ${toggleCron}`, "nua.log");
     // const { id, deviceId, jobName, ezBlockAllow, ezDate, toggleEZSched } = req.body
     // I believe the issue here is that you are not getting the job name from the front end, try node-schedule again -TRUE & Successful....
     let jb = jobName;
@@ -1759,6 +1772,257 @@ app.post('/getallworking', async (req, res) => {
         .catch((error) => console.error(error));
 });
 
+app.post('/addbonustime', async (req, res) => { // cron bonus time
+    try {
+        const { hours, minutes, deviceId, isAdditionalTime } = req.body;
+
+        // if (isAdditionalTime) {
+        //     const originalTime = timeoutMap.get(deviceId)?.time;
+
+        //     const { timeoutMap } = startTimeout(deviceId, minutes, hours, restartPausedJobs, originalTime);
+        //     const newTime = originalTime - Date.now();
+
+        //     res.status(200).json({ msg: "New bonus timer set...", timer: newTime, timerId: deviceId });
+        //     return;
+        // }
+        // console.log("hours minutes\t", hours, minutes, deviceId, typeof deviceId);
+        if (hours || minutes) {
+            await prisma.device.update({
+                where: { id: deviceId },
+                data: { bonusTimeActive: true }
+            });
+            // database and device shutdown logic here
+
+            const getMacAddressForDevice = await prisma.device.findUnique({ where: { id: deviceId }});
+            console.log("getMacAddressForDevice\t", getMacAddressForDevice);
+
+            if (getMacAddressForDevice.active === false) {
+                console.log("getMacAddressForDevice.active === false", getMacAddressForDevice.active === false);
+                const confirmAllow = await unifi?.unblockClient(getMacAddressForDevice.macAddress);
+                console.log(`${getMacAddressForDevice.macAddress} has been unblocked: ${confirmAllow}`);
+                await prisma.device.update({
+                    where: { id: deviceId },
+                    data: { active: true }
+                });
+                // console.log('tablet\t', tablet); // this is correct, but device is blocked...
+            }
+
+            const getEasyDevices = await prisma.easySchedule.findMany({ where: { deviceId: deviceId }});
+            const getCrons = await prisma.cron.findMany({ where: { deviceId: deviceId }});
+
+            for (const easyRule of getEasyDevices) {
+                if (easyRule.toggleSched) {
+                    // console.log('easyRule toggleSched = true\t', easyRule);
+                    const cancelled = schedule.cancelJob(easyRule.jobName);
+                    console.log('cancelled\t', cancelled);
+                    if(cancelled) { // note, if you have no existing jobs, this will not be updated for you... 12/2/2024
+                        const updateEasy = await prisma.easySchedule.update({
+                            where: { id: easyRule.id },
+                            data: {
+                                toggleSched: false
+                            }
+                        });
+
+                        const createEasyBonusToggleOff = await prisma.easyBonusToggles.create({
+                            data: {
+                                easyRuleIDToggledOff: easyRule.id,
+                                blockAllow: easyRule.blockAllow,
+                                macAddress: getMacAddressForDevice.macAddress,
+                                toggleSched: easyRule.toggleSched,
+                                oneTime: easyRule.oneTime,
+                                date: easyRule.date,
+                                ampm: easyRule.ampm,
+                                hour: easyRule.hour,
+                                minute: easyRule.minute,
+                                days: easyRule.days,
+                                month: easyRule.month,
+                                device: {
+                                    connect: { id: easyRule.deviceId }
+                                }
+                            }
+                        });
+                    }
+                }
+            }
+
+            //////////////////////////// cancels job and changes db entry for CRON ////////////////////
+            for (const cronRule of getCrons) {
+                console.log('cronRule.toggleSched\t', cronRule.id, cronRule.toggleCron);
+
+                if (cronRule.toggleCron) {
+                    const cancelled = schedule?.cancelJob(cronRule.jobName);
+                    console.log('Cancelled Bonus Button Job?: ', cancelled);
+
+                    if (cancelled) {
+                        const updateCron = await prisma.cron.update({
+                            where: { id: cronRule.id },
+                            data: {
+                                toggleCron: false
+                                // jobName: jb
+                            }
+                        });
+
+                        const createCronBonusToggleOff = await prisma.cronBonusToggles.create({
+                            data: {
+                                cronRuleIDToggledOff: cronRule.id,
+                                crontype: cronRule.crontype,
+                                crontime: cronRule.crontime,
+                                macAddress: getMacAddressForDevice.macAddress,
+                                device: {
+                                    connect: { id: cronRule.deviceId }
+                                }
+                            }
+                        });
+                    }
+                }
+            }
+
+            async function restartPausedJobs() { // callback for startTimeout
+                try {
+                    await cronBonusTimeEndJobReinitiation(deviceId, schedule, prisma, unifi, jobFunction, logger);
+                    await easyBonusTimeEndJobReinitiation(deviceId, schedule, prisma, unifi, jobFunction, logger);
+                    endTimeout(deviceId);
+                    // const confirmBlocked = await unifi?.blockClient(getMacAddressForDevice.macAddress);
+                    // console.log(`${getMacAddressForDevice.macAddress} has been blocked: ${confirmBlocked}`);
+                    // device active set off happens in jobFunction ? really now? 11/26/2024
+                    // await prisma.device.update({
+                    //     where: { id: deviceId },
+                    //     data: {
+                    //         active: false
+                    //     }
+                    // });
+                    await prisma.device.update({
+                        where: { id: deviceId },
+                        data: {
+                            bonusTimeActive: false
+                        }
+                    });
+                } catch (error) {
+                    console.error(error);
+                }
+            }
+
+            const { timeoutMap } = startTimeout(deviceId, minutes, hours, restartPausedJobs);
+            const t = timeoutMap.get(deviceId)?.time;
+            const newTime = t - Date.now();
+
+            res.status(200).json({ msg: "Confirmed", timer: newTime, timerId: deviceId });
+        }
+
+    } catch (error) {
+        console.error(error);
+    }
+});
+
+app.post("/getbonustimesmap", async (req, res) => {
+    try {
+        const { deviceId } = req.body;
+        const t = timeoutMap.get(deviceId)?.time;
+        if (t) {
+            const newTime = t - Date.now();
+            res.status(200).json({ timer: newTime  });
+        } else {
+            res.status(204).json({ msg: "No timer information for this device." })
+        }
+    } catch (error) {
+        console.error(error);
+    }
+});
+
+
+app.post("/deletebonustoggles", async (req, res) => { // stop timer and shutoff device
+    const { deviceId, cancelTimer } = req.body; // deviceId is the timerId
+    try {
+        if (cancelTimer) { // cancelling timer/ending timeout from /addbonustoggles
+            endTimeout(deviceId);
+        }
+        const getCronBonusTogglesToDelete = await prisma.cronBonusToggles.findMany({ where: { deviceId: deviceId }});
+        const getEasyBonusTogglesToDelete = await prisma.easyBonusToggles.findMany({ where: { deviceId: deviceId }});
+        // const getOriginalCrons = await prisma.cron.findMany({ where: { deviceId: deviceId }});
+        // console.log('getCronBonusTogglesToDelete\t', getCronBonusTogglesToDelete);
+        const getMacAddressForDevice = await prisma.device.findUnique({ where: { id: deviceId }});
+
+        let jb;
+        for (const bonusToggle of getCronBonusTogglesToDelete) {
+            await prisma.cronBonusToggles.delete({ where: { id: bonusToggle.id }});
+
+            const reInitiatedJob = schedule.scheduleJob(bonusToggle.crontime, () => jobFunction(bonusToggle.crontype, bonusToggle.macAddress, false, unifi, prisma));
+            // const jobFunction = async (crontype, macAddress, oneTime, unifi, prisma) => {
+            jb = reInitiatedJob.name;
+            console.log('jb.name: ', jb);
+            logger.log('jb.name: ', jb);
+
+            const updateCronToggle = await prisma.cron.update({
+                where: { id: bonusToggle.cronRuleIDToggledOff },
+                data: {
+                    toggleCron: true,
+                    jobName: jb
+                }
+            });
+        }
+        /////////////////////////////////////////////////////
+        for (const bonusToggle of getEasyBonusTogglesToDelete) {
+            const { date, hour, minute, ampm, oneTime, macAddress, blockAllow, days } = bonusToggle;
+
+            const modifiedHour = convertToMilitaryTime(ampm, parseInt(hour));
+            if (!oneTime) {
+                ////////////////////////////////////////
+                const modifiedDaysOfTheWeek = days && days.split("").map((day) => parseInt(day));
+                const rule = new schedule.RecurrenceRule();
+                rule.dayOfWeek = [...modifiedDaysOfTheWeek];
+                rule.hour = modifiedHour;
+                rule.minute = parseInt(minute);
+                const reInitiatedJob = schedule.scheduleJob(rule, () => jobFunction(blockAllow, macAddress, oneTime, unifi, prisma));
+                jb = reInitiatedJob.name;
+
+                console.log('jb.name: ', jb);
+                logger.log('Job re-initiated: ', reInitiatedJob);
+
+                await prisma.easySchedule.update({ // put original ez schedule back as was
+                    where: { id: bonusToggle.easyRuleIDToggledOff },
+                    data: {
+                        toggleSched: true,
+                        jobName: jb
+                    }
+                });
+                await prisma.easyBonusToggles.delete({ where: { id: bonusToggle.id }}); // delete easyToggle
+                /////////////////////////////////////////
+            } else { // oneTime schedule
+                const { year, month, day } = dateFromDateString(date);
+                const dateTime = new Date(year, month-1, day, modifiedHour, parseInt(minute), 0);
+                const reInitiatedJob = schedule.scheduleJob(dateTime, () => jobFunction(blockAllow, macAddress, oneTime, unifi, prisma));
+                jb = reInitiatedJob.name;
+                console.log('jb.name: ', jb);
+                logger.log('Job re-initiated: ', reInitiatedJob);
+
+                await prisma.easySchedule.update({ // put original ez schedule back as was
+                    where: { id: bonusToggle.easyRuleIDToggledOff },
+                    data: {
+                        toggleSched: true,
+                        jobName: jb
+                    }
+                });
+                await prisma.easyBonusToggles.delete({ where: { id: bonusToggle.id }});
+            }
+        }
+        // await unifi.blockClient(getMacAddressForDevice.macAddress);
+        // console.log("blockDevice\t", blockDevice);
+        const confirmBlocked = await unifi?.blockClient(getMacAddressForDevice.macAddress);
+        console.log(`${getMacAddressForDevice.macAddress} has been blocked: ${confirmBlocked}`);
+        await prisma.device.update({
+            where: { id: deviceId },
+            data: {
+                active: false,
+                bonusTimeActive: false
+            }
+        });
+
+    res.sendStatus(200);
+    } catch (error) {
+        console.error(error);
+    }
+});
+
 // ~~~~force error test~~~~
 app.post('/submitapptest', async (req, res) => {
     const { appDeviceObjectCopy } = req.body;
@@ -1777,11 +2041,6 @@ app.post('/submitapptest', async (req, res) => {
     } catch (error) {
         console.error('error.response.data \t', error.response.data);
         res.status(500).json({ success: false, error: error?.response?.data });
-        // res.status(error.response.status).json({ error: error.response.data });
-
-        // res.sendStatus(501);
-        // res.status(400).json({ error: error.message });
-        // res.json({ error: error.response.data });
     }
 });
 
