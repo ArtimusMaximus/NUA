@@ -8,7 +8,7 @@ This software only works with [UniFi Cloud Gateways](https://ui.com/us/en/cloud-
 * ✨ **Intuitive Web Interface**: Enjoy a simple and easy-to-use web interface that streamlines the device management process.
 * 🔒 **Device Blocking**: Take control of your network by blocking specific devices, ensuring a distraction-free environment or enforcing necessary restrictions.
 * 🔒 **App Blocking**: Block specific apps and websites.
-* ⌚ **Cron Scheduler**: Leverage the built-in cron scheduler to automate device management tasks. Schedule device blocking for specific time slots, creating a structured environment.
+* ⌚ **Easy Schedules**: Leverage the built-in scheduler to automate device management tasks. Schedule device blocking for specific time slots, creating a structured environment.
 * 👨‍👩‍👧‍👦 **Parental Controls**: Use NUA as a robust parental control tool. Set device time limits or enforce restrictions until chores are completed, promoting a healthy balance of technology usage.
 
 ## Screenshot
@@ -24,121 +24,11 @@ This software only works with [UniFi Cloud Gateways](https://ui.com/us/en/cloud-
 
 
 ## Install & Configure
-### Install Node using Node Version Manager
-1. Run the following command to download and install Node Version Manager (NVM):
-```bash
-curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.3/install.sh | bash
-```
-This installs the NVM script to your user account.
+### Preferred: Run Docker Image
+See docker repo [here](https://hub.docker.com/r/artimusmaximus/nua/tags)
 
-2. Source your `.bashrc` file to activate NVM:
-
-```bash
-source ~/.bashrc
-```
-
-3. Check available Node versions:
-
-```bash
-nvm list-remote
-```
-
-4. Choose Node v18+ and install it:
-
-```bash
-nvm install v18.18.1
-```
-
-5. Verify the installed Node version:
-```bash
-node -v
-```
-or
-```bash
-nvm list
-```
-
-### Install prerequisite Linux packages
-1. Install Git:
-```bash
-sudo apt -y install git
-```
-
-2. Clone the repository:
-
-```bash
-git clone git@github.com:ArtimusMaximus/nodeunifireact.git
-```
-
-### Install Node frontend prerequisites
-1. Navigate to the project directory
-
-```bash
-cd NUA
-```
-
-2. Install frontend Node prerequisites:
-```bash
-npm install
-```
-
-### Install Node server prerequisites
-1. Navigate to the server directory:
-```bash
-cd server
-```
-
-2. Install server Node prerequisites:
-```bash
-npm install
-```
-
-### Initiate Prisma DB
-1. Run the following command from inside `server` directory:
-```bash
-npm run db
-```
-
-### Build NUA frontend
-1. Navigate back to the main project directory:
-```bash
-cd ../
-```
-2. Build the NUA frontend:
-```bash
-npm run build
-```
-
-### Optional - Set the port number
-If you want to change the default port (4323):
-1. Open `<repo>/server/globalSettings.js`:
-
-
-Now change the `4323` string to your desired port number:
-
-```js
-const customPORT = 5000;
-
-
-module.exports = customPORT;
-```
-
-## Start NUA Software
-To start NUA, follow these steps:
-
-1. Navigate to the `nodeunifireact/server` directory:
-```bash
-cd server
-```
-
-2. Run the following command to start NUA:
-```bash
-npm run start
-```
-This will initiate the NUA software. Make sure to check the console for any logs or messages to ensure that NUA has started successfully.
-
-## How do I run this in the background/autostart?
-[Check out this pm2 documentation](https://pm2.keymetrics.io/docs/usage/quick-start/)
+### Alternative: Run using Node
+[Check the NUA installation Wiki](https://github.com/ArtimusMaximus/NUA/wiki/Install-and-Start-Using-Node)
 
 ## Wiki
 [Check the Wiki](https://github.com/ArtimusMaximus/NUA/wiki)
