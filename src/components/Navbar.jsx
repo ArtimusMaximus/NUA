@@ -83,7 +83,7 @@ export default function Navbar({ themeValue, callBackChanged })
                   <Link to="/seeallapps"><li className="font-bold text-lg"><a>See All Apps</a></li></Link>
                 </ul>
                 <div className={`${open ? "absolute left-5 bottom-5" : "hidden"}`}>
-                  <div className="badge badge-outline">Version&nbsp;<span className="text-primary">2.1.7</span></div>
+                  <div className="badge badge-outline">Version&nbsp;<span className="text-primary">2.2.0</span></div>
                 </div>
               </div>
             </div>
