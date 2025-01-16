@@ -34,3 +34,4 @@ server/globalSettings.js
 
 server/config/*
 *.db
+todos.txt
