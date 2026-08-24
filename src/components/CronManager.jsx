@@ -1,89 +1,112 @@
 import { useEffect, useRef, useState } from "react";
-import { useParams } from "react-router-dom";
-
 import { GoInfo, GoTrash } from "react-icons/go";
 
-// todo: toggle on off does not reflect the actual current status on page change....and upon returning to page & toggling, scheduled jobs are not reflected properly //05/29/2024 - look into this
-
-export default function CronManager({ triggerRender })
-{
-    const params = useParams();
+export default function CronManager({ triggerRender, deviceId, deviceName }) {
     const [cron, setCron] = useState({
         crontype: 'allow',
-        id: parseInt(params.id),
+        id: deviceId ? parseInt(deviceId) : null,
         toggleCron: true,
-        jobName: ''
+        jobName: '',
+        croninput: ''
     });
 
-    
-   
     const inputRef = useRef();
-    
     const [invalidCronMessage, setInvalidCronMessage] = useState({});
     
+    // Update state when deviceId prop changes
+    useEffect(() => {
+        if (deviceId) {
+            setCron(prev => ({
+                ...prev,
+                id: parseInt(deviceId)
+            }));
+        }
+    }, [deviceId]);
+
     const handleAllow = e => {
         setCron({
             ...cron,
             crontype: e.target.value
         })
     }
+
     const handleBlock = e => {
         setCron({
             ...cron,
             crontype: e.target.value
         });
     }
+
     const handleCronData = e => {
         setCron({
             ...cron,
-            id: parseInt(params.id),
+            id: cron.id,
             [e.target.name]: e.target.value
         })
-        // console.log(cron);
     }
 
     const handleSubmit = async () => {
+        if (!cron.id) {
+            setInvalidCronMessage({ error: true, message: "Device ID is missing!" });
+            return;
+        }
+
+        if (!cron.croninput || cron.croninput.trim() === '') {
+            setInvalidCronMessage({ error: true, message: "Please enter a valid cron expression!" });
+            return;
+        }
+
         try {
             const submitData = await fetch('/addschedule', {
                 method: "POST",
                 mode: "cors",
                 headers: {
-                    "Content-Type" : "application/json"
+                    "Content-Type": "application/json"
                 },
-                body: JSON.stringify(cron)
+                body: JSON.stringify({ ...cron, cron: cron.croninput })
             });
+            
             if (submitData.ok) {
                 setInvalidCronMessage({ error: false });
                 const results = await submitData.json();
                 console.log(results);
-                inputRef.current.value = '';
+                if (inputRef.current) inputRef.current.value = '';
+                setCron(prev => ({ ...prev, croninput: '' }));
                 triggerRender();
             } else if (submitData.status === 422) {
                 const badResults = await submitData.json();
-                console.log('subdata message ', badResults.message)
+                console.log('subdata message ', badResults.message);
                 setInvalidCronMessage({
                     message: badResults.message,
+                    error: true,
+                });
+            } else {
+                setInvalidCronMessage({
+                    message: "Failed to create schedule. Please try again.",
                     error: true,
                 });
             }
         } catch (e) {
             if (e) throw e;
-            console.log('e: ', e)
+            console.log('e: ', e);
+            setInvalidCronMessage({
+                message: "Error submitting schedule. Please check your connection.",
+                error: true,
+            });
         }
     }
     
     return (
         <>
             <div className="flex mt-8">
-                {/* <h1 className="text-3xl text-center my-2">Adjust Cron for device &quot;{deviceInfo?.name}&quot;</h1> */}
-                <a href="https://cron.help" target="_blank" rel="noreferrer" className="link hover:text-info" >
+                <a href="https://cron.help" target="_blank" rel="noreferrer" className="link hover:text-info">
                     <GoInfo />
                 </a>
             </div>
+            
             <div className="flex items-center justify-center flex-col">
                 <div className="flex flex-col">
                     <div className="flex justify-center items-center gap-4">
-                        {/* <label htmlFor="croninput">Cron:</label> */}
                         <div className="flex flex-row my-2">
                             <input
                                 className={`input input-bordered italic ${invalidCronMessage.error ? 'border-error' : ''}`}
@@ -94,33 +117,51 @@ export default function CronManager({ triggerRender })
                             />
                         </div>
                     </div>
-                    <div className="flex items-center justify-center">
-                        <div className="join m-4">
-                            <input
-                                onClick={handleAllow}
-                                className={`btn join-item`}
-                                value="allow"
-                                type="radio"
-                                aria-label="Allow"
-                                name="options"
+                    
+                    <div className="flex items-center justify-center gap-4 my-2">
+                        <label className="label cursor-pointer">
+                            <span className="label-text">Allow</span>
+                            <input 
+                                type="radio" 
+                                name="crontype" 
+                                value="allow" 
+                                checked={cron.crontype === 'allow'} 
+                                onChange={handleAllow} 
+                                className="radio radio-success radio-sm"
                             />
-                            <input
-                                onClick={handleBlock}
-                                className={`btn join-item`}
-                                value="block"
-                                type="radio"
-                                aria-label="Block"
-                                name="options"
+                        </label>
+                        <label className="label cursor-pointer">
+                            <span className="label-text">Block</span>
+                            <input 
+                                type="radio" 
+                                name="crontype" 
+                                value="block" 
+                                checked={cron.crontype === 'block'} 
+                                onChange={handleBlock} 
+                                className="radio radio-error radio-sm"
                             />
-                        </div>
+                        </label>
                     </div>
-                    <div className="btn mb-8" onClick={handleSubmit}>Submit</div>
-                    <div role="alert" className={`alert alert-error w-[312px] sm:w-[360px] bottom-[200px] mx-auto ${invalidCronMessage.error ? 'absolute' : 'hidden'}`}>
-                        <svg xmlns="http://www.w3.org/2000/svg" className="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                        <span>{invalidCronMessage.message}</span>
+
+                    <div className="flex justify-center mt-2">
+                        <button 
+                            className="btn btn-primary btn-sm w-full max-w-xs" 
+                            onClick={handleSubmit}
+                        >
+                            Submit Schedule
+                        </button>
                     </div>
                 </div>
             </div>
+
+            {invalidCronMessage.error && (
+                <div role="alert" className="alert alert-error mt-4">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <span>{invalidCronMessage.message}</span>
+                </div>
+            )}
         </>
-    )
+    );
 }

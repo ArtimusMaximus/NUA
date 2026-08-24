@@ -1,14 +1,27 @@
 import { useEffect, useRef, useState } from "react";
-import { Link } from "react-router-dom";
 import { categoryDeviceObject, appDeviceObject } from "../see_all_apps/app_objects";
 import { allAppsList } from "../../traffic_rule_apps/unifi_match_list";
 import { importToDbConverter } from "../utility_functions/app_cat_utils";
 import { useGetAllDevices } from "../custom_hooks/useGetAllDevices";
+import GenericPageSkeleton from "../skeletons/GenericPageSkeleton";
+import CreateRuleModal from "./CreateRuleModal";
+import RuleBonusTimeButton from "../utility_components/RuleBonusTimeButton";
+import RuleScheduleButton from "../utility_components/RuleScheduleButton";
+import {
+    HiShieldCheck,
+    HiPlus,
+    HiArrowDownTray,
+    HiTrash,
+    HiChevronDown,
+    HiChevronUp,
+    HiCpuChip,
+    HiDevicePhoneMobile,
+} from "react-icons/hi2";
 
 
 
 
-export default function TrafficRules()
+export default function TrafficRules({ embedded = false })
 {
     const { existingDeviceList, allClientDeviceList } = useGetAllDevices();
     const [customAPIRules, setCustomAPIRules] = useState([]);
@@ -22,7 +35,9 @@ export default function TrafficRules()
     const [importOption, setImportOption] = useState(false);
     const [loadingImportSubmission, setLoadingImportSubmission] = useState(false);
     const [loadingUnmanageApp, setLoadingUnmanageApp] = useState(false);
+    const [pageLoading, setPageLoading] = useState(true);
     const importDialogRef = useRef();
+    const createRuleDialogRef = useRef();
 
     function checkForImportRules(dbData, unifiData) {
         const filterOutInternetMatchingTarget = unifiData.filter((rule) => rule.matching_target !== "INTERNET");
@@ -74,8 +89,8 @@ export default function TrafficRules()
             console.log('importRuleSelection \t', importRuleSelection);
     }
     const handleUnmanageApp = e => {
-        console.log(e.target.dataset.trafficruleid);
-        const dbId = e.target.dataset.trafficruleid;
+        console.log(e.currentTarget.dataset.trafficruleid);
+        const dbId = e.currentTarget.dataset.trafficruleid;
         const unmanageApp = async () => {
             try {
                 const submitUnmanageApp = await fetch('/unmanageapp', {
@@ -120,14 +135,14 @@ export default function TrafficRules()
         setRender(prev => !prev);
     }
     const handleToggle = async e => {
-        const checked = e.target.checked;
+        const checked = e.currentTarget.checked;
         // console.log('checked \t', checked);
-        const _id = e.target.dataset.unifiruleid;
+        const _id = e.currentTarget.dataset.unifiruleid;
         const findUnifiObj = unifiRuleObject.filter(rule => rule._id === _id).pop();
         const unifiObjCopy = JSON.parse(JSON.stringify(findUnifiObj));
         unifiObjCopy.enabled = checked;
 
-        const trafficRuleId = e.target.dataset.dbtrafficruleid;
+        const trafficRuleId = e.currentTarget.dataset.dbtrafficruleid;
         try {
             const toggleEnabled = await fetch('/updatetrafficruletoggle', {
                 method: 'PUT',
@@ -145,8 +160,8 @@ export default function TrafficRules()
         }
     }
     const handleDeleteTrafficRule = async e => {
-        const _id = e.target.dataset.trafficid;
-        const trafficRuleId = e.target.dataset.trafficruleid;
+        const _id = e.currentTarget.dataset.trafficid;
+        const trafficRuleId = e.currentTarget.dataset.trafficruleid;
         try {
             const deleteTrafficRule = await fetch('/deletecustomapi', {
                 method: 'DELETE',
@@ -257,6 +272,8 @@ export default function TrafficRules()
                 }
             } catch (error) {
                 console.error(error);
+            } finally {
+                setPageLoading(false);
             }
         }
         fetchCustomAPIRules();
@@ -281,147 +298,274 @@ export default function TrafficRules()
     // }, []);
 
 
+    const containerClass = embedded
+        ? 'flex flex-col w-full px-4 sm:px-6 lg:px-8 py-6 gap-6'
+        : 'flex flex-col w-full sm:w-3/4 lg:w-1/2 mx-auto px-4 pb-12 pt-4 gap-6';
+
     return (
         <>
-            <div className="flex items-center justify-center flex-col w-full h-full sm:w-3/4 lg:w-1/2 mx-auto pb-12">
-                {/* <div className="btn" onClick={handleDeleteTestIds}>Delete Test Ids</div> */}
-                <div className="flex w-full mx-2 px">
-                    <div className="flex flex-col items-center justify-center w-full h-full mx-auto border rounded-lg shadow overflow-hidden border-neutral shadow-base-300 m-8">
-                        <div className="flex w-full mt-2 justify-between">
-                            <div className="px-4 text-xl font-bold">Toggle</div>
-                            <div className="px-12 text-xl font-bold">Description</div>
+            {pageLoading && <GenericPageSkeleton rows={4} />}
+            {!pageLoading && (
+                <div className={containerClass}>
+
+                    {/* Page header */}
+                    <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                            <HiShieldCheck className="w-6 h-6 text-primary" />
+                            <h1 className="text-2xl font-bold text-base-content">Traffic Rules</h1>
+                            {customAPIRules.length > 0 && (
+                                <span className="badge badge-primary badge-sm ml-1">{customAPIRules.length}</span>
+                            )}
                         </div>
-                        <div className="divider mt-2 mb-2"></div>
-                        <ul className="flex flex-col w-full justify-around gap-2 mb-2">
-                            {
-                                customAPIRules.length ?
-                                customAPIRules?.map((data) => {
-                                    return (
-                                        <>
-                                            <li key={data?.trafficRule.unifiId} className="m-1" >
-                                            <div className="collapse bg-base-200">
-                                                <input type="checkbox" />
-                                                    <div className="collapse-title text-xl font-medium">
-                                                        <div className="w-full flex flex-row items-center justify-between hover:cursor-pointer z-40">
-                                                            <input
-                                                                type="checkbox"
-                                                                checked={data?.trafficRule.enabled}
-                                                                className="toggle toggle-success z-30"
-                                                                onClick={handleToggle}
-                                                                data-unifiruleid={data.trafficRule.unifiId}
-                                                                data-dbtrafficruleid={data.trafficRule.id}
-                                                            />
-                                                            {data?.trafficRule.description}
-                                                        </div>
-                                                    </div>
-                                                    <div className="collapse-content">
-                                                            <div className="flex gap-4 flex-wrap items-center my-2">
-                                                            <h1 className="font-bold italic">Managing Apps:</h1>
-                                                                {data?.matchingAppIds.map((appId) => {
-                                                                    return (
-                                                                        <>
-                                                                            <span className="badge badge-primary">{appId?.app_name}</span>
-                                                                        </>
-                                                                    )
-                                                                })}
-                                                                {/* <p><span className="font-thin italic">Apps:</span> {data?.name}</p> */}
-                                                                {/* <p><span className="font-thin italic">Devices:</span> {data?.macAddress}</p> */}
-                                                            </div>
-                                                            <div className="flex gap-4 flex-wrap items-center my-2">
-                                                                <h1 className="font-bold italic">Devices: </h1>
-                                                                {data.matchingTargetDevices.map((device) => {
-                                                                    return (
-                                                                        <>
-                                                                            <span className="badge badge-accent">{device.client_mac}</span>
-                                                                        </>
-                                                                    )
-                                                                })}
-                                                            </div>
-                                                        <div>
-                                                            {/* <Link to={`/`} className="w-fit hover:cursor-pointer"> */}
-                                                                <div className="btn btn-block btn-disabled bg-base-300 hover:bg-base-content hover:text-base-100 my-2 disabled">Schedule</div>
-                                                            {/* </Link> */}
-                                                        </div>
-                                                        <div className="flex flex-row gap-2">
-                                                            <div
-                                                                className="btn btn-error w-1/2" aria-disabled
-                                                                onClick={handleDeleteTrafficRule}
-                                                                data-trafficid={data?.trafficRule.unifiId}
-                                                                data-trafficruleid={data?.trafficRule.id}
-                                                            >Delete
-                                                            </div>
-                                                            <div
-                                                                className={`${loadingUnmanageApp ? 'btn btn-disabled' : 'btn btn-info'} w-1/2`} aria-disabled
-                                                                onClick={handleUnmanageApp}
-                                                                // data-trafficid={data?.trafficRule.unifiId}
-                                                                data-trafficruleid={data?.trafficRule.id}
-                                                            >{loadingUnmanageApp ? <span className="spinner loading-spinner"></span> : 'Unmanage App'}
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </li>
-                                        </>
-                                    )
-                                }) : <span className="ml-2 mb-2">No data available. Please create or import rules to proceed.</span>
-                            }
+                        <div className="flex items-center gap-2">
+                            {importOption ? (
+                                <button
+                                    className="btn btn-sm btn-ghost gap-1"
+                                    onClick={handleImportModalOpen}
+                                >
+                                    <HiArrowDownTray className="w-4 h-4" />
+                                    Import
+                                </button>
+                            ) : (
+                                <button className="btn btn-sm btn-ghost gap-1 btn-disabled" disabled>
+                                    <HiArrowDownTray className="w-4 h-4" />
+                                    Import
+                                </button>
+                            )}
+                                            <button
+                                className="btn btn-sm btn-primary gap-1"
+                                onClick={() => createRuleDialogRef.current.showModal()}
+                            >
+                                <HiPlus className="w-4 h-4" />
+                                New Rule
+                            </button>
+                        </div>
+                    </div>
+
+                    {/* Rule cards */}
+                    {customAPIRules.length ? (
+                        <ul className="grid gap-6 [grid-template-columns:repeat(auto-fill,minmax(300px,1fr))] m-0 p-0">
+                            {customAPIRules.map((data) => (
+                                <RuleCard
+                                    key={data?.trafficRule.unifiId}
+                                    data={data}
+                                    onToggle={handleToggle}
+                                    onDelete={handleDeleteTrafficRule}
+                                    onUnmanage={handleUnmanageApp}
+                                    onStateChange={reRender}
+                                    loadingUnmanageApp={loadingUnmanageApp}
+                                />
+                            ))}
                         </ul>
-                    </div>
-                </div>
-                <div className="flex flex-row gap-6 flex-wrap mx-auto">
-                    <Link to="/seeallapps"><div className="btn">Create New Rule</div></Link>
-                    {importOption ? <div className={`btn text-accent italic`} onClick={handleImportModalOpen}>Import UniFi Rules</div> : <div className={`btn text-accent italic btn-disabled`}>Import Existing Unifi Rules</div>}
-                </div>
-            </div>
-            <dialog ref={importDialogRef} className="modal">
-                <div className="modal-box">
-                    <h3 className="font-bold text-lg">Select UniFi Rules To Import</h3>
-                    <div className="flex flex-col gap-4 my-4">
-                            {importRuleChoices.map((data) => {
-                                return (
-                                    <>
-                                        <div className="card w-full bg-base-200 shadow-xl">
-                                        <div className="card-body p-6">
-                                            <h2 className="card-title">Description: {data.description}</h2>
-                                            <p>Matching Target: {data.matching_target}</p>
-                                            <div className="card-actions justify-end items-center flex">
-                                                <div className="label">Select</div>
-                                                <input
-                                                    type="checkbox"
-                                                    className="checkbox checkbox-accent"
-                                                    onClick={e => handleSelectedImport(e, data._id)}
-                                                    data-id={data._id}
-                                                    checked={checked[data?._id] || false}
-                                                />
-                                            </div>
-                                            {/* <div className="card-actions justify-end items-center flex">
-                                                <div className="label">Add to Device List</div>
-                                                <input
-                                                    type="checkbox"
-                                                    className="checkbox checkbox-accent"
-                                                    onClick={e => handleSelectedDeviceImport(e, data._id)}
-                                                    data-unifiid={data._id}
-                                                    checked={checked2[data?._id] || false}
-                                                />
-                                            </div> */}
-                                        </div>
-                                        </div>
-                                    </>
-                                )
-                            })}
-                    </div>
-                    <div className="flex justify-between">
-                        <div className="btn" onClick={handleImportModalClose}>Cancel</div>
-                        <div
-                            className={`btn
-                            ${importRuleSelection.length ? '' : 'btn-disabled'}
-                            ${loadingImportSubmission ? 'btn-disabled' : ''}`}
-                            onClick={handleImportOption}>
-                            {loadingImportSubmission ? <span className={'loading loading-spinner'}></span> : 'Import'}
+                    ) : (
+                        <div className="bg-white dark:bg-base-200 border border-base-300 rounded-xl shadow-sm p-10 flex flex-col items-center gap-3 text-base-content/50">
+                            <HiShieldCheck className="w-10 h-10" />
+                            <p className="text-sm">No rules yet. Create or import a rule to get started.</p>
                         </div>
+                    )}
+                </div>
+            )}
+
+            <CreateRuleModal dialogRef={createRuleDialogRef} onSuccess={reRender} />
+
+            {/* Import modal */}
+            <dialog ref={importDialogRef} className="modal">
+                <div className="modal-box max-w-lg">
+                    <div className="flex items-center gap-2 mb-5">
+                        <HiArrowDownTray className="w-5 h-5 text-accent" />
+                        <h3 className="font-bold text-lg">Import UniFi Rules</h3>
+                    </div>
+                    <div className="flex flex-col gap-3">
+                        {importRuleChoices.map((data) => (
+                            <label
+                                key={data._id}
+                                className="flex items-start gap-4 p-4 rounded-xl border border-base-300 bg-base-200 hover:border-accent cursor-pointer transition-colors"
+                            >
+                                <input
+                                    type="checkbox"
+                                    className="checkbox checkbox-accent mt-0.5 flex-shrink-0"
+                                    onClick={e => handleSelectedImport(e, data._id)}
+                                    data-id={data._id}
+                                    checked={checked[data?._id] || false}
+                                    onChange={() => {}}
+                                />
+                                <div className="flex flex-col gap-1 min-w-0">
+                                    <span className="font-semibold text-base-content truncate">{data.description}</span>
+                                    <span className="text-xs text-base-content/50">Target: {data.matching_target}</span>
+                                </div>
+                            </label>
+                        ))}
+                    </div>
+                    <div className="flex justify-between mt-6">
+                        <button className="btn btn-ghost" onClick={handleImportModalClose}>Cancel</button>
+                        <button
+                            className="btn btn-primary"
+                            onClick={handleImportOption}
+                            disabled={!importRuleSelection.length || loadingImportSubmission}
+                        >
+                            {loadingImportSubmission
+                                ? <span className="loading loading-spinner loading-sm"></span>
+                                : <><HiArrowDownTray className="w-4 h-4" /> Import {importRuleSelection.length > 0 && `(${importRuleSelection.length})`}</>
+                            }
+                        </button>
                     </div>
                 </div>
+                <form method="dialog" className="modal-backdrop">
+                    <button onClick={handleImportModalClose}>close</button>
+                </form>
             </dialog>
         </>
-    )
+    );
+}
+
+function RuleCard({ data, onToggle, onDelete, onUnmanage, onStateChange, loadingUnmanageApp }) {
+    const [expanded, setExpanded] = useState(false);
+    const enabled = data?.trafficRule.enabled;
+    const bonusTimeActive = data?.trafficRule.bonusTimeActive || false;
+
+    const getCardBorderClasses = (isEnabled) => {
+        return `border border-base-300 relative ${isEnabled ? 'border-success' : 'border-error'}`;
+    };
+
+    const getAccentBorderColor = (isEnabled) => {
+        if (isEnabled) return '#10B981'; // green-500
+        return '#EF4444'; // red-500
+    };
+
+    return (
+        <li className="list-none">
+            <div className={`bg-white dark:bg-base-200 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden group ${getCardBorderClasses(enabled)}`}>
+                {/* Stylized top accent border */}
+                <div
+                    className="absolute top-0 left-0 w-1/3 h-1 rounded-tl-xl"
+                    style={{ backgroundColor: getAccentBorderColor(enabled) }}
+                ></div>
+
+                {/* Card Header */}
+                <div className="p-6 pb-4">
+                    <div className="flex items-start justify-between gap-3">
+                        <div className="flex items-center gap-3 flex-1 min-w-0">
+                            <div className="flex-shrink-0 p-2 rounded-lg bg-base-200 text-base-content/70">
+                                <HiShieldCheck className="w-5 h-5" />
+                            </div>
+                            <div className="min-w-0 flex-1">
+                                <h3 className="text-lg font-semibold text-base-content truncate" title={data?.trafficRule.description}>
+                                    {data?.trafficRule.description}
+                                </h3>
+                                <p className="text-sm text-base-content/60">Traffic Rule</p>
+                                <div className="mt-1 min-h-6">
+                                    <div className="flex items-center gap-2 text-xs text-base-content/60">
+                                        <span className="badge badge-ghost badge-sm gap-1">
+                                            <HiCpuChip className="w-3.5 h-3.5" />
+                                            {data?.matchingAppIds?.length || 0}
+                                        </span>
+                                        <span className="badge badge-ghost badge-sm gap-1">
+                                            <HiDevicePhoneMobile className="w-3.5 h-3.5" />
+                                            {data?.matchingTargetDevices?.length || 0}
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Quick Actions Row */}
+                    <div className="flex items-center justify-between mt-4">
+                        <div className="flex items-center space-x-2">
+                            <input
+                                type="checkbox"
+                                checked={enabled}
+                                className={`toggle toggle-sm ${enabled ? 'toggle-success' : 'toggle-error'}`}
+                                onClick={onToggle}
+                                data-unifiruleid={data.trafficRule.unifiId}
+                                data-dbtrafficruleid={data.trafficRule.id}
+                                onChange={() => {}}
+                                title={enabled ? 'Disable this rule' : 'Enable this rule'}
+                            />
+                            <span className="text-sm text-base-content/70" title={enabled ? 'This rule is currently enabled' : 'This rule is currently disabled'}>
+                                {enabled ? 'Enabled' : 'Disabled'}
+                            </span>
+                            <RuleBonusTimeButton
+                                trafficRuleId={data?.trafficRule.id}
+                                bonusTimeActive={bonusTimeActive}
+                                onStateChange={onStateChange}
+                            />
+                            <RuleScheduleButton
+                                trafficRuleId={data?.trafficRule.id}
+                                scheduleData={data?.trafficRule}
+                                onStateChange={onStateChange}
+                            />
+                        </div>
+
+                        <div className="flex items-center space-x-2">
+                            <button
+                                className="btn btn-ghost btn-xs"
+                                onClick={() => setExpanded(prev => !prev)}
+                                aria-label="Expand rule details"
+                            >
+                                {expanded ? 'Less' : 'More'}
+                            </button>
+                            <button
+                                className="btn btn-ghost btn-xs text-base-content/50 hover:text-error"
+                                onClick={onDelete}
+                                data-trafficid={data?.trafficRule.unifiId}
+                                data-trafficruleid={data?.trafficRule.id}
+                                title="Delete Rule"
+                            >
+                                <HiTrash className="w-4 h-4" />
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Expanded detail section */}
+                {expanded && (
+                    <div className="px-6 pb-6 pt-2 border-t border-base-300 bg-base-200/50 flex flex-col gap-4">
+                        {data?.matchingAppIds?.length > 0 && (
+                            <div>
+                                <p className="text-xs font-semibold text-base-content/50 uppercase tracking-wider mb-2">Apps</p>
+                                <div className="flex flex-wrap gap-1.5">
+                                    {data.matchingAppIds.map((appId) => (
+                                        <span key={appId?.app_name} className="badge badge-primary badge-sm">{appId?.app_name}</span>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+                        {data?.matchingTargetDevices?.length > 0 && (
+                            <div>
+                                <p className="text-xs font-semibold text-base-content/50 uppercase tracking-wider mb-2">Devices</p>
+                                <div className="flex flex-wrap gap-1.5">
+                                    {data.matchingTargetDevices.map((device) => (
+                                        <span key={device.client_mac} className="badge badge-accent badge-sm">{device.client_mac}</span>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+                        <div className="flex gap-2 pt-1">
+                            <button
+                                className={`btn btn-sm flex-1 gap-1 ${loadingUnmanageApp ? 'btn-disabled' : 'btn-outline'}`}
+                                onClick={onUnmanage}
+                                data-trafficruleid={data?.trafficRule.id}
+                                disabled={loadingUnmanageApp}
+                            >
+                                {loadingUnmanageApp
+                                    ? <span className="loading loading-spinner loading-xs"></span>
+                                    : 'Unmanage'
+                                }
+                            </button>
+                            <button
+                                className="btn btn-error btn-outline btn-sm gap-1 flex-1"
+                                onClick={onDelete}
+                                data-trafficid={data?.trafficRule.unifiId}
+                                data-trafficruleid={data?.trafficRule.id}
+                            >
+                                <HiTrash className="w-4 h-4" />
+                                Delete
+                            </button>
+                        </div>
+                    </div>
+                )}
+            </div>
+        </li>
+    );
 }

@@ -4,10 +4,11 @@ import { EZScheduleTable } from "./SchedulerComponents/EZScheduleTable";
 import { CronScheduleTable } from "./SchedulerComponents/CronScheduleTable";
 
 
-export default function ScheduleData({ changed })
+export default function ScheduleData({ changed, deviceId: providedDeviceId = null })
 {
     const [returnData, setReturnData] = useState(null);
-    const [checked, setChecked] = useState(true);
+    const [isLoading, setIsLoading] = useState(false);
+    const [errorMessage, setErrorMessage] = useState("");
     const submitButtonRef = useRef();
     const [toggledOrDeletedSchedule, setToggledOrDeletedSchedule] = useState(false);
     const params = useParams();
@@ -21,10 +22,10 @@ export default function ScheduleData({ changed })
     //     toggleCron: true,
     //     jobName: ''
     // });
-    const deviceId = { id: parseInt(params.id) };
+    const resolvedDeviceId = providedDeviceId ? parseInt(providedDeviceId) : parseInt(params.id);
+    const devicePayload = { id: resolvedDeviceId };
 
     const handleCronToggle = e => { // /togglecron
-        setChecked(prev => !prev);
         console.log(e.target.checked);
 
         const id = parseInt(e.target.dataset.crontimeid);
@@ -47,16 +48,17 @@ export default function ScheduleData({ changed })
                     const result = await toggleCronOnOff.json();
                     console.log('result', result);
                     triggerRender2(); // refetch get cron data
+                } else {
+                    setErrorMessage('Failed to toggle cron schedule.');
                 }
             } catch (error) {
-                if (error) throw error;
+                console.error('Error toggling cron schedule:', error);
+                setErrorMessage('Error toggling cron schedule.');
             }
         }
         toggleCronUpdate();
     }
     const handleEZToggle = e => { // /toggleEZ
-        setChecked(prev => !prev);
-
         const id = parseInt(e.target.dataset.id);
         const deviceId = parseInt(e.target.dataset.deviceid);
         const jobName = e.target.dataset.jobname;
@@ -85,16 +87,28 @@ export default function ScheduleData({ changed })
                     const result = await toggleCronOnOff.json();
                     console.log('result', result);
                     triggerRender2(); // refetch get cron data
+                } else {
+                    setErrorMessage('Failed to toggle easy schedule.');
                 }
             } catch (error) {
-                if (error) throw error;
+                console.error('Error toggling easy schedule:', error);
+                setErrorMessage('Error toggling easy schedule.');
             }
         }
         toggleEZUpdate();
     }
 
     useEffect(() => { // fetch existing cron data && EZ schedule data 06 24 2024
+        if (!Number.isInteger(resolvedDeviceId)) {
+            setReturnData({ cronData: [], ezScheduleData: [] });
+            setIsLoading(false);
+            setErrorMessage('');
+            return;
+        }
+
         const getScheduleData = async () => {
+        setIsLoading(true);
+        setErrorMessage("");
         try {
                 const scheduleData = await fetch('/getscheduledata', {
                     method: "POST",
@@ -102,7 +116,7 @@ export default function ScheduleData({ changed })
                     headers: {
                         "Content-Type" : "application/json"
                     },
-                    body: JSON.stringify(deviceId)
+                    body: JSON.stringify(devicePayload)
                 });
                 if (scheduleData.ok) {
                     const returnedData = await scheduleData.json();
@@ -111,14 +125,21 @@ export default function ScheduleData({ changed })
                     // setReturnData({});
                     setReturnData(returnedData);
                     console.log('returned data: ', returnedData);
+                } else {
+                    setReturnData({ cronData: [], ezScheduleData: [] });
+                    setErrorMessage('Failed to fetch schedules.');
                 }
             } catch (error) {
                 console.error('Error on initial fetch...');
-                if (error) throw error;
+                console.error(error);
+                setReturnData({ cronData: [], ezScheduleData: [] });
+                setErrorMessage('Error loading schedules.');
+            } finally {
+                setIsLoading(false);
             }
         }
         getScheduleData();
-    }, [changed, toggledOrDeletedSchedule])
+    }, [changed, toggledOrDeletedSchedule, resolvedDeviceId])
 
     const handleDeleteCron = async e => {
         // submitButtonRef.current.disabled = true
@@ -141,10 +162,13 @@ export default function ScheduleData({ changed })
                 const deleteReply = await deleteCron.json();
                 console.log("Deleted Data: ", deleteReply);
                 triggerRender2();
+            } else {
+                setErrorMessage('Failed to delete cron schedule.');
             }
         } catch (error) {
             // submitButtonRef.current.disabled = false
-            if (error) throw error;
+            console.error('Error deleting cron schedule:', error);
+            setErrorMessage('Error deleting cron schedule.');
         }
     }
     const handleDeleteEZSched = async e => {
@@ -167,18 +191,31 @@ export default function ScheduleData({ changed })
                 const deleteReply = await deleteEZSchedule.json();
                 console.log("Deleted Data: ", deleteReply);
                 triggerRender2();
+            } else {
+                setErrorMessage('Failed to delete easy schedule.');
             }
         } catch (error) {
             // submitButtonRef.current.disabled = false
-            if (error) throw error;
+            console.error('Error deleting easy schedule:', error);
+            setErrorMessage('Error deleting easy schedule.');
         }
     }
 
 
     return (
         <>
+            {isLoading && (
+                <div className="flex justify-center py-4">
+                    <span className="loading loading-spinner loading-md"></span>
+                </div>
+            )}
+            {errorMessage && (
+                <div role="alert" className="alert alert-error mb-4">
+                    <span>{errorMessage}</span>
+                </div>
+            )}
             {
-                returnData?.ezScheduleData?.length
+                !isLoading && returnData?.ezScheduleData?.length
                 ?
                 <EZScheduleTable
                     returnData={returnData}
@@ -190,7 +227,7 @@ export default function ScheduleData({ changed })
                 <></>
             }
             {
-                returnData?.cronData?.length
+                !isLoading && returnData?.cronData?.length
                 ?
                 <CronScheduleTable
                     returnData={returnData}
@@ -201,7 +238,7 @@ export default function ScheduleData({ changed })
                 :
                 <></>
             }
-            {!returnData?.ezScheduleData.length && !returnData?.cronData.length && <div className="mx-auto text-center pb-4">There is no data to display...</div>}
+            {!isLoading && !errorMessage && !returnData?.ezScheduleData.length && !returnData?.cronData.length && <div className="mx-auto text-center pb-4">There is no data to display...</div>}
         </>
     );
 }

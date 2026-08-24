@@ -1,0 +1,8 @@
+-- This migration was created automatically by the running server on 2025-11-13.
+-- It exists in the production database (nodeunifi.db) but was not checked into
+-- the repository's local migrations folder, causing Prisma migration history
+-- drift on existing databases.
+--
+-- This empty folder makes Prisma recognize the migration as applied locally so
+-- that `prisma migrate deploy` can reconcile history and apply any genuinely
+-- pending migrations (e.g. bonus time / devicegroup columns).

@@ -1,80 +1,116 @@
-import { useEffect, useRef, useState } from "react";
-import { IoCheckmarkSharp } from "react-icons/io5";
-
+import { useState } from "react";
+import { HiCheck, HiWifi } from "react-icons/hi2";
+import { HiOutlineDesktopComputer } from "react-icons/hi";
 
 export default function AllDevicesCard({ props, length, handleAddToDevices })
 {
     const [nameInput, setNameInput] = useState("");
     const [submittedName, setSubmittedName] = useState("");
-    const [modalIdState, setModalIdState] = useState("");
+    const [added, setAdded] = useState(false);
 
     const handleAddOuiName = e => {
         setNameInput(e.target.value);
-    }
+    };
     const handleSaveName = e => {
         setSubmittedName(nameInput);
-        const modalId = document.getElementById(modalIdState);
-        const disableButton = document.querySelector(`[data-btnid="${e.target.dataset.savebtnid}"]`);
-        disableButton.classList.add('btn-disabled');
-        disableButton.innerHTML = "Saved for Device List!"
-        modalId.close();
-    }
-    const handleCloseDialog = e => {
-        const modalId = document.getElementById(modalIdState);
-        modalId.close();
-        // e.target.dataset.inputdata[e.target.id]
-        // setSubmittedName("");
-        // setNameInput("");
-    }
-    const handleOpenDialog = e => {
-        setModalIdState(e.target.dataset.btnid)
-        const modalId = document.getElementById(e.target.dataset.btnid);
-        modalId.showModal();
-    }
-    useEffect(() => {
-        // console.log('props \t', props);
-    }, []);
+        document.getElementById(props?._id)?.close();
+    };
+    const handleCloseDialog = () => {
+        document.getElementById(props?._id)?.close();
+    };
+    const handleAdd = () => {
+        handleAddToDevices(props, submittedName);
+        setAdded(true);
+    };
+
+    const wired = props?.is_wired === true;
+    const online = props?.is_online;
+    const onList = props.onList || added;
+
     return (
         <>
-            <div className={`card min-w-[375px] max-w-[375px] min-h-[384px] bg-base-100 mx-4 shadow-xl hover:bg-base-300`}>
-                <div className="card-body">
-                    {props.name
-                    ? <p><span className="font-bold italic">name: </span>{props?.name ? props?.name : '"none"'}</p>
-                    : <></>
-                    }
-                    <p><span className="italic font-thin">hostname: </span>{props?.hostname ? props?.hostname : '"none"'}</p>
-                    <p><span className="italic font-thin">oui: </span>{props?.oui ? props?.oui : '"none"'}</p>
-                    <p><span className="italic font-thin">mac: </span>{props?.mac}</p>
-                    <p><span className="italic font-thin">last ip: </span>{props?.last_ip}</p>
-                    {/* <p><span className="italic font-thin">is guest: </span>{props?.is_guest === true ? 'true' : 'false'}</p> */}
-                    <p><span className="italic font-thin">is is_wired: </span>{props?.is_wired === true ? 'true' : 'false'}</p>
-                    <div className="card-actions justify-between pt-4">
-                        <button
-                            className={`btn ${props.onList ? 'btn-disabled' : ''}`}
-                            data-macaddress={props.mac}
-                            onClick={() => handleAddToDevices(props, submittedName)}>
-                                {props.onList ?
-                                (
-                                    <> On Device List <IoCheckmarkSharp /> </>
-                                ) : ('Add to Devices')
-                                }
-                        </button>
-                        <button
-                            data-btnid={props?._id}
-                            // className={`${props.oui ? 'hidden' : 'btn'} ${props?.onList ? 'hidden' : ''}`}
-                            className={`hidden`}
-                            onClick={e => handleOpenDialog(e)}>Add Name To Device List
-                        </button>
+            <div className="bg-white dark:bg-base-200 rounded-xl border border-base-300 shadow-sm hover:shadow-md transition-all duration-200 overflow-hidden">
+                {/* Card header */}
+                <div className="p-4 pb-3">
+                    <div className="flex items-start gap-3">
+                        <div className="flex-shrink-0 p-2 rounded-lg bg-base-200 text-base-content/60">
+                            {wired ? (
+                                <HiOutlineDesktopComputer className="w-5 h-5" />
+                            ) : (
+                                <HiWifi className="w-5 h-5" />
+                            )}
+                        </div>
+                        <div className="min-w-0 flex-1">
+                            <h4 className="font-semibold text-base-content truncate">
+                                {props?.name || props?.hostname || 'Unknown Device'}
+                            </h4>
+                            <p className="text-xs text-base-content/50 truncate mt-0.5 font-mono">
+                                {props?.mac}
+                            </p>
+                        </div>
+                        {online !== undefined && (
+                            <span className={`badge badge-sm flex-shrink-0 mt-1 ${online ? 'badge-success' : 'badge-ghost'}`}>
+                                {online ? 'Online' : 'Offline'}
+                            </span>
+                        )}
                     </div>
                 </div>
+
+                {/* Details */}
+                <div className="px-4 pb-3 space-y-1 text-sm">
+                    {props?.oui && (
+                        <p className="flex justify-between gap-2">
+                            <span className="text-base-content/50">Vendor</span>
+                            <span className="text-base-content/80 truncate text-right max-w-[60%]">{props.oui}</span>
+                        </p>
+                    )}
+                    {props?.hostname && props?.name && (
+                        <p className="flex justify-between gap-2">
+                            <span className="text-base-content/50">Hostname</span>
+                            <span className="text-base-content/80 truncate text-right max-w-[60%]">{props.hostname}</span>
+                        </p>
+                    )}
+                    {props?.note && (
+                        <p className="flex justify-between gap-2">
+                            <span className="text-base-content/50">Note</span>
+                            <span className="text-base-content/80 truncate text-right max-w-[60%]">{props.note}</span>
+                        </p>
+                    )}
+                    {props?.last_ip && (
+                        <p className="flex justify-between gap-2">
+                            <span className="text-base-content/50">Last IP</span>
+                            <span className="text-base-content/80 font-mono text-xs text-right">{props.last_ip}</span>
+                        </p>
+                    )}
+                </div>
+
+                {/* Action */}
+                <div className="px-4 pb-4 pt-1">
+                    {onList ? (
+                        <button className="btn btn-sm btn-ghost w-full gap-2 btn-disabled" disabled>
+                            <HiCheck className="w-4 h-4 text-success" />
+                            On Device List
+                        </button>
+                    ) : (
+                        <button
+                            className="btn btn-sm btn-primary w-full gap-2"
+                            onClick={handleAdd}
+                        >
+                            <HiCheck className="w-4 h-4" />
+                            Add to Devices
+                        </button>
+                    )}
+                </div>
             </div>
+
+            {/* Name entry dialog — hidden by default */}
             <dialog id={`${props?._id}`} className="modal">
-                <div className="modal-box flex items-center justify-center flex-col gap-4">
-                    <h3 className="font-bold text-lg">Enter Name for "Added Device List"</h3>
-                    <input data-inputdata={props?._id} className="input input-bordered" onChange={handleAddOuiName} />
+                <div className="modal-box">
+                    <h3 className="font-bold text-lg mb-4">Enter Name for Device</h3>
+                    <input data-inputdata={props?._id} className="input input-bordered w-full" placeholder="Custom name..." onChange={handleAddOuiName} />
                     <div className="modal-action">
-                        <button className="btn" data-savebtnid={props?._id} onClick={handleSaveName}>Save Name</button>
-                        <button className="btn" onClick={handleCloseDialog}>Close</button>
+                        <button className="btn btn-ghost" onClick={handleCloseDialog}>Cancel</button>
+                        <button className="btn btn-primary" onClick={handleSaveName}>Save Name</button>
                     </div>
                 </div>
             </dialog>

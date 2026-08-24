@@ -17,7 +17,7 @@ export default function useCurrentTheme() {
         setThemeValue(currentTheme);
       }
       } catch (error) {
-        if (error) throw error;
+        console.error('Failed to fetch current theme:', error);
       }
     }
     getThemeSettings();

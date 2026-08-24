@@ -43,11 +43,12 @@ export default function Confirmation ({ message, alertType, duration, reveal })
 
     return (
         <>
-            <div role="alert" className={`alert mx-auto bottom-[130px] z-10 sm:w-1/2 ${alertType} ${reveal ? 'absolute' : 'hidden'}`}>
-                <div className="w-6 h-6 invisible"></div>
-                <div className="flex flex-col items-center justify-center mx-auto">
-                    <div className="pb-4">{message}</div>
-                    <progress className="progress w-full" value={progressValue} max="100"></progress>
+            <div className={`toast toast-bottom toast-center z-50 ${reveal ? '' : 'hidden'}`}>
+                <div role="alert" className={`alert ${alertType}`}>
+                    <div className="flex flex-col items-center justify-center">
+                        <div className="pb-2">{message}</div>
+                        <progress className="progress w-56" value={progressValue} max="100"></progress>
+                    </div>
                 </div>
             </div>
         </>

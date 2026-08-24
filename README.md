@@ -21,7 +21,7 @@ This software only works with [UniFi Cloud Gateways](https://ui.com/us/en/cloud-
 
 ![Usage](images/Usage.gif)
 
-
+#
 
 ## Install & Configure
 ### Install Node using Node Version Manager
@@ -122,6 +122,23 @@ const customPORT = 5000;
 
 module.exports = customPORT;
 ```
+
+## Optional - Enable authentication
+
+By default NUA has **no authentication** and should only be used on a trusted local network (see the Warning section below). If you want to require a login before anyone can use the web UI or API, set these environment variables before starting the server:
+
+```bash
+NUA_AUTH_ENABLED=true
+NUA_AUTH_USERNAME=your-username
+NUA_AUTH_PASSWORD=your-password
+```
+
+- Setting `NUA_AUTH_USERNAME` and `NUA_AUTH_PASSWORD` alone also enables auth (the `NUA_AUTH_ENABLED` flag is then implied).
+- Sessions last 8 hours by default; override with `NUA_AUTH_SESSION_TTL_MS` (milliseconds).
+- When enabled, the web UI shows a login screen, and all API routes are protected except `/login`, `/logout`, `/auth-status`, `/health` and the static assets (so the login page can always be loaded).
+- A "Log out" button appears in the navbar.
+
+These variables can be set in your shell, in a `.env` file, or in the Docker run command. See `.env.template` for the full list.
 
 ## Start NUA Software
 To start NUA, follow these steps:

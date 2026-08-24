@@ -8,6 +8,14 @@
     font-family: 'Aqurine';
 }
 
+@keyframes page-enter {
+    from { opacity: 0; transform: translateY(6px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+.page-enter {
+    animation: page-enter 0.18s ease-out;
+}
+
 /* .bonusBtn > .btn-disabled {
     @apply btn-info;
 } */

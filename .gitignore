@@ -34,3 +34,6 @@ server/globalSettings.js
 
 server/config/*
 *.db
+
+# Encryption key — never commit this
+server/config/encryption.key

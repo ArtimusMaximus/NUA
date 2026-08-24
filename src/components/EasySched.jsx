@@ -1,20 +1,15 @@
 import { useEffect, useRef, useState } from "react";
-import { useParams } from "react-router-dom";
 import TimeClock from './TimeClock/TimeClock';
 import { dateIsInPast } from "./utility_functions/date_in_past_checker";
 import { convertSelectedDateForComparison } from "./utility_functions/convertSelectedDate";
 import LoadingDialog from "./utility_components/LoadingDialog";
-import { loadingDialogTimer } from "./utility_components/LoadingDialogTimer";
-import { SelectOptionsComponent } from "./Scheduler/SchedulerComponents/SelectOptionsComponent";
 import SubmitButtonComponent from "./utility_components/SubmitButtonComponent";
 
 
-export default function EasySched({ triggerRender })
-{
-    const params = useParams();
+export default function EasySched({ triggerRender, deviceId, deviceName }) {
     const [schedule, setSchedule] = useState({
         blockAllow: 'allow',
-        id: parseInt(params.id),
+        id: deviceId ? parseInt(deviceId) : null,
         daysOfTheWeek: {
             sun: undefined,
             mon: undefined,
@@ -29,24 +24,32 @@ export default function EasySched({ triggerRender })
     const submitButtonRef = useRef();
     const inputRef = useRef();
     const [checked, setChecked] = useState(true);
-    const [deviceInfo, setDeviceInfo] = useState({});
+    const [deviceInfo, setDeviceInfo] = useState({ name: deviceName });
     const [changed, setChanged] = useState(false);
     const [invalidscheduleMessage, setInvalidscheduleMessage] = useState({});
     const oneTimeScheduleRef = useRef(null);
     const recurringScheduleRef = useRef(null);
     const [oneTimeSchedule, setOneTimeSchedule] = useState(false);
     const [timeData, setTimeData] = useState(null);
-    const [deviceId, setDeviceId] = useState({ deviceId: parseInt(params.id) });
+    const [localDeviceId, setLocalDeviceId] = useState(deviceId ? parseInt(deviceId) : null);
     const [dayOfTheWeekSelected, setDayOfTheWeekSelected] = useState(false);
     const [selectAllow, setSelectAllow] = useState(true);
     const badDateModalRef = useRef();
     const toggleLoadingDialogRef = useRef();
     const [submitButtonLoading, setSubmitButtonLoading] = useState(false);
 
+    // Update state when deviceId prop changes
+    useEffect(() => {
+        if (deviceId) {
+            setLocalDeviceId(parseInt(deviceId));
+            setSchedule(prev => ({
+                ...prev,
+                id: parseInt(deviceId)
+            }));
+        }
+    }, [deviceId]);
+
     const timer = t => new Promise(res => setTimeout(res, t));
-
-
-
 
     const d1 = useRef();
     const d2 = useRef();
@@ -72,30 +75,30 @@ export default function EasySched({ triggerRender })
         }));
         setChanged(false);
         setInvalidscheduleMessage({});
-        // oneTimeScheduleRef.current = null;
-        // recurringScheduleRef.current = null;
-        // setOneTimeSchedule(false);
-        // setTimeData(null);
-        setDeviceId({ deviceId: parseInt(params.id) });
+        if (localDeviceId) {
+            setSchedule(prev => ({
+                ...prev,
+                id: localDeviceId
+            }));
+        }
         setDayOfTheWeekSelected(false);
-        // setSelectAllow(true);
         if (!oneTimeSchedule) {
-            d1.current.checked = false;
-            d2.current.checked = false;
-            d3.current.checked = false;
-            d4.current.checked = false;
-            d5.current.checked = false;
-            d6.current.checked = false;
-            d7.current.checked = false;
+            if (d1.current) d1.current.checked = false;
+            if (d2.current) d2.current.checked = false;
+            if (d3.current) d3.current.checked = false;
+            if (d4.current) d4.current.checked = false;
+            if (d5.current) d5.current.checked = false;
+            if (d6.current) d6.current.checked = false;
+            if (d7.current) d7.current.checked = false;
         }
     };
 
     const handleTimeData = (data) => {
         setTimeData(data);
     };
+
     const checkDaysOfWeekNotChosen = () => {
         const chosenDaysOfWeek = Object.values(schedule.daysOfTheWeek);
-        // console.log('chosenDaysOfWeek \t', chosenDaysOfWeek);
 
         let mapChosen = chosenDaysOfWeek.map((i) => {
             if (typeof i === "number") {
@@ -105,7 +108,6 @@ export default function EasySched({ triggerRender })
             }
         });
         let chosen = mapChosen.includes(true);
-        // console.log('chosen \t', chosen);
         return chosen;
     }
 
@@ -122,6 +124,7 @@ export default function EasySched({ triggerRender })
         });
         setSelectAllow(true);
     }
+
     const handleBlock = e => {
         setSchedule({
             ...schedule,
@@ -129,6 +132,7 @@ export default function EasySched({ triggerRender })
         });
         setSelectAllow(false);
     }
+
     const handleScheduleDayOfWeek = e => {
         const isChecked = e.target.checked;
         const updatedDaysOfTheWeek = {
@@ -138,9 +142,10 @@ export default function EasySched({ triggerRender })
         setSchedule((prevSchedule) => ({
             ...prevSchedule,
             daysOfTheWeek: updatedDaysOfTheWeek,
-            id: parseInt(params.id)
+            id: localDeviceId
         }));
     }
+
     const handleScheduleTimes = e => {
         setSchedule({
             ...schedule,
@@ -149,6 +154,10 @@ export default function EasySched({ triggerRender })
     }
 
     const handleSubmit = async () => {
+        if (!localDeviceId) {
+            setInvalidscheduleMessage({ error: true, message: "Device ID is missing!" });
+            return;
+        }
 
         const selectedDateTime = convertSelectedDateForComparison(timeData);
         const isPastDate = dateIsInPast(selectedDateTime);
@@ -162,27 +171,32 @@ export default function EasySched({ triggerRender })
             badDateModalRef.current.showModal();
             return;
         }
+        
         let daysOfTheWeekNumerals;
         if (!oneTimeSchedule) {
-            daysOfTheWeekNumerals = [...Object.values(schedule.daysOfTheWeek).filter(i => i !== undefined)]; // filter out undefined
+            daysOfTheWeekNumerals = [...Object.values(schedule.daysOfTheWeek).filter(i => i !== undefined)];
             console.log('daysOfTheWeekNumerals\t', daysOfTheWeekNumerals);
+            
+            if (!daysOfTheWeekNumerals || daysOfTheWeekNumerals.length === 0) {
+                setInvalidscheduleMessage({ error: true, message: "Please select at least one day of the week!" });
+                return;
+            }
         }
+        
         let modifiedDaysOfTheWeek = daysOfTheWeekNumerals;
         const oneTime = oneTimeSchedule;
 
-
         try {
-            // toggleLoadingDialogRef.current.showModal();
             setSubmitButtonLoading(true);
             const submitData = await fetch('/addeasyschedule', {
                 method: "POST",
                 mode: "cors",
                 headers: {
-                    "Content-Type" : "application/json"
+                    "Content-Type": "application/json"
                 },
-                body: JSON.stringify({ ...timeData, modifiedDaysOfTheWeek, ...schedule, ...deviceId })
-                // body: JSON.stringify({ ...timeData, ...schedule, ...deviceId })
+                body: JSON.stringify({ ...timeData, modifiedDaysOfTheWeek, ...schedule, deviceId: localDeviceId })
             });
+            
             if (submitData.ok) {
                 setInvalidscheduleMessage({ error: false });
 
@@ -194,13 +208,10 @@ export default function EasySched({ triggerRender })
                 triggerRender();
                 resetToInitialState();
             } else if (submitData.status === 422) {
-
                 timer(400)
                     .then(() => setSubmitButtonLoading(false))
-                // const badResults = await submitData.json();
-                // console.log('subdata message ', badResults.message)
+                
                 setInvalidscheduleMessage({
-                    // message: badResults.message,
                     error: true,
                 });
             }
@@ -214,8 +225,8 @@ export default function EasySched({ triggerRender })
     const handlePickedSchedule = e => {
         if (e.target.dataset.onetime === 'onetime') {
             setOneTimeSchedule(true);
-            oneTimeScheduleRef.current.checked = true;
-            recurringScheduleRef.current.checked = false;
+            if (oneTimeScheduleRef.current) oneTimeScheduleRef.current.checked = true;
+            if (recurringScheduleRef.current) recurringScheduleRef.current.checked = false;
             setSchedule((prev) => ({
                 ...prev,
                 daysOfTheWeek: {
@@ -230,8 +241,8 @@ export default function EasySched({ triggerRender })
             }));
         } else if (e.target.dataset.recur === 'recur') {
             setOneTimeSchedule(false);
-            oneTimeScheduleRef.current.checked = false;
-            recurringScheduleRef.current.checked = true;
+            if (oneTimeScheduleRef.current) oneTimeScheduleRef.current.checked = false;
+            if (recurringScheduleRef.current) recurringScheduleRef.current.checked = true;
         }
         console.log(oneTimeSchedule);
         console.log('schedule \t', schedule);
@@ -239,35 +250,40 @@ export default function EasySched({ triggerRender })
 
     return (
         <>
-        <div className="flex items-center justify-center">
-            <div className="join m-4 bg-base-200 border-8 border-base-200 rounded-lg">
-                <input
-                    type="radio"
-                    data-recur="recur"
-                    ref={recurringScheduleRef}
-                    onClick={handlePickedSchedule}
-                    name="radio-2"
-                    className="btn join-item"
-                    checked={!oneTimeSchedule}
-                    aria-label="Recurring"
-                />
-                <input
-                    type="radio"
-                    data-onetime="onetime"
-                    ref={oneTimeScheduleRef}
-                    onClick={handlePickedSchedule}
-                    name="radio-2"
-                    className="btn join-item"
-                    checked={oneTimeSchedule}
-                    aria-label="One Time"
-                />
+            <div className="flex items-center justify-center">
+                <div className="join m-4 bg-base-200 border-8 border-base-200 rounded-lg">
+                    <input
+                        type="radio"
+                        data-recur="recur"
+                        ref={recurringScheduleRef}
+                        onClick={handlePickedSchedule}
+                        onChange={handlePickedSchedule}
+                        name="radio-2"
+                        className="btn join-item"
+                        checked={!oneTimeSchedule}
+                        aria-label="Recurring"
+                    />
+                    <input
+                        type="radio"
+                        data-onetime="onetime"
+                        ref={oneTimeScheduleRef}
+                        onClick={handlePickedSchedule}
+                        onChange={handlePickedSchedule}
+                        name="radio-2"
+                        className="btn join-item"
+                        checked={oneTimeSchedule}
+                        aria-label="One Time"
+                    />
+                </div>
             </div>
-        </div>
-            <div class="divider">Action</div>
+            
+            <div className="divider">Action</div>
+            
             <div className="flex items-center justify-center">
                 <div className="join m-4 bg-base-200 border-8 border-base-200 rounded-lg">
                     <input
                         onClick={handleAllow}
+                        onChange={handleAllow}
                         className={`btn join-item`}
                         value="allow"
                         type="radio"
@@ -277,6 +293,7 @@ export default function EasySched({ triggerRender })
                     />
                     <input
                         onClick={handleBlock}
+                        onChange={handleBlock}
                         className={`btn join-item`}
                         value="block"
                         type="radio"
@@ -286,37 +303,94 @@ export default function EasySched({ triggerRender })
                     />
                 </div>
             </div>
+            
             <div className={`flex items-center justify-center flex-col`}>
                 <div className="flex flex-col">
                     {oneTimeSchedule
-                    ? <div class="divider">Date & Time</div>
-                    : <><div class="divider">Time</div>
-                    </>}
+                        ? <div className="divider">Date & Time</div>
+                        : <><div className="divider">Time</div></>}
+                    
                     <div className="flex flex-row gap-2 mt-2 items-center justify-center text-primary mx-auto">
-                        {/* <input onChange={handleScheduleTimes} onFocus={handleFocusTime} onClick={handleTimeClick} name="hour" type="time" placeholder="Hour to recur" className="input italic input-bordered w-full max-w-xs" /> */}
-                        {/* <input onChange={handleScheduleTimes} name="minute" type="number" placeholder="Minute to recur" className="input italic input-bordered w-full max-w-xs" /> */}
-                        <TimeClock oneTime={oneTimeSchedule} handleTimeData={handleTimeData}  />
+                        <TimeClock oneTime={oneTimeSchedule} handleTimeData={handleTimeData} />
                     </div>
+                    
                     {oneTimeSchedule
-                    ? <div></div>
-                    : <><div class="divider">Repeat</div>
-
-                    <div className="flex justify-center items-center gap-4">
-                        <div className="flex flex-row my-4">
-                            <div className="join">
-                                <input ref={d1} onChange={handleScheduleDayOfWeek} name="sun" value="0" type="checkbox" className="btn join-item rounded-l-full" aria-label="Sun"/>
-                                <input ref={d2} onChange={handleScheduleDayOfWeek} name="mon" value="1" type="checkbox" className={`btn join-item`} aria-label="M"/>
-                                <input ref={d3} onChange={handleScheduleDayOfWeek} name="tue" value="2" type="checkbox" className="btn join-item" aria-label="T"/>
-                                <input ref={d4} onChange={handleScheduleDayOfWeek} name="wed" value="3" type="checkbox" className="btn join-item" aria-label="W"/>
-                                <input ref={d5} onChange={handleScheduleDayOfWeek} name="thu" value="4" type="checkbox" className="btn join-item" aria-label="Th"/>
-                                <input ref={d6} onChange={handleScheduleDayOfWeek} name="fri" value="5" type="checkbox" className="btn join-item" aria-label="F"/>
-                                <input ref={d7} onChange={handleScheduleDayOfWeek} name="sat" value="6" type="checkbox" className="btn join-item rounded-r-full" aria-label="Sat"/>
+                        ? <div></div>
+                        : <>
+                            <div className="divider">Repeat</div>
+                            <div className="flex justify-center items-center gap-4">
+                                <div className="flex flex-row my-4">
+                                    <div className="join">
+                                        <input 
+                                            ref={d1} 
+                                            onChange={handleScheduleDayOfWeek} 
+                                            name="sun" 
+                                            value="0" 
+                                            type="checkbox" 
+                                            className="btn join-item rounded-l-full" 
+                                            aria-label="Sun"
+                                        />
+                                        <input 
+                                            ref={d2} 
+                                            onChange={handleScheduleDayOfWeek} 
+                                            name="mon" 
+                                            value="1" 
+                                            type="checkbox" 
+                                            className={`btn join-item`} 
+                                            aria-label="M"
+                                        />
+                                        <input 
+                                            ref={d3} 
+                                            onChange={handleScheduleDayOfWeek} 
+                                            name="tue" 
+                                            value="2" 
+                                            type="checkbox" 
+                                            className="btn join-item" 
+                                            aria-label="T"
+                                        />
+                                        <input 
+                                            ref={d4} 
+                                            onChange={handleScheduleDayOfWeek} 
+                                            name="wed" 
+                                            value="3" 
+                                            type="checkbox" 
+                                            className="btn join-item" 
+                                            aria-label="W"
+                                        />
+                                        <input 
+                                            ref={d5} 
+                                            onChange={handleScheduleDayOfWeek} 
+                                            name="thu" 
+                                            value="4" 
+                                            type="checkbox" 
+                                            className="btn join-item" 
+                                            aria-label="Th"
+                                        />
+                                        <input 
+                                            ref={d6} 
+                                            onChange={handleScheduleDayOfWeek} 
+                                            name="fri" 
+                                            value="5" 
+                                            type="checkbox" 
+                                            className="btn join-item" 
+                                            aria-label="F"
+                                        />
+                                        <input 
+                                            ref={d7} 
+                                            onChange={handleScheduleDayOfWeek} 
+                                            name="sat" 
+                                            value="6" 
+                                            type="checkbox" 
+                                            className="btn join-item rounded-r-full" 
+                                            aria-label="Sat"
+                                        />
+                                    </div>
+                                </div>
                             </div>
-                        </div>
-                    </div>
-                    </>}
-                    <div class="divider"></div>
-                    {/* <div className={`btn mb-8 ${oneTimeSchedule ? '' : dayOfTheWeekSelected ? '' : 'btn-disabled'}`} onClick={handleSubmit}>Submit</div> */}
+                        </>}
+                    
+                    <div className="divider"></div>
+                    
                     <SubmitButtonComponent
                         handleSubmit={handleSubmit}
                         submitButtonLoading={submitButtonLoading}
@@ -324,17 +398,19 @@ export default function EasySched({ triggerRender })
                     />
                 </div>
             </div>
+            
             <dialog ref={badDateModalRef} className="modal">
                 <div className="modal-box">
                     <h3 className="font-bold text-lg text-error">Error!</h3>
                     <p className="py-4 italic text-xl">{invalidscheduleMessage.message}</p>
                     <div className="modal-action">
-                    <form method="dialog">
-                        <button className="btn">Close</button>
-                    </form>
+                        <form method="dialog">
+                            <button className="btn">Close</button>
+                        </form>
                     </div>
                 </div>
             </dialog>
+            
             <LoadingDialog toggleLoadingDialogRef={toggleLoadingDialogRef} />
         </>
     )

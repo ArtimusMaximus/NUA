@@ -1,32 +1,30 @@
 import { useRef, useState, useEffect } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { HiMiniPencilSquare } from "react-icons/hi2";
+import { MdSchedule } from "react-icons/md";
 import DeviceSkeleton from "./skeletons/DevicesSkeleton";
 import LoadingDialog from "./utility_components/LoadingDialog";
 import BonusTimeButton from "./utility_components/BonusTimeButton";
 import DisplayBonusTimer from "./utility_components/DisplayBonusTimer";
-
-
+import SchedulerModal from "./Scheduler/SchedulerModal.jsx";
 
 export default function Devices({ macData, blockedUsers, handleRenderToggle, loadingMacData })
 {
     const navigate = useNavigate();
     const [loading, setLoading] = useState(false);
+    const [schedulerOpen, setSchedulerOpen] = useState(false);
+    const [selectedDeviceForScheduler, setSelectedDeviceForScheduler] = useState(null);
     const editRef = useRef();
     const [updatedDeviceData, setUpdatedDeviceData] = useState(null);
     const [toggleIsLoading, setToggleIsLoading] = useState(false);
-    const [timerCancelled, setTimerCancelled] = useState(false); // this cancels all device timer visuals, but not the timer itself
-                                                                //consider removing after or during bonus time adjustment
+    const [timerCancelled, setTimerCancelled] = useState(false);
 
     const toggleLoadingDialogRef = useRef();
     const newDeviceNameRef = useRef();
     const newMacAddressRef = useRef();
 
-    // const handleSchedule = device => {
-    //     navigate(`/admin/${device}`)
-    // }
     function timerHandler(cancelled) {
-        setTimerCancelled(cancelled); // passed to CancelBonusTimeButton
+        setTimerCancelled(cancelled);
     }
 
     function handleToggleIsLoading() {
@@ -41,17 +39,14 @@ export default function Devices({ macData, blockedUsers, handleRenderToggle, loa
     useEffect(() => {
       console.log('useEffect in devices fired...')
       console.log("Data from devices upon hopeful re-render:\t", macData)
-    // }, [toggleReRender, data])
-    // }, [toggleReRender])
     }, [macData])
 
 
-    const handleToggle = async e => { // toggle device blocked or unblocked
+    const handleToggle = async e => {
         try {
             setLoading(true);
             setToggleIsLoading(true);
             toggleLoadingDialogRef.current.showModal();
-            // const dataToUpdate = data?.macData?.filter((data) => data?.id === parseInt(e.target.dataset.name)); // previous, updating 11 26 2024
             const dataToUpdate = macData?.filter((data) => data?.id === parseInt(e.target.dataset.name));
                 const updateToggle = await fetch(`/updatemacaddressstatus`, {
                     method: "PUT",
@@ -62,24 +57,34 @@ export default function Devices({ macData, blockedUsers, handleRenderToggle, loa
                     body: JSON.stringify(dataToUpdate[0])
                 });
 
-                if (updateToggle.ok) {
-                    const updatedData = await updateToggle.json();
-                    console.log('Updated data: ', updatedData);
+                const result = await updateToggle.json();
+                
+                if (updateToggle.ok && result.success) {
+                    console.log('Toggle successful:', result);
                     setLoading(false);
-                    // timerHandler(true); // test with this off 11 26 2024 - this was removing the timer on other devices when a separate device is toggled on or off
-                    handleRenderToggle(); // test without
+                    handleRenderToggle();
 
                     delay(2000).then(() => {
                         setToggleIsLoading(false);
                         toggleLoadingDialogRef.current.close();
                     });
-
-                    // console.log(dataToUpdate[0]);
+                } else {
+                    console.error('Toggle failed:', result.error || result.message);
+                    setLoading(false);
+                    
+                    alert(`Operation failed: ${result.error || result.message || 'Unknown error'}`);
+                    
+                    delay(2000).then(() => {
+                        setToggleIsLoading(false);
+                        toggleLoadingDialogRef.current.close();
+                    });
                 }
 
             } catch (error) {
-                console.log(error);
+                console.error('Toggle network error:', error);
                 setLoading(false);
+                
+                alert('Network error occurred. Please check your connection and try again.');
 
                 delay(2000).then(() => {
                     setToggleIsLoading(false);
@@ -124,12 +129,12 @@ export default function Devices({ macData, blockedUsers, handleRenderToggle, loa
                 handleRenderToggle();
             }
         } catch (error) {
-            if (error) throw error;
+            console.error('Error blocking all devices:', error);
         }
     }
     const handleDelete = async e => {
         try {
-            const submitForDeletion = await fetch('/removedevice', { // end point not yet defined 12/11
+            const submitForDeletion = await fetch('/removedevice', {
                 method: "delete",
                 mode: "cors",
                 headers: {
@@ -143,12 +148,11 @@ export default function Devices({ macData, blockedUsers, handleRenderToggle, loa
                 handleRenderToggle();
             }
         } catch (error) {
-            if (error) throw error;
+            console.error('Error deleting device:', error);
         }
     }
     const openEditDialog = e => {
         editRef.current.showModal();
-        // const selectedDevice = data?.macData?.filter(device => device.id === parseInt(e.target.dataset.id)); // previous, updating 11 26 2024
         const selectedDevice = macData?.filter(device => device.id === parseInt(e.target.dataset.id));
         setUpdatedDeviceData({
             ...selectedDevice,
@@ -165,7 +169,6 @@ export default function Devices({ macData, blockedUsers, handleRenderToggle, loa
             ...updatedDeviceData,
             [e.target.name]: e.target.value
         });
-        // console.log(updatedDeviceData);
     }
     const handleSaveEdits = () => {
         setLoading(true);
@@ -195,7 +198,11 @@ export default function Devices({ macData, blockedUsers, handleRenderToggle, loa
         }
         updateEdits();
     }
-
+    
+    const openSchedulerModal = (deviceId, deviceName) => {
+        setSelectedDeviceForScheduler({ id: deviceId, name: deviceName });
+        setSchedulerOpen(true);
+    };
 
     return (
         <>
@@ -209,7 +216,6 @@ export default function Devices({ macData, blockedUsers, handleRenderToggle, loa
                         <div className="divider mt-2 mb-2"></div>
                         <ul className="flex flex-col w-full mb-2">
                             {
-                                // !loadingMacData ? data?.macData?.map((device) => { // previous (prior it was data.macData), updating 11 26 2024
                                 macData?.map((device) => {
                                     return (
                                         <>
@@ -257,9 +263,13 @@ export default function Devices({ macData, blockedUsers, handleRenderToggle, loa
                                                             />
                                                         </div>
                                                         <div>
-                                                            <Link to={`/admin/${device?.id}/scheduler`} className="w-fit hover:cursor-pointer" >
-                                                                <div className="btn btn-block bg-base-300 hover:bg-base-content hover:text-base-100 my-2">Schedule</div>
-                                                            </Link>
+                                                            <div 
+                                                                className="btn btn-xs gap-0 btn-outline btn-warning my-2"
+                                                                onClick={() => openSchedulerModal(device?.id, device?.name)}
+                                                                title="Schedule this device"
+                                                            >
+                                                                <MdSchedule className="w-3.5 h-3.5" />
+                                                            </div>
                                                         </div>
                                                         <div
                                                             className="btn btn-error btn-block"
@@ -282,7 +292,6 @@ export default function Devices({ macData, blockedUsers, handleRenderToggle, loa
             <div className="flex flex-row gap-6 flex-wrap mx-auto">
                 <div className="btn" onClick={handleUnBlockAll}>Unblock All</div>
                 <div className="btn" onClick={handleBlockAll}>Block All</div>
-                {/* <div className="btn btn-circle" onClick={deleteCustomRule}>delete custom api</div> */}
             </div>
             <div className="flex flex-row flex-wrap mx-auto pt-4">
                 <Link to="/alldevices"><div className="btn px-10">Add Device</div></Link>
@@ -322,6 +331,14 @@ export default function Devices({ macData, blockedUsers, handleRenderToggle, loa
                     </div>
                 </div>
             </dialog>
+
+            <SchedulerModal 
+                deviceId={selectedDeviceForScheduler?.id}
+                deviceName={selectedDeviceForScheduler?.name}
+                isOpen={schedulerOpen}
+                onClose={() => setSchedulerOpen(false)}
+                triggerRender={handleRenderToggle}
+            />
 
             <LoadingDialog toggleLoadingDialogRef={toggleLoadingDialogRef} />
         </>

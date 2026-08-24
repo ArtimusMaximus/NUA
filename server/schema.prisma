@@ -18,6 +18,7 @@ model Credentials {
   refreshRate             Int?
   defaultPage             String?
   initialSetup            Boolean?
+  diagnosticsEnabled      Boolean?  @default(false)
 }
 
 model Device {
@@ -26,12 +27,15 @@ model Device {
   macAddress              String
   active                  Boolean
   bonusTimeActive         Boolean  @default(false)
+  bonusTimeExpiresAt      DateTime?
   createdAt               DateTime @default(now())
   crons                   Cron[]
   easySchedules           EasySchedule[]
   order                   Int?
   cronBonusToggles        CronBonusToggles[]
   easyBonusToggles        EasyBonusToggles[]
+  deviceGroup             DeviceGroup? @relation(fields: [deviceGroupId], references: [id])
+  deviceGroupId           Int?
 }
 
 model Cron {
@@ -42,6 +46,8 @@ model Cron {
   jobName                 String?
   device                  Device?  @relation(fields: [deviceId], references: [id])
   deviceId                Int?
+  deviceGroup             DeviceGroup? @relation(fields: [deviceGroupId], references: [id])
+  deviceGroupId           Int?
   toggleCron              Boolean?
 }
 
@@ -59,6 +65,8 @@ model EasySchedule {
   jobName                 String?
   device                  Device?   @relation(fields: [deviceId], references: [id])
   deviceId                Int?
+  deviceGroup             DeviceGroup? @relation(fields: [deviceGroupId], references: [id])
+  deviceGroupId           Int?
   toggleSched             Boolean?
 }
 
@@ -73,6 +81,16 @@ model TrafficRules {
   description             String
   enabled                 Boolean
   blockAllow              String
+  bonusTimeExpiresAt      DateTime?
+  // Schedule support (one schedule per rule, mirrors device EasySchedule)
+  scheduleType            String?              // "oneTime" | "recurring"
+  scheduleDate            String?              // YYYY-MM-DD for one-time
+  scheduleHour            Int?                 // military hour
+  scheduleMinute          Int?                 // minute
+  scheduleDays            String?              // "0123456" for recurring
+  scheduleAction          String?              // "allow" (enable) | "block" (disable)
+  scheduleEnabled         Boolean              @default(false)
+  scheduleJobName         String?
 }
 
 model AppCatIds {
@@ -140,6 +158,20 @@ model EasyBonusToggles {
   macAddress              String
   oneTime                 Boolean
   jobName                 String?
+}
+
+model DeviceGroup {
+  id                      Int          @id @default(autoincrement())
+  name                    String
+  description             String?
+  color                   String?      @default("#3B82F6")
+  icon                    String?      @default("👤")
+  active                  Boolean      @default(true)
+  createdAt               DateTime     @default(now())
+  updatedAt               DateTime     @updatedAt
+  devices                 Device[]
+  schedules               EasySchedule[]
+  crons                   Cron[]
 }
 
 

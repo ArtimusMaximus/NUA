@@ -1,7 +1,4 @@
 import { useEffect, useRef, useState } from "react";
-import DisplayBonusTimer from "./DisplayBonusTimer";
-import CancelBonusTimeButton from "./CancelBonusTimeButton";
-import { HiMiniPencilSquare } from "react-icons/hi2";
 import { MdMoreTime } from "react-icons/md";
 
 export default function BonusTimeButton({ deviceId, timerCancelled, timerHandler, handleRenderToggle, bonusTimeActive }) {
@@ -22,6 +19,7 @@ export default function BonusTimeButton({ deviceId, timerCancelled, timerHandler
     })();
     const timer = t => new Promise(res => setTimeout(res, t));
     const [milliTime, setMilliTime] = useState(null);
+    const [showAdded, setShowAdded] = useState(false);
 
     const handleHoursIncDec = e => {
         if (e.target.id === "decrementHours") {
@@ -104,29 +102,28 @@ export default function BonusTimeButton({ deviceId, timerCancelled, timerHandler
     }, [deviceId]);
 
     useEffect(() => {
-        console.log("milliTime\t", milliTime);
-        // if (milliTime <= 0 || timerCancelled) { // timer cancels all timers, not just specific device
-        // if (milliTime <= 0 || !bonusTimeActive) { // cancels timer but then timer will not render consistently
-        // solved by separating bonusTimeActive to useEffect above, to shut off milliTime if bonus time not active
+        if (!milliTime || milliTime <= 0) return;
+
         const interval = setInterval(() => {
-            setMilliTime(prev => prev - 1000);
+            setMilliTime(prev => {
+                if (prev <= 1000) {
+                    // Time expired: clear and notify parent to refresh state
+                    setMilliTime(null);
+                    handleRenderToggle();
+                    return 0;
+                }
+                return prev - 1000;
+            });
         }, 1000);
 
-        if (milliTime <= 0) {
-            setMilliTime(null);
-            clearInterval(interval);
-            handleRenderToggle();
-            return;
-        }
         return () => clearInterval(interval);
-    }, [hours, milliTime, bonusTimeActive]);
+        // handleRenderToggle is intentionally omitted: parent re-renders are
+        // handled by the parent itself; including it would restart the interval.
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [milliTime]);
 
-    const handleBonusTime = () => { // modal
-        bonusDialogRef.current.showModal();
-    }
     const handleAddTime = async () => {
         try {
-            timerHandler(false);
             setSubmitBtnLoading(true);
             const isAdditionalTime = milliTime ? true : false;
             const data = { hours: hours, minutes: minutes, deviceId: deviceId, isAdditionalTime: isAdditionalTime };
@@ -139,50 +136,67 @@ export default function BonusTimeButton({ deviceId, timerCancelled, timerHandler
                 body: JSON.stringify(data)
             });
             if (addBonusTime.ok) {
-                 // re-render device component so it updates to the active state :update: device is blocked on router, hence the update issues...
-
-                timer(500)
-                    .then(() => setSubmitBtnLoading(false))
-                    .then(() => bonusDialogRef.current.close())
                 const response = await addBonusTime.json();
-                console.log("response\t", response.msg);
-                console.log('response.timer\t', response.timer);
                 setMilliTime(response.timer);
                 setHours(0);
                 setMinutes(30);
+                // Brief visual confirmation, then close the modal
+                setShowAdded(true);
+                setTimeout(() => {
+                    setShowAdded(false);
+                    bonusDialogRef.current?.close();
+                    handleRenderToggle();
+                }, 400);
+            }
+        } catch (error) {
+            console.error(error);
+        } finally {
+            timer(500).then(() => setSubmitBtnLoading(false));
+        }
+    }
+
+    const handleStopBonusTime = async () => {
+        try {
+            timerHandler(true);
+            const res = await fetch("/deletebonustoggles", {
+                method: "POST",
+                mode: "cors",
+                headers: {
+                    "Content-Type" : "application/json"
+                },
+                body: JSON.stringify({ deviceId: deviceId, cancelTimer: true })
+            });
+            if (res.ok) {
+                setMilliTime(null);
+                timerHandler(false);
                 handleRenderToggle();
             }
-            } catch (error) {
-                timer(500)
-                    .then(() => setSubmitBtnLoading(false))
-                    .catch(err => console.error(`${err}: (setSubmitBtnLoading(false) after timer had an error!)`))
-                // .then(() => bonusDialogRef.current.close())
+        } catch (error) {
             console.error(error);
         }
     }
 
     return (
         <>
-            <div className={`flex flex-row w-full items-center justify-evenly`}>
-                <div className={`${milliTime ? "pointer-events-none" : ""} btn btn-info w-full`} onClick={handleBonusTime}>
-                    <span className={""}>Bonus Time</span>
-                    <DisplayBonusTimer
-                        milliTime={milliTime}
-                        bonusTimeActive={bonusTimeActive}
-                    />
-                </div>
-            </div>
+            <button
+                type="button"
+                className={`btn btn-xs gap-0 ${milliTime ? "btn-info" : "btn-outline btn-info"}`}
+                onClick={() => bonusDialogRef.current.showModal()}
+                title={milliTime ? "Add more bonus time or stop" : "Give this device bonus time"}
+            >
+                <MdMoreTime className="w-3.5 h-3.5" />
+            </button>
+
             <dialog ref={bonusDialogRef} className="modal">
                 <div className="modal-box">
                     <h3 className="font-bold text-lg">Add Bonus Time</h3>
 
                     <div className="flex flex-col items-center justify-center gap-4 m-8">
                         <form className="max-w-xs mx-auto">
-                            {/* <label for="bedrooms-input" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Hours:</label> */}
                             <div className="relative flex items-center max-w-[11rem]">
                                 <button type="button" id="decrementHours" onClick={handleHoursIncDec} data-input-counter-decrement="bedrooms-input" className="bg-gray-100 dark:bg-gray-700 dark:hover:bg-gray-600 dark:border-gray-600 hover:bg-gray-200 border border-gray-300 rounded-s-lg p-3 h-11 focus:ring-gray-100 dark:focus:ring-gray-700 focus:ring-2 focus:outline-none z-50">
                                     <svg className="w-3 h-3 text-gray-900 dark:text-white z-0 pointer-events-none" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 18 2">
-                                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 1h16"/>
+                                        <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M1 1h16"/>
                                     </svg>
                                 </button>
                                 <input type="text" id="bedrooms-input" onChange={handleInputHoursChange} data-input-counter-max="23" className="bg-gray-50 border-x-0 border-gray-300 h-11 font-medium text-center text-gray-900 text-sm focus:ring-blue-500 focus:border-blue-500 block w-full pb-6 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="" value={hours} required />
@@ -191,17 +205,16 @@ export default function BonusTimeButton({ deviceId, timerCancelled, timerHandler
                                 </div>
                                 <button type="button" id="incrementHours" onClick={handleHoursIncDec} data-input-counter-increment="bedrooms-input" className="bg-gray-100 dark:bg-gray-700 dark:hover:bg-gray-600 dark:border-gray-600 hover:bg-gray-200 border border-gray-300 rounded-e-lg p-3 h-11 focus:ring-gray-100 dark:focus:ring-gray-700 focus:ring-2 focus:outline-none z-50">
                                     <svg className="w-3 h-3 text-gray-900 dark:text-white z-0 pointer-events-none" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 18 18">
-                                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 1v16M1 9h16"/>
+                                        <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 1v16M1 9h16"/>
                                     </svg>
                                 </button>
                             </div>
                         </form>
                         <form className="max-w-xs mx-auto">
-                            {/* <label for="bedrooms-input" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Minutes:</label> */}
                             <div className="relative flex items-center max-w-[11rem]">
                                 <button type="button" id="decrementMinutes" onClick={handleMinutesIncDec} data-input-counter-decrement="bedrooms-input" className="bg-gray-100 dark:bg-gray-700 dark:hover:bg-gray-600 dark:border-gray-600 hover:bg-gray-200 border border-gray-300 rounded-s-lg p-3 h-11 focus:ring-gray-100 dark:focus:ring-gray-700 focus:ring-2 focus:outline-none z-50">
                                     <svg className="w-3 h-3 text-gray-900 dark:text-white z-0 pointer-events-none" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 18 2">
-                                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 1h16"/>
+                                        <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M1 1h16"/>
                                     </svg>
                                 </button>
                                 <input type="text" id="bedrooms-input" onChange={handleInputMinutesChange} className="bg-gray-50 border-x-0 border-gray-300 h-11 font-medium text-center text-gray-900 text-sm focus:ring-blue-500 focus:border-blue-500 block w-full pb-6 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="" value={minutes} required />
@@ -210,20 +223,20 @@ export default function BonusTimeButton({ deviceId, timerCancelled, timerHandler
                                 </div>
                                 <button type="button" id="incrementMinutes" onClick={handleMinutesIncDec} data-input-counter-increment="bedrooms-input" className="bg-gray-100 dark:bg-gray-700 dark:hover:bg-gray-600 dark:border-gray-600 hover:bg-gray-200 border border-gray-300 rounded-e-lg p-3 h-11 focus:ring-gray-100 dark:focus:ring-gray-700 focus:ring-2 focus:outline-none z-50">
                                     <svg className="w-3 h-3 text-gray-900 dark:text-white pointer-events-none z-0" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 18 18">
-                                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 1v16M1 9h16"/>
+                                        <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 1v16M1 9h16"/>
                                     </svg>
                                 </button>
                             </div>
                         </form>
-                        {/* <div className="">
-                            <CancelBonusTimeButton
-                                deviceId={deviceId}
-                                timerHandler={timerHandler}
-                                handleRenderToggle={handleRenderToggle}
-                                milliTime={milliTime}
-                            />
-                        </div> */}
-                        {/* commented out for future use, when user is able to add more bonus time */}
+                        {milliTime && (
+                            <button
+                                type="button"
+                                className="btn btn-error btn-outline btn-sm w-full"
+                                onClick={handleStopBonusTime}
+                            >
+                                Stop Current Timer
+                            </button>
+                        )}
                     </div>
                     <div className="modal-action">
                         <div className="btn btn-primary" onClick={handleAddTime}>
@@ -233,6 +246,11 @@ export default function BonusTimeButton({ deviceId, timerCancelled, timerHandler
                             <button className="btn">Close</button>
                         </form>
                     </div>
+                    {showAdded && (
+                        <div className="px-6 pb-4 text-center text-success font-semibold">
+                            ✓ Bonus time added!
+                        </div>
+                    )}
                 </div>
             </dialog>
         </>

@@ -11,41 +11,48 @@ export default function useFetchAllDevices()
     function reFetch() {
         setReRender(prev => !prev);
     }
-    function checkIfDeviceOnList(allDevicesArray, devicesOnListArray) { // this adds the id field
-        for (const blockedDevice of allDevicesArray) {
+    function checkIfDeviceOnList(allDevicesArray, devicesOnListArray) {
+        return allDevicesArray.map((clientDevice) => {
             const onListDevice = devicesOnListArray.find(
-                (onListDevice) => onListDevice.macAddress === blockedDevice.mac
+                (deviceOnList) => deviceOnList.macAddress === clientDevice.mac
             );
-            if (onListDevice) {
-                blockedDevice.onList = true;
-                blockedDevice.prismaDeviceId = onListDevice.id;
-            } else {
-                blockedDevice.onList = false;
-                blockedDevice.prismaDeviceId = null;
-            }
-        }
-        // console.log('allDevicesArray ', allDevicesArray);
-        return allDevicesArray;
+
+            return {
+                ...clientDevice,
+                onList: Boolean(onListDevice),
+                prismaDeviceId: onListDevice?.id ?? null
+            };
+        });
     }
 
     useEffect(() => {
+        let isActive = true;
+        const controller = new AbortController();
+
         const fetchBlocked = async () => {
 
             try {
-                const response = await fetch('/getalldevices');
+                const response = await fetch('/getalldevices', {
+                    signal: controller.signal
+                });
                 if (!response.ok) {
                     throw new Error('Fetching all blocked devices Failed!');
                 }
                 const clientDev = await response.json();
-                // console.log('clientDevices: ', clientDev);
+
+                if (!isActive) return;
+
                 setClientDevices(
-                    checkIfDeviceOnList(clientDev.getClientDevices, clientDev.getDeviceList)
+                    checkIfDeviceOnList(
+                        clientDev.getClientDevices || [],
+                        clientDev.getDeviceList || []
+                    )
                 );
-                // setDeviceList(clientDev.getDeviceList);
+
                 const findDevicesOnList = () => {
                     const result = [];
-                    for (const matches of clientDev.getDeviceList) {
-                        const dList = clientDev.getClientDevices.filter((deviceOnList) => {
+                    for (const matches of clientDev.getDeviceList || []) {
+                        const dList = (clientDev.getClientDevices || []).filter((deviceOnList) => {
                             return matches.macAddress === deviceOnList.mac
                         })
                         result.push(...dList)
@@ -56,11 +63,22 @@ export default function useFetchAllDevices()
                 setDeviceList(devicesOnList)
                 setLoading(false);
             } catch (error) {
+                if (error?.name === 'AbortError') {
+                    return;
+                }
                 console.error(error);
-                setLoading(false);
+                if (isActive) {
+                    setLoading(false);
+                }
             }
         }
+
         fetchBlocked();
+
+        return () => {
+            isActive = false;
+            controller.abort();
+        };
     }, [reRender])
 
     return { clientDevices, deviceList, loading, reFetch };

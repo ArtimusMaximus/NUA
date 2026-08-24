@@ -1,9 +1,8 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import CronManager from "../CronManager";
 import EasySched from "../EasySched";
 import { useParams } from "react-router-dom";
 import ScheduleData from "./ScheduleData";
-import { SelectOptionsComponent } from "./SchedulerComponents/SelectOptionsComponent";
 import { SelectStandardOrAdvanced } from "./SchedulerComponents/SelectStandardOrAdvanced";
 
 
@@ -14,27 +13,6 @@ export default function Scheduler() {
     const params = useParams();
     const [scheduleMode, setScheduleMode] = useState("standard");
     const [render, setRender] = useState(false);
-    const easyBtnRef = useRef(null);
-    const advancedBtnRef = useRef(null);
-    // const [selectChoice, setSelectChoice] = useState(null);
-    const btnText = { btn1: "standard", btn2: "advanced"};
-
-
-
-    const handleEasyBtnClick = e => {
-        e.preventDefault();
-        advancedBtnRef.current.className = "btn w-28 bg-base-200 border-none min-h-0 h-8";
-        easyBtnRef.current.className = "btn w-28 bg-primary font-bold min-h-0 h-8 text-neutral-content ";
-        setScheduleMode("standard");
-        reRender();
-    }
-    const handleAdvancedBtnClick = e => {
-        e.preventDefault();
-        easyBtnRef.current.className = "btn w-28 bg-base-200 border-none min-h-0 h-8";
-        advancedBtnRef.current.className = "btn w-28 bg-primary font-bold min-h-0 h-8 text-neutral-content ";
-        setScheduleMode("advanced");
-        reRender();
-    }
 
     const [changed, setChanged] = useState(false);
     const triggerRender = () => {
@@ -43,19 +21,6 @@ export default function Scheduler() {
     const reRender = () => {
         setRender(prev => !prev);
     };
-    // const handleSelectScheduleMode = e => {
-    //     console.log(e.target.value);
-    //   if (e.target.value === "standard") {
-    //     setScheduleMode("standard");
-    //     reRender();
-    //   } else if (e.target.value === "advanced") {
-    //     setScheduleMode("advanced");
-    //     reRender();
-    //   }
-    // };
-    useEffect(() => {
-        console.log('re render...')
-    }, [scheduleMode, render]);
 
     useEffect(() => { // get current device info (name)
         const p = parseInt(params.id);
@@ -103,7 +68,7 @@ export default function Scheduler() {
                                 className="btn w-28 bg-base-200 border-none min-h-0 h-8"
                                 onClick={handleAdvancedBtnClick}>Advanced</div>
                         </div> */}
-                        <SelectStandardOrAdvanced setScheduleMode={setScheduleMode} reRender={reRender} />
+                        <SelectStandardOrAdvanced scheduleMode={scheduleMode} setScheduleMode={setScheduleMode} reRender={reRender} />
                         <div className="divider"></div>
                         {scheduleMode === "standard" ? (
                             <EasySched triggerRender={triggerRender} />

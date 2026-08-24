@@ -11,52 +11,62 @@ export default function useFetchBlockedDevices()
     function reFetch() {
         setReRender(prev => !prev);
     }
-    // function checkIfDeviceOnList(blockedDeviceArray, devicesOnListArray) {
-    //     const result = blockedDeviceArray.map((device) => {
-    //         const isOnList = devicesOnListArray.some(
-    //             (onListDevice) => onListDevice.macAddress === device.mac
-    //         )
-    //         return { ...device, onList: isOnList }
-    //     });
-    //     console.log('result! ', result);
-    //     return result;
-    // }
-    function checkIfDeviceOnList(blockedDeviceArray, devicesOnListArray) { // this adds the id field
-        for (const blockedDevice of blockedDeviceArray) {
+    function checkIfDeviceOnList(blockedDeviceArray, devicesOnListArray) {
+        return blockedDeviceArray.map((blockedDevice) => {
             const onListDevice = devicesOnListArray.find(
-                (onListDevice) => onListDevice.macAddress === blockedDevice.mac
+                (deviceOnList) => deviceOnList.macAddress === blockedDevice.mac
             );
-            if (onListDevice) {
-                blockedDevice.onList = true;
-                blockedDevice.prismaDeviceId = onListDevice.id;
-            } else {
-                blockedDevice.onList = false;
-                blockedDevice.prismaDeviceId = null;
-            }
-        }
-        console.log('blockedDeviceArray ', blockedDeviceArray);
-        return blockedDeviceArray;
+
+            return {
+                ...blockedDevice,
+                onList: Boolean(onListDevice),
+                prismaDeviceId: onListDevice?.id ?? null
+            };
+        });
     }
 
     useEffect(() => {
+        let isActive = true;
+        const controller = new AbortController();
+
         const fetchBlocked = async () => {
 
             try {
-                const response = await fetch('/getallblockeddevices');
+                const response = await fetch('/getallblockeddevices', {
+                    signal: controller.signal
+                });
                 if (!response.ok) {
                     throw new Error('Fetching all blocked devices Failed!');
                 }
                 const allBlockedDevices = await response.json();
+
+                if (!isActive) return;
+
                 setBlockedDevices(
-                    checkIfDeviceOnList(allBlockedDevices.blockedUsers, allBlockedDevices.deviceList)
+                    checkIfDeviceOnList(
+                        allBlockedDevices.blockedUsers || [],
+                        allBlockedDevices.deviceList || []
+                    )
                 );
+                setDeviceList(allBlockedDevices.deviceList || []);
                 setLoading(false);
             } catch (error) {
+                if (error?.name === 'AbortError') {
+                    return;
+                }
                 console.error(error);
-                setLoading(false);
+                if (isActive) {
+                    setLoading(false);
+                }
             }
         }
+
         fetchBlocked();
+
+        return () => {
+            isActive = false;
+            controller.abort();
+        };
     }, [reRender])
 
 
